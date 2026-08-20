@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TOC Tools</title>
+<style>
+  :root{
+    --sky:#4fc3f7;
+    --sky-dark:#29a3e0;
+    --ink:#0f2233;
+    --bg1:#0b1220;
+    --bg2:#132437;
+    --panel:#0f1b2b;
+    --line:rgba(255,255,255,.08);
+    --text:#eaf4fb;
+    --dim:#8fa6b8;
+    --font:"Segoe UI", -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    font-family:var(--font);
+    color:var(--text);
+    background:
+      radial-gradient(1100px 500px at 15% -10%, rgba(79,195,247,.18), transparent 60%),
+      radial-gradient(900px 600px at 100% 10%, rgba(79,195,247,.10), transparent 55%),
+      linear-gradient(180deg, var(--bg1), var(--bg2));
+    min-height:100%;
+    display:flex;
+    flex-direction:column;
+  }
+
+  /* ---- Top bar ---- */
+  #topbar{
+    position:sticky; top:0; z-index:50;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 28px;
+    background:rgba(11,18,32,.75);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .logo{
+    display:flex; align-items:center; gap:10px;
+    font-weight:800; letter-spacing:.08em; font-size:15px;
+    text-transform:uppercase;
+  }
+  .logo .dot{
+    width:10px; height:10px; border-radius:50%;
+    background:var(--sky);
+    box-shadow:0 0 12px 2px rgba(79,195,247,.7);
+  }
+  .logo .sub{
+    font-weight:400; letter-spacing:.02em; text-transform:none;
+    color:var(--dim); font-size:12.5px; margin-left:6px;
+  }
+  #backBtn{
+    display:none;
+    align-items:center; gap:8px;
+    font-family:inherit; font-size:13px; font-weight:600; letter-spacing:.02em;
+    color:var(--ink);
+    background:var(--sky);
+    border:none;
+    padding:9px 18px 9px 14px;
+    border-radius:999px;
+    cursor:pointer;
+    transition:transform .12s ease, background .12s ease, box-shadow .12s ease;
+    box-shadow:0 4px 14px rgba(79,195,247,.35);
+  }
+  #backBtn:hover{ background:var(--sky-dark); transform:translateY(-1px); }
+  #backBtn:active{ transform:translateY(0); }
+
+  /* ---- Home view ---- */
+  #homeView{
+    flex:1;
+    display:flex; flex-direction:column; align-items:center;
+    padding:64px 24px 40px;
+  }
+  .title{
+    font-size:34px; font-weight:800; letter-spacing:.06em;
+    text-transform:uppercase; margin:0 0 6px;
+    text-align:center;
+  }
+  .title span{ color:var(--sky); }
+  .tagline{
+    color:var(--dim); font-size:14px; margin:0 0 52px; text-align:center;
+    letter-spacing:.02em;
+  }
+
+  .grid{
+    display:flex; flex-wrap:wrap; gap:28px; justify-content:center;
+    max-width:1000px; width:100%;
+  }
+  .tool-card{
+    position:relative;
+    width:280px;
+    background:linear-gradient(180deg, rgba(79,195,247,.14), rgba(79,195,247,.04));
+    border:1px solid rgba(79,195,247,.35);
+    border-radius:18px;
+    padding:26px 22px 22px;
+    cursor:pointer;
+    text-align:left;
+    transition:transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+  }
+  .tool-card:hover{
+    transform:translateY(-4px);
+    border-color:var(--sky);
+    box-shadow:0 14px 30px rgba(79,195,247,.18);
+  }
+  .tool-card:active{ transform:translateY(-1px); }
+  .tool-icon{
+    width:46px; height:46px; border-radius:12px;
+    background:var(--sky);
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom:18px;
+    box-shadow:0 6px 16px rgba(79,195,247,.35);
+  }
+  .tool-icon svg{ width:24px; height:24px; }
+  .tool-name{
+    font-size:17px; font-weight:800; letter-spacing:.04em;
+    text-transform:uppercase; margin:0 0 8px;
+  }
+  .tool-desc{
+    font-size:12.5px; color:var(--dim); line-height:1.5; margin:0 0 18px;
+  }
+  .tool-launch{
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+    color:var(--sky);
+  }
+  .tool-launch svg{ width:14px; height:14px; transition:transform .15s ease; }
+  .tool-card:hover .tool-launch svg{ transform:translateX(3px); }
+
+  /* ---- Tool view ---- */
+  #toolView{
+    display:none;
+    flex:1;
+    flex-direction:column;
+  }
+  #toolFrame{
+    flex:1;
+    width:100%;
+    border:none;
+    display:block;
+  }
+
+  @media (max-width:640px){
+    .title{ font-size:24px; }
+    #topbar{ padding:14px 16px; }
+    .tool-card{ width:100%; max-width:340px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <div class="logo"><span class="dot"></span>TOC TOOLS<span class="sub" id="toolLabel"></span></div>
+  <button id="backBtn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M15 18l-6-6 6-6"/></svg>
+    Back to Tools
+  </button>
+</div>
+
+<div id="homeView">
+  <h1 class="title">TOC <span>TOOLS</span></h1>
+  <p class="tagline">Broadcast production tools — pick one to get started</p>
+
+  <div class="grid">
+    <div class="tool-card" data-src="blur-booth.html" data-label="Blur Booth">
+      <div class="tool-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#0f2233" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="7"/>
+          <path d="M12 5 L12 3 M12 21 L12 19 M5 12 L3 12 M21 12 L19 12"/>
+        </svg>
+      </div>
+      <h2 class="tool-name">Blur Booth</h2>
+      <p class="tool-desc">Redact faces or details in a photo with blur or freehand masking, exported at 1920×1080.</p>
+      <div class="tool-launch">Open tool
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+      </div>
+    </div>
+
+    <div class="tool-card" data-src="pdf-to-photo-converter.html" data-label="PDF to Photo Converter">
+      <div class="tool-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#0f2233" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <path d="M14 2v6h6"/>
+        </svg>
+      </div>
+      <h2 class="tool-name">PDF to Photo Converter</h2>
+      <p class="tool-desc">Convert every page of a PDF into individual PNG or JPEG images you can preview and download.</p>
+      <div class="tool-launch">Open tool
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toolView">
+  <iframe id="toolFrame" src="" title="Tool"></iframe>
+</div>
+
+<script>
+  const homeView = document.getElementById('homeView');
+  const toolView = document.getElementById('toolView');
+  const toolFrame = document.getElementById('toolFrame');
+  const backBtn = document.getElementById('backBtn');
+  const toolLabel = document.getElementById('toolLabel');
+
+  document.querySelectorAll('.tool-card').forEach(card => {
+    card.addEventListener('click', () => {
+      openTool(card.dataset.src, card.dataset.label);
+    });
+  });
+
+  function openTool(src, label){
+    toolFrame.src = src;
+    homeView.style.display = 'none';
+    toolView.style.display = 'flex';
+    backBtn.style.display = 'inline-flex';
+    toolLabel.textContent = '/ ' + label;
+  }
+
+  function goHome(){
+    toolView.style.display = 'none';
+    homeView.style.display = 'flex';
+    backBtn.style.display = 'none';
+    toolLabel.textContent = '';
+    toolFrame.src = ''; // stop/reset the tool so it's fresh next time
+  }
+
+  backBtn.addEventListener('click', goHome);
+</script>
+
+</body>
+</html>
