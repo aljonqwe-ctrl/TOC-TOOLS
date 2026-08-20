@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TOC Blur Booth</title>
+<style>
+  :root{
+    --ink:#151513;
+    --panel:#1c1c19;
+    --panel2:#232320;
+    --line:#3a3a34;
+    --paper:#e9e6dd;
+    --dim:#8c8a80;
+    --signal:#c9ff3d;
+    --mono: 'JetBrains Mono','SF Mono',ui-monospace,Menlo,monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0; height:100%;
+    background: radial-gradient(circle at 15% -10%, #23241f 0%, transparent 55%), var(--ink);
+    color:var(--paper); font-family:var(--mono); -webkit-font-smoothing:antialiased;
+  }
+  body{ display:flex; align-items:center; justify-content:center; padding:28px; }
+  .rig{ width:100%; max-width:1180px; }
+  header{
+    display:flex; align-items:baseline; justify-content:space-between;
+    margin-bottom:16px; padding-bottom:14px; border-bottom:1px solid var(--line);
+  }
+  .brand{ font-size:13px; letter-spacing:.18em; text-transform:uppercase; color:var(--signal); }
+  .brand span{ color:var(--dim); margin-left:8px; letter-spacing:.05em; text-transform:none; }
+  .out-tag{ font-size:10.5px; color:var(--dim); letter-spacing:.08em; }
+  .out-tag b{ color:var(--paper); }
+
+  .workspace{ display:flex; gap:16px; align-items:flex-start; }
+  .stageCol{ flex:1; min-width:0; }
+
+  .stage{
+    position:relative; background:var(--panel); border:1px solid var(--line);
+    min-height:300px; display:flex; align-items:center; justify-content:center;
+    overflow:visible; padding:16px;
+  }
+  .canvasWrap{ position:relative; display:inline-block; line-height:0; }
+  .canvasWrap canvas{ max-width:100%; max-height:60vh; display:block; }
+
+  .regionsLayer{ position:absolute; inset:0; cursor:crosshair; }
+  .region{ position:absolute; border:1.5px dashed var(--signal); background:rgba(201,255,61,0.08); cursor:move; }
+  .region .tag{
+    position:absolute; top:-19px; left:-1px; font-size:9px; letter-spacing:.08em;
+    color:var(--ink); background:var(--signal); padding:2px 5px; text-transform:uppercase; white-space:nowrap;
+  }
+  .region .del{
+    position:absolute; top:-19px; right:-1px; font-size:11px; line-height:1;
+    color:var(--ink); background:var(--paper); width:16px; height:16px;
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+  }
+  .region .bw{
+    position:absolute; top:-19px; right:16px; font-size:8px; letter-spacing:.04em;
+    color:var(--paper); background:var(--panel2); border:1px solid var(--line);
+    padding:2px 4px; text-transform:uppercase; cursor:pointer; white-space:nowrap;
+  }
+  .region .bw.active{ background:var(--signal); color:var(--ink); border-color:var(--signal); }
+  .region .handle{ position:absolute; right:-5px; bottom:-5px; width:12px; height:12px; background:var(--signal); cursor:se-resize; }
+
+  .strokeMark{ position:absolute; display:flex; gap:1px; transform:translate(-100%,-100%); z-index:5; }
+  .strokeMark .bw{
+    font-size:8px; letter-spacing:.04em; color:var(--paper); background:var(--panel2);
+    border:1px solid var(--line); padding:3px 5px; text-transform:uppercase; cursor:pointer; white-space:nowrap;
+  }
+  .strokeMark .bw.active{ background:var(--signal); color:var(--ink); border-color:var(--signal); }
+  .strokeMark .del{
+    font-size:11px; line-height:1; color:var(--ink); background:var(--paper);
+    width:16px; height:16px; display:flex; align-items:center; justify-content:center; cursor:pointer;
+  }
+
+  .drop{
+    position:absolute; inset:0; display:flex; flex-direction:column; align-items:center;
+    justify-content:center; gap:14px; text-align:center; padding:30px; cursor:pointer;
+    transition:background .15s ease;
+  }
+  .drop.hidden{ display:none; }
+  .drop:hover{ background:rgba(201,255,61,0.03); }
+  .drop.dragging{ background:rgba(201,255,61,0.06); border-color:var(--signal); }
+  .iris{ width:60px; height:60px; }
+  .iris svg{ width:100%; height:100%; }
+  .drop-label{ font-size:13px; color:var(--paper); letter-spacing:.03em; }
+  .drop-sub{ font-size:11px; color:var(--dim); }
+  .drop-frame{ font-size:10.5px; color:var(--signal); letter-spacing:.1em; border:1px solid var(--line); padding:4px 10px; }
+  input[type=file]{ display:none; }
+
+  /* sidebar */
+  .sidebar{ width:250px; flex:0 0 250px; display:flex; flex-direction:column; gap:12px; }
+  .layer{
+    background:var(--panel); border:1px solid var(--line); padding:14px;
+  }
+  .layer.disabled{ opacity:.4; pointer-events:none; }
+  .layer-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+  .layer-title{ font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--paper); display:flex; align-items:center; gap:7px; }
+  .layer-title .chip{ width:6px; height:6px; background:var(--signal); flex:0 0 auto; }
+  .layer-sub{ font-size:10px; color:var(--dim); margin-bottom:10px; line-height:1.5; }
+
+  .switch{ position:relative; width:34px; height:18px; flex:0 0 auto; }
+  .switch input{ opacity:0; width:0; height:0; position:absolute; }
+  .switch .track{
+    position:absolute; inset:0; background:var(--line); cursor:pointer; transition:background .15s ease;
+  }
+  .switch .knob{
+    position:absolute; top:2px; left:2px; width:14px; height:14px; background:var(--dim);
+    transition:all .15s ease;
+  }
+  .switch input:checked + .track{ background:rgba(201,255,61,0.25); }
+  .switch input:checked + .track .knob{ transform:translateX(16px); background:var(--signal); }
+
+  .slider-row{ display:flex; justify-content:space-between; font-size:9.5px; letter-spacing:.1em; color:var(--dim); text-transform:uppercase; margin-bottom:6px; }
+  .slider-row b{ color:var(--signal); font-weight:600; }
+  input[type=range]{ -webkit-appearance:none; width:100%; height:2px; background:var(--line); outline:none; }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none; width:13px; height:13px; border-radius:50%;
+    background:var(--signal); cursor:pointer; margin-top:-5.5px; box-shadow:0 0 0 3px rgba(201,255,61,0.15);
+  }
+  input[type=range]::-moz-range-thumb{ width:13px; height:13px; border-radius:50%; border:none; background:var(--signal); cursor:pointer; }
+
+  .mode-row{ display:flex; gap:6px; margin-bottom:12px; }
+  .mode-btn{
+    flex:1; font-family:var(--mono); font-size:10px; letter-spacing:.06em; text-transform:uppercase;
+    background:transparent; border:1px solid var(--line); color:var(--dim);
+    padding:8px 6px; cursor:pointer; transition:all .15s ease;
+  }
+  .mode-btn:hover{ color:var(--paper); border-color:var(--dim); }
+  .mode-btn.active{ background:var(--signal); color:var(--ink); border-color:var(--signal); font-weight:700; }
+
+  .tool-row{ display:flex; align-items:center; gap:12px; }
+  .blur-tool{
+    width:44px; height:44px; border-radius:50%;
+    background:var(--signal); display:flex; align-items:center; justify-content:center;
+    cursor:grab; user-select:none; touch-action:none;
+    box-shadow:0 0 0 3px rgba(201,255,61,0.15); flex:0 0 auto;
+  }
+  .blur-tool:active{ cursor:grabbing; }
+  .blur-tool svg{ width:20px; height:20px; }
+  .tool-note{ font-size:9.5px; color:var(--dim); letter-spacing:.03em; line-height:1.4; }
+
+  .ghost-tool{
+    position:fixed; width:44px; height:44px; border-radius:50%; background:var(--signal);
+    display:flex; align-items:center; justify-content:center; pointer-events:none;
+    z-index:999; opacity:.9; transform:translate(-50%,-50%);
+  }
+  .ghost-tool svg{ width:20px; height:20px; }
+
+  .clear-link{
+    margin-top:10px; font-size:9.5px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--dim); cursor:pointer; text-decoration:underline; text-underline-offset:3px;
+  }
+  .clear-link:hover{ color:var(--signal); }
+
+  .actions{ display:flex; flex-direction:column; gap:8px; }
+  button{
+    font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase;
+    background:transparent; border:1px solid var(--line); color:var(--paper);
+    padding:11px 14px; cursor:pointer; transition:all .15s ease; white-space:nowrap;
+  }
+  button:hover:not(:disabled){ border-color:var(--signal); color:var(--signal); }
+  button:disabled{ opacity:.3; cursor:not-allowed; }
+  button.primary{ background:var(--signal); color:var(--ink); border-color:var(--signal); font-weight:700; }
+  button.primary:hover:not(:disabled){ background:var(--paper); border-color:var(--paper); color:var(--ink); }
+
+  .foot{ margin-top:12px; font-size:10.5px; color:var(--dim); letter-spacing:.04em; }
+
+  @media (max-width:820px){
+    .workspace{ flex-direction:column; }
+    .sidebar{ width:100%; flex:none; flex-direction:row; flex-wrap:wrap; }
+    .layer{ flex:1 1 220px; }
+    .actions{ flex-direction:row; flex:1 1 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="rig">
+  <header>
+    <div class="brand">BLUR BOOTH <span>/ photo redaction</span></div>
+    <div class="out-tag">output <b>1920 × 1080</b></div>
+  </header>
+
+  <div class="workspace">
+    <div class="stageCol">
+      <div class="stage" id="stage">
+        <div class="drop" id="dropZone">
+          <div class="iris">
+            <svg viewBox="0 0 64 64">
+              <g id="irisBlades" fill="none" stroke="#8c8a80" stroke-width="1.4">
+                <path d="M32 32 L32 6 A26 26 0 0 1 54.5 19 Z"/>
+                <path d="M32 32 L54.5 19 A26 26 0 0 1 54.5 45 Z"/>
+                <path d="M32 32 L54.5 45 A26 26 0 0 1 32 58 Z"/>
+                <path d="M32 32 L32 58 A26 26 0 0 1 9.5 45 Z"/>
+                <path d="M32 32 L9.5 45 A26 26 0 0 1 9.5 19 Z"/>
+                <path d="M32 32 L9.5 19 A26 26 0 0 1 32 6 Z"/>
+              </g>
+            </svg>
+          </div>
+          <div class="drop-label">Drop a photo, or click to browse</div>
+          <div class="drop-frame">canvas locked to 1920×1080</div>
+          <div class="drop-sub">Everything happens in this tab — nothing is uploaded anywhere</div>
+          <input type="file" id="fileInput" accept="image/*">
+        </div>
+
+        <div class="canvasWrap" id="canvasWrap" style="display:none;">
+          <canvas id="canvas" width="1920" height="1080"></canvas>
+          <div class="regionsLayer" id="regionsLayer"></div>
+        </div>
+      </div>
+      <div class="foot" id="statusLine">waiting for a photo</div>
+    </div>
+
+    <div class="sidebar">
+      <div class="layer disabled" id="bgLayer">
+        <div class="layer-head">
+          <div class="layer-title"><span class="chip"></span>Backdrop fill</div>
+          <label class="switch">
+            <input type="checkbox" id="bgToggle" checked>
+            <span class="track"><span class="knob"></span></span>
+          </label>
+        </div>
+        <div class="layer-sub">If your photo isn't 16:9, this fills the empty top/bottom or sides with a stretched, blurred copy of the same photo instead of black bars.</div>
+        <div class="slider-row"><span>Backdrop blur</span><b id="bgBlurReadout">45px</b></div>
+        <input type="range" id="bgBlurSlider" min="0" max="80" step="1" value="45">
+      </div>
+
+      <div class="layer disabled" id="regionLayer">
+        <div class="layer-head">
+          <div class="layer-title"><span class="chip"></span>Redaction blur</div>
+        </div>
+
+        <div class="mode-row">
+          <button type="button" class="mode-btn active" id="modeBoxBtn" data-mode="box">Box</button>
+          <button type="button" class="mode-btn" id="modeFreehandBtn" data-mode="freehand">Freehand</button>
+        </div>
+
+        <div id="boxToolPanel">
+          <div class="layer-sub">Drag a box directly on the photo, or drag the icon onto the exact spot you want obscured.</div>
+          <div class="tool-row">
+            <div class="blur-tool" id="blurToolIcon" title="Drag onto the photo">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#151513" stroke-width="2" stroke-linecap="round">
+                <circle cx="12" cy="12" r="7"/>
+                <path d="M12 5 L12 3 M12 21 L12 19 M5 12 L3 12 M21 12 L19 12"/>
+              </svg>
+            </div>
+            <div class="tool-note">drag onto the photo to place a box</div>
+          </div>
+        </div>
+
+        <div id="freehandToolPanel" style="display:none;">
+          <div class="layer-sub">Click and drag directly on the photo to freely paint over anything you want obscured — any shape, not just boxes.</div>
+          <div class="slider-row"><span>Brush size</span><b id="brushReadout">60px</b></div>
+          <input type="range" id="brushSlider" min="10" max="200" step="2" value="60">
+        </div>
+
+        <div class="slider-row" style="margin-top:12px;"><span>Blur strength</span><b id="blurReadout">18px</b></div>
+        <input type="range" id="blurSlider" min="1" max="40" step="1" value="18">
+
+        <div class="layer-head" style="margin-top:14px;">
+          <div class="layer-title"><span class="chip"></span>Desaturate area</div>
+        </div>
+        <div class="layer-sub">Each box or freehand stroke gets its own <b>B/W</b> button right on the photo — click it to turn just that redacted spot black &amp; white, independent of the others.</div>
+
+        <div class="clear-link" id="clearBtn">Clear all redactions</div>
+      </div>
+
+      <div class="layer">
+        <div class="layer-head">
+          <div class="layer-title"><span class="chip"></span>Auto-download</div>
+          <label class="switch">
+            <input type="checkbox" id="autoDownloadToggle">
+            <span class="track"><span class="knob"></span></span>
+          </label>
+        </div>
+        <div class="layer-sub">When on, dropping or selecting a photo instantly downloads it as a PNG the moment it lands on the canvas.</div>
+      </div>
+
+      <div class="actions">
+        <button id="resetBtn">Reset</button>
+        <button class="primary" id="exportBtn">Download PNG</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const dropZone     = document.getElementById('dropZone');
+const fileInput    = document.getElementById('fileInput');
+const stage        = document.getElementById('stage');
+const canvasWrap   = document.getElementById('canvasWrap');
+const canvas       = document.getElementById('canvas');
+const ctx          = canvas.getContext('2d');
+const regionsLayer = document.getElementById('regionsLayer');
+const bgLayer      = document.getElementById('bgLayer');
+const regionLayer  = document.getElementById('regionLayer');
+const bgToggle     = document.getElementById('bgToggle');
+const bgBlurSlider = document.getElementById('bgBlurSlider');
+const bgBlurReadout= document.getElementById('bgBlurReadout');
+const blurSlider   = document.getElementById('blurSlider');
+const blurReadout  = document.getElementById('blurReadout');
+const modeBoxBtn   = document.getElementById('modeBoxBtn');
+const modeFreehandBtn = document.getElementById('modeFreehandBtn');
+const boxToolPanel = document.getElementById('boxToolPanel');
+const freehandToolPanel = document.getElementById('freehandToolPanel');
+const brushSlider  = document.getElementById('brushSlider');
+const brushReadout = document.getElementById('brushReadout');
+const exportBtn    = document.getElementById('exportBtn');
+const resetBtn     = document.getElementById('resetBtn');
+const clearBtn     = document.getElementById('clearBtn');
+const autoDownloadToggle = document.getElementById('autoDownloadToggle');
+const statusLine   = document.getElementById('statusLine');
+const blades       = document.getElementById('irisBlades');
+const blurToolIcon = document.getElementById('blurToolIcon');
+
+const OUT_W = 1920, OUT_H = 1080;
+let img = null;
+const off = document.createElement('canvas');
+off.width = OUT_W; off.height = OUT_H;
+const offCtx = off.getContext('2d');
+const offGray = document.createElement('canvas');
+offGray.width = OUT_W; offGray.height = OUT_H;
+const offGrayCtx = offGray.getContext('2d');
+const mask = document.createElement('canvas');
+mask.width = OUT_W; mask.height = OUT_H;
+const maskCtx = mask.getContext('2d');
+const maskGray = document.createElement('canvas');
+maskGray.width = OUT_W; maskGray.height = OUT_H;
+const maskGrayCtx = maskGray.getContext('2d');
+let regions = [];
+let strokes = [];
+let currentStroke = null;
+let regionSeq = 1;
+let mode = 'box';
+
+let irisAngle = 0;
+function idleSpin(){
+  irisAngle += 0.15;
+  blades.setAttribute('transform', 'rotate(' + (Math.sin(irisAngle*0.5)*6) + ' 32 32)');
+  if(!img) requestAnimationFrame(idleSpin);
+}
+requestAnimationFrame(idleSpin);
+
+function setMode(next){
+  mode = next;
+  modeBoxBtn.classList.toggle('active', mode === 'box');
+  modeFreehandBtn.classList.toggle('active', mode === 'freehand');
+  boxToolPanel.style.display = mode === 'box' ? '' : 'none';
+  freehandToolPanel.style.display = mode === 'freehand' ? '' : 'none';
+  regionsLayer.style.cursor = mode === 'freehand' ? 'cell' : 'crosshair';
+}
+modeBoxBtn.addEventListener('click', () => setMode('box'));
+modeFreehandBtn.addEventListener('click', () => setMode('freehand'));
+brushSlider.addEventListener('input', () => { brushReadout.textContent = brushSlider.value + 'px'; });
+
+dropZone.addEventListener('click', () => fileInput.click());
+['dragenter','dragover'].forEach(evt => stage.addEventListener(evt, e=>{ e.preventDefault(); dropZone.classList.add('dragging'); }));
+['dragleave','drop'].forEach(evt => stage.addEventListener(evt, e=>{ e.preventDefault(); dropZone.classList.remove('dragging'); }));
+stage.addEventListener('drop', e=>{ const f=e.dataTransfer.files[0]; if(f && f.type.startsWith('image/')) loadImage(f); });
+fileInput.addEventListener('change', e=>{ const f=e.target.files[0]; if(f) loadImage(f); });
+
+function loadImage(file){
+  cleanup();
+  img = new Image();
+  img.onload = () => {
+    dropZone.classList.add('hidden');
+    canvasWrap.style.display = 'inline-block';
+    bgLayer.classList.remove('disabled');
+    regionLayer.classList.remove('disabled');
+    exportBtn.disabled = false;
+    const isExact = img.naturalWidth === OUT_W && img.naturalHeight === OUT_H;
+    bgToggle.checked = !isExact;
+    render();
+    if(autoDownloadToggle.checked){
+      downloadPNG('photo loaded and auto-downloaded at 1920×1080');
+    } else if(isExact){
+      statusLine.textContent = 'photo loaded at exactly 1920×1080 — drag the icon onto anything you want blurred';
+    } else {
+      statusLine.textContent = 'photo loaded (' + img.naturalWidth + '×' + img.naturalHeight + ') — fit onto the 1920×1080 canvas with a blurred backdrop filling the gaps';
+    }
+  };
+  img.src = URL.createObjectURL(file);
+}
+
+function addRegion(rect){
+  const region = { id: regionSeq++, x: rect.x, y: rect.y, w: rect.w, h: rect.h, gray: false };
+  regions.push(region);
+  buildRegionDOM(region);
+  updateOverlayDOM();
+  render();
+}
+
+function buildRegionDOM(region){
+  const el = document.createElement('div');
+  el.className = 'region';
+  el.dataset.id = region.id;
+  el.innerHTML = '<div class="tag">blur</div><div class="bw">B/W</div><div class="del">&times;</div><div class="handle"></div>';
+  regionsLayer.appendChild(el);
+
+  el.querySelector('.bw').addEventListener('click', (e)=>{
+    e.stopPropagation();
+    region.gray = !region.gray;
+    e.currentTarget.classList.toggle('active', region.gray);
+    render();
+  });
+
+  el.querySelector('.del').addEventListener('click', (e)=>{
+    e.stopPropagation();
+    regions = regions.filter(r => r.id !== region.id);
+    el.remove();
+    render();
+  });
+
+  el.addEventListener('mousedown', (e)=>{
+    if(e.target.classList.contains('handle') || e.target.classList.contains('del') || e.target.classList.contains('bw')) return;
+    e.stopPropagation();
+    const s = getScale();
+    const startX = e.clientX, startY = e.clientY;
+    const orig = { x: region.x, y: region.y };
+    function onMove(ev){
+      region.x = Math.max(0, Math.min(OUT_W - region.w, orig.x + (ev.clientX - startX) * s.sx));
+      region.y = Math.max(0, Math.min(OUT_H - region.h, orig.y + (ev.clientY - startY) * s.sy));
+      updateOverlayDOM(); render();
+    }
+    function onUp(){ document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); }
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+
+  el.querySelector('.handle').addEventListener('mousedown', (e)=>{
+    e.stopPropagation();
+    const s = getScale();
+    const startX = e.clientX, startY = e.clientY;
+    const orig = { w: region.w, h: region.h };
+    function onMove(ev){
+      region.w = Math.max(16, Math.min(OUT_W - region.x, orig.w + (ev.clientX - startX) * s.sx));
+      region.h = Math.max(16, Math.min(OUT_H - region.y, orig.h + (ev.clientY - startY) * s.sy));
+      updateOverlayDOM(); render();
+    }
+    function onUp(){ document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); }
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+}
+
+function strokeBounds(s){
+  let minX=Infinity, minY=Infinity, maxX=-Infinity, maxY=-Infinity;
+  s.points.forEach(p=>{
+    minX = Math.min(minX, p.x); minY = Math.min(minY, p.y);
+    maxX = Math.max(maxX, p.x); maxY = Math.max(maxY, p.y);
+  });
+  const r = s.size / 2;
+  return { minX: minX - r, minY: minY - r, maxX: maxX + r, maxY: maxY + r };
+}
+
+function buildStrokeMarker(stroke){
+  const el = document.createElement('div');
+  el.className = 'strokeMark';
+  el.dataset.id = stroke.id;
+  el.innerHTML = '<div class="bw">B/W</div><div class="del">&times;</div>';
+  regionsLayer.appendChild(el);
+
+  el.querySelector('.bw').addEventListener('click', (e)=>{
+    e.stopPropagation();
+    stroke.gray = !stroke.gray;
+    e.currentTarget.classList.toggle('active', stroke.gray);
+    render();
+  });
+  el.querySelector('.del').addEventListener('click', (e)=>{
+    e.stopPropagation();
+    strokes = strokes.filter(s => s.id !== stroke.id);
+    el.remove();
+    render();
+  });
+  return el;
+}
+
+function getScale(){ return { sx: OUT_W / canvas.clientWidth, sy: OUT_H / canvas.clientHeight }; }
+
+function updateOverlayDOM(){
+  const s = getScale();
+  regions.forEach(region => {
+    const el = regionsLayer.querySelector('.region[data-id="' + region.id + '"]');
+    if(!el) return;
+    el.style.left   = (region.x / s.sx) + 'px';
+    el.style.top    = (region.y / s.sy) + 'px';
+    el.style.width  = (region.w / s.sx) + 'px';
+    el.style.height = (region.h / s.sy) + 'px';
+  });
+  strokes.forEach(stroke => {
+    const el = regionsLayer.querySelector('.strokeMark[data-id="' + stroke.id + '"]');
+    if(!el) return;
+    const b = strokeBounds(stroke);
+    el.style.left = (b.maxX / s.sx) + 'px';
+    el.style.top  = (b.minY / s.sy) + 'px';
+  });
+}
+window.addEventListener('resize', updateOverlayDOM);
+
+regionsLayer.addEventListener('mousedown', (e)=>{
+  if(e.target !== regionsLayer || !img) return;
+  if(mode === 'freehand'){ startFreehand(e); return; }
+  const s = getScale();
+  const rect = canvas.getBoundingClientRect();
+  const startX = (e.clientX - rect.left) * s.sx;
+  const startY = (e.clientY - rect.top) * s.sy;
+  const creating = { x: startX, y: startY, w: 0, h: 0 };
+  function onMove(ev){
+    const curX = (ev.clientX - rect.left) * s.sx;
+    const curY = (ev.clientY - rect.top) * s.sy;
+    creating.x = Math.min(startX, curX);
+    creating.y = Math.min(startY, curY);
+    creating.w = Math.abs(curX - startX);
+    creating.h = Math.abs(curY - startY);
+  }
+  function onUp(){
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+    if(creating.w > 12 && creating.h > 12){
+      creating.x = Math.max(0, Math.min(OUT_W - creating.w, creating.x));
+      creating.y = Math.max(0, Math.min(OUT_H - creating.h, creating.y));
+      addRegion(creating);
+    }
+  }
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
+});
+
+function startFreehand(e){
+  const s = getScale();
+  const rect = canvas.getBoundingClientRect();
+  const size = parseInt(brushSlider.value, 10);
+  const stroke = { points: [], size, gray: false };
+
+  function addPoint(clientX, clientY){
+    stroke.points.push({ x: (clientX - rect.left) * s.sx, y: (clientY - rect.top) * s.sy });
+  }
+  addPoint(e.clientX, e.clientY);
+  currentStroke = stroke;
+  render();
+
+  function onMove(ev){
+    addPoint(ev.clientX, ev.clientY);
+    render();
+  }
+  function onUp(){
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+    if(stroke.points.length){
+      stroke.id = regionSeq++;
+      strokes.push(stroke);
+      buildStrokeMarker(stroke);
+      updateOverlayDOM();
+    }
+    currentStroke = null;
+    render();
+    statusLine.textContent = 'freehand redaction painted — use its B/W button to desaturate just that spot';
+  }
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
+}
+
+let ghost = null;
+blurToolIcon.addEventListener('mousedown', (e)=>{
+  e.preventDefault();
+  if(!img || mode !== 'box') return;
+  ghost = document.createElement('div');
+  ghost.className = 'ghost-tool';
+  ghost.innerHTML = blurToolIcon.innerHTML;
+  document.body.appendChild(ghost);
+  moveGhost(e.clientX, e.clientY);
+
+  function onMove(ev){
+    moveGhost(ev.clientX, ev.clientY);
+    stage.style.outline = isOverCanvas(ev.clientX, ev.clientY) ? '1.5px dashed var(--signal)' : 'none';
+  }
+  function onUp(ev){
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+    stage.style.outline = 'none';
+    if(ghost){ ghost.remove(); ghost = null; }
+    if(isOverCanvas(ev.clientX, ev.clientY)) placeRegionAtClient(ev.clientX, ev.clientY);
+  }
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
+});
+
+function moveGhost(x,y){ if(ghost){ ghost.style.left = x+'px'; ghost.style.top = y+'px'; } }
+
+function isOverCanvas(clientX, clientY){
+  const rect = canvas.getBoundingClientRect();
+  return clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom;
+}
+
+function placeRegionAtClient(clientX, clientY){
+  const s = getScale();
+  const rect = canvas.getBoundingClientRect();
+  const cx = (clientX - rect.left) * s.sx;
+  const cy = (clientY - rect.top) * s.sy;
+  const rw = Math.round(OUT_W * 0.16);
+  const rh = Math.round(OUT_H * 0.2);
+  const x = Math.max(0, Math.min(OUT_W - rw, cx - rw/2));
+  const y = Math.max(0, Math.min(OUT_H - rh, cy - rh/2));
+  addRegion({ x: x, y: y, w: rw, h: rh });
+  statusLine.textContent = 'blur box placed — drag its corner to resize, or drag its body to move';
+}
+
+function drawBase(){
+  ctx.filter = 'none';
+  ctx.clearRect(0,0,OUT_W,OUT_H);
+  if(!img) return;
+
+  const iw = img.naturalWidth, ih = img.naturalHeight;
+  const isExact = iw === OUT_W && ih === OUT_H;
+
+  if(!isExact && bgToggle.checked){
+    const coverScale = Math.max(OUT_W/iw, OUT_H/ih);
+    const cw = iw*coverScale, ch = ih*coverScale;
+    const cx = (OUT_W-cw)/2, cy = (OUT_H-ch)/2;
+    const bgBlur = parseInt(bgBlurSlider.value,10);
+    ctx.filter = bgBlur > 0 ? ('blur(' + bgBlur + 'px)') : 'none';
+    ctx.drawImage(img, cx, cy, cw, ch);
+    ctx.filter = 'none';
+    ctx.fillStyle = 'rgba(0,0,0,0.18)';
+    ctx.fillRect(0,0,OUT_W,OUT_H);
+  } else {
+    ctx.fillStyle = '#1c1c19';
+    ctx.fillRect(0,0,OUT_W,OUT_H);
+  }
+
+  const containScale = Math.min(OUT_W/iw, OUT_H/ih);
+  const dw = iw*containScale, dh = ih*containScale;
+  const dx = (OUT_W-dw)/2, dy = (OUT_H-dh)/2;
+  ctx.drawImage(img, dx, dy, dw, dh);
+}
+
+function paintMask(targetCtx, list){
+  targetCtx.fillStyle = '#fff';
+  targetCtx.strokeStyle = '#fff';
+  list.forEach(item => {
+    if(item.w !== undefined){
+      targetCtx.fillRect(item.x, item.y, item.w, item.h);
+      return;
+    }
+    if(!item.points.length) return;
+    targetCtx.lineWidth = item.size;
+    targetCtx.lineCap = 'round';
+    targetCtx.lineJoin = 'round';
+    if(item.points.length === 1){
+      targetCtx.beginPath();
+      targetCtx.arc(item.points[0].x, item.points[0].y, item.size/2, 0, Math.PI*2);
+      targetCtx.fill();
+    } else {
+      targetCtx.beginPath();
+      targetCtx.moveTo(item.points[0].x, item.points[0].y);
+      for(let i=1;i<item.points.length;i++) targetCtx.lineTo(item.points[i].x, item.points[i].y);
+      targetCtx.stroke();
+    }
+  });
+}
+
+function render(){
+  if(!img) return;
+  drawBase();
+  const allStrokes = currentStroke ? strokes.concat([currentStroke]) : strokes;
+  const items = regions.concat(allStrokes);
+  if(items.length){
+    const blur = parseInt(blurSlider.value, 10);
+    const colorItems = items.filter(it => !it.gray);
+    const grayItems = items.filter(it => it.gray);
+
+    if(colorItems.length){
+      maskCtx.clearRect(0,0,OUT_W,OUT_H);
+      paintMask(maskCtx, colorItems);
+      offCtx.clearRect(0,0,OUT_W,OUT_H);
+      offCtx.filter = 'blur(' + blur + 'px)';
+      offCtx.drawImage(canvas, 0, 0);
+      offCtx.filter = 'none';
+      offCtx.globalCompositeOperation = 'destination-in';
+      offCtx.drawImage(mask, 0, 0);
+      offCtx.globalCompositeOperation = 'source-over';
+      ctx.drawImage(off, 0, 0);
+    }
+
+    if(grayItems.length){
+      maskGrayCtx.clearRect(0,0,OUT_W,OUT_H);
+      paintMask(maskGrayCtx, grayItems);
+      offGrayCtx.clearRect(0,0,OUT_W,OUT_H);
+      offGrayCtx.filter = 'blur(' + blur + 'px) grayscale(1)';
+      offGrayCtx.drawImage(canvas, 0, 0);
+      offGrayCtx.filter = 'none';
+      offGrayCtx.globalCompositeOperation = 'destination-in';
+      offGrayCtx.drawImage(maskGray, 0, 0);
+      offGrayCtx.globalCompositeOperation = 'source-over';
+      ctx.drawImage(offGray, 0, 0);
+    }
+  }
+}
+
+bgToggle.addEventListener('change', render);
+bgBlurSlider.addEventListener('input', () => {
+  bgBlurReadout.textContent = bgBlurSlider.value + 'px';
+  render();
+});
+blurSlider.addEventListener('input', () => {
+  blurReadout.textContent = blurSlider.value + 'px';
+  render();
+});
+
+clearBtn.addEventListener('click', () => {
+  regions = [];
+  strokes = [];
+  currentStroke = null;
+  regionsLayer.innerHTML = '';
+  render();
+});
+
+resetBtn.addEventListener('click', () => {
+  cleanup();
+  dropZone.classList.remove('hidden');
+  canvasWrap.style.display = 'none';
+  bgLayer.classList.add('disabled');
+  regionLayer.classList.add('disabled');
+  exportBtn.disabled = true;
+  statusLine.textContent = 'waiting for a photo';
+  requestAnimationFrame(idleSpin);
+});
+
+function cleanup(){
+  img = null;
+  regions = [];
+  strokes = [];
+  currentStroke = null;
+  regionsLayer.innerHTML = '';
+  ctx.clearRect(0,0,OUT_W,OUT_H);
+}
+
+function downloadPNG(statusText){
+  canvas.toBlob(function(blob){
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'blurred-photo-1920x1080.png';
+    a.click();
+    URL.revokeObjectURL(url);
+    statusLine.textContent = statusText || 'photo downloaded at 1920×1080';
+  }, 'image/png');
+}
+
+exportBtn.addEventListener('click', () => {
+  if(!img) return;
+  render();
+  downloadPNG();
+});
+</script>
+</body>
+</html>
