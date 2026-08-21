@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Photo Editor — Prep Bay</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Oswald:wght@400;600;700&family=Anton&family=Archivo+Black&family=Bebas+Neue&family=Playfair+Display:wght@600;700&family=Inter:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
     --void:#0a0d10;
@@ -160,6 +160,15 @@
     color:var(--mute);margin-bottom:7px;
   }
   .field label .val{color:var(--scope);}
+  .slider-row{display:flex;flex-direction:column;gap:8px;}
+  .slider-row input[type=range]{width:100%;}
+  .num-box{
+    width:100%;
+    font-family:var(--mono);font-size:11.5px;text-align:center;
+    background:var(--well);border:1px solid var(--line);color:var(--scope);
+    padding:6px 4px;border-radius:2px;
+  }
+  .num-box:focus{outline:none;border-color:var(--scope);}
   input[type=range]{
     -webkit-appearance:none;width:100%;height:3px;
     background:var(--line);border-radius:2px;outline:none;
@@ -337,20 +346,32 @@
       <section id="panel-adjust">
         <p class="section-title">Color</p>
         <div class="field">
-          <label>Brightness <span class="val" id="v-brightness">0</span></label>
-          <input type="range" id="s-brightness" min="-100" max="100" value="0">
+          <label>Brightness</label>
+          <div class="slider-row">
+            <input type="number" class="num-box" id="n-brightness" min="-100" max="100" value="0">
+            <input type="range" id="s-brightness" min="-100" max="100" value="0">
+          </div>
         </div>
         <div class="field">
-          <label>Contrast <span class="val" id="v-contrast">0</span></label>
-          <input type="range" id="s-contrast" min="-100" max="100" value="0">
+          <label>Contrast</label>
+          <div class="slider-row">
+            <input type="number" class="num-box" id="n-contrast" min="-100" max="100" value="0">
+            <input type="range" id="s-contrast" min="-100" max="100" value="0">
+          </div>
         </div>
         <div class="field">
-          <label>Saturation <span class="val" id="v-saturation">0</span></label>
-          <input type="range" id="s-saturation" min="-100" max="100" value="0">
+          <label>Saturation</label>
+          <div class="slider-row">
+            <input type="number" class="num-box" id="n-saturation" min="-100" max="100" value="0">
+            <input type="range" id="s-saturation" min="-100" max="100" value="0">
+          </div>
         </div>
         <div class="field">
-          <label>Temperature <span class="val" id="v-temp">0</span></label>
-          <input type="range" id="s-temp" min="-100" max="100" value="0">
+          <label>Temperature</label>
+          <div class="slider-row">
+            <input type="number" class="num-box" id="n-temp" min="-100" max="100" value="0">
+            <input type="range" id="s-temp" min="-100" max="100" value="0">
+          </div>
         </div>
         <button class="btn" id="resetAdjustBtn" style="width:100%;">Reset Color</button>
       </section>
@@ -367,10 +388,26 @@
             <label>Content</label>
             <input type="text" id="t-content" value="LOWER THIRD">
           </div>
+          <div class="field">
+            <label>Font</label>
+            <select id="t-font">
+              <option value="'Barlow Condensed',sans-serif" selected>Barlow Condensed</option>
+              <option value="'Oswald',sans-serif">Oswald</option>
+              <option value="'Anton',sans-serif">Anton</option>
+              <option value="'Archivo Black',sans-serif">Archivo Black</option>
+              <option value="'Bebas Neue',sans-serif">Bebas Neue</option>
+              <option value="'Playfair Display',serif">Playfair Display</option>
+              <option value="'Inter',sans-serif">Inter</option>
+              <option value="'IBM Plex Mono',monospace">IBM Plex Mono</option>
+            </select>
+          </div>
           <div class="grid2" style="margin-bottom:16px;">
             <div class="field" style="margin-bottom:0;">
-              <label>Size <span class="val" id="v-tsize">42</span></label>
-              <input type="range" id="t-size" min="12" max="160" value="42">
+              <label>Size</label>
+              <div class="slider-row">
+                <input type="number" class="num-box" id="n-tsize" min="12" max="160" value="42">
+                <input type="range" id="t-size" min="12" max="160" value="42">
+              </div>
             </div>
             <div class="field" style="margin-bottom:0;">
               <label>Color</label>
@@ -387,12 +424,18 @@
             </select>
           </div>
           <div class="field">
-            <label>Outline <span class="val" id="v-tstroke">0</span></label>
-            <input type="range" id="t-stroke" min="0" max="12" value="0">
+            <label>Outline</label>
+            <div class="slider-row">
+              <input type="number" class="num-box" id="n-tstroke" min="0" max="12" value="0">
+              <input type="range" id="t-stroke" min="0" max="12" value="0">
+            </div>
           </div>
           <div class="field">
-            <label>Background bar <span class="val" id="v-tbg">0</span></label>
-            <input type="range" id="t-bg" min="0" max="90" value="0">
+            <label>Background bar</label>
+            <div class="slider-row">
+              <input type="number" class="num-box" id="n-tbg" min="0" max="90" value="0">
+              <input type="range" id="t-bg" min="0" max="90" value="0">
+            </div>
           </div>
           <button class="btn danger" id="deleteTextBtn" style="width:100%;">Delete Layer</button>
         </div>
@@ -420,12 +463,18 @@
             <button class="btn" data-pos="br">↘</button>
           </div>
           <div class="field">
-            <label>Size <span class="val" id="v-msize">18</span></label>
-            <input type="range" id="m-size" min="4" max="60" value="18">
+            <label>Size</label>
+            <div class="slider-row">
+              <input type="number" class="num-box" id="n-msize" min="4" max="60" value="18">
+              <input type="range" id="m-size" min="4" max="60" value="18">
+            </div>
           </div>
           <div class="field">
-            <label>Opacity <span class="val" id="v-mop">100</span></label>
-            <input type="range" id="m-op" min="10" max="100" value="100">
+            <label>Opacity</label>
+            <div class="slider-row">
+              <input type="number" class="num-box" id="n-mop" min="10" max="100" value="100">
+              <input type="range" id="m-op" min="10" max="100" value="100">
+            </div>
           </div>
           <button class="btn danger" id="removeMarkBtn" style="width:100%;">Remove Bug</button>
         </div>
@@ -508,22 +557,54 @@
   };
   const ctx = el.canvas.getContext('2d');
 
-  const sliders = {};
+  const sliders = {}, numBoxes = {};
   ['brightness','contrast','saturation','temp'].forEach(k=>{
     sliders[k] = document.getElementById('s-'+k);
+    numBoxes[k] = document.getElementById('n-'+k);
   });
   const tFields = {
     content: document.getElementById('t-content'),
+    font: document.getElementById('t-font'),
     size: document.getElementById('t-size'),
+    sizeNum: document.getElementById('n-tsize'),
     color: document.getElementById('t-color'),
     weight: document.getElementById('t-weight'),
     stroke: document.getElementById('t-stroke'),
+    strokeNum: document.getElementById('n-tstroke'),
     bg: document.getElementById('t-bg'),
+    bgNum: document.getElementById('n-tbg'),
   };
   const mFields = {
     size: document.getElementById('m-size'),
+    sizeNum: document.getElementById('n-msize'),
     op: document.getElementById('m-op'),
+    opNum: document.getElementById('n-mop'),
   };
+
+  // keep a slider and its paired number box in sync; fires cb(value) on either change
+  function pairSliderNumber(rangeEl, numEl, cb){
+    const min = parseFloat(rangeEl.min), max = parseFloat(rangeEl.max);
+    function clampVal(v){ return Math.max(min, Math.min(max, v)); }
+    rangeEl.addEventListener('input', ()=>{
+      numEl.value = rangeEl.value;
+      cb(parseFloat(rangeEl.value));
+    });
+    numEl.addEventListener('input', ()=>{
+      let v = parseFloat(numEl.value);
+      if(isNaN(v)) return;
+      v = clampVal(v);
+      rangeEl.value = v;
+      cb(v);
+    });
+    numEl.addEventListener('blur', ()=>{
+      let v = parseFloat(numEl.value);
+      if(isNaN(v)) v = parseFloat(rangeEl.value);
+      v = clampVal(v);
+      numEl.value = v;
+      rangeEl.value = v;
+      cb(v);
+    });
+  }
 
   const state = {
     baseImage: null,      // HTMLImageElement, current working image (post-crop)
@@ -634,22 +715,17 @@
 
   // ---------- adjust ----------
   function updateAdjustLabels(){
-    document.getElementById('v-brightness').textContent = state.adjust.brightness;
-    document.getElementById('v-contrast').textContent = state.adjust.contrast;
-    document.getElementById('v-saturation').textContent = state.adjust.saturation;
-    document.getElementById('v-temp').textContent = state.adjust.temp;
+    Object.keys(sliders).forEach(k=>{ numBoxes[k].value = state.adjust[k]; });
   }
   Object.keys(sliders).forEach(k=>{
-    sliders[k].addEventListener('input', ()=>{
-      state.adjust[k] = parseInt(sliders[k].value,10);
-      updateAdjustLabels();
+    pairSliderNumber(sliders[k], numBoxes[k], (v)=>{
+      state.adjust[k] = Math.round(v);
       render();
     });
   });
   el.resetAdjustBtn.addEventListener('click', ()=>{
     state.adjust = {brightness:0,contrast:0,saturation:0,temp:0};
-    Object.keys(sliders).forEach(k=> sliders[k].value = 0);
-    updateAdjustLabels();
+    Object.keys(sliders).forEach(k=>{ sliders[k].value = 0; numBoxes[k].value = 0; });
     render();
   });
 
@@ -699,7 +775,8 @@
   function addTextLayer(){
     const layer = {
       id: idCounter++, text:'LOWER THIRD', x:0.5, y:0.85, size:42,
-      color:'#ffffff', weight:'600', stroke:0, bg:0
+      color:'#ffffff', weight:'600', stroke:0, bg:0,
+      font: "'Barlow Condensed',sans-serif"
     };
     state.textLayers.push(layer);
     state.selectedTextId = layer.id;
@@ -743,21 +820,23 @@
   function populateTextFields(layer){
     el.textEditFields.style.display = 'block';
     tFields.content.value = layer.text;
+    tFields.font.value = layer.font || "'Barlow Condensed',sans-serif";
     tFields.size.value = layer.size;
-    document.getElementById('v-tsize').textContent = layer.size;
+    tFields.sizeNum.value = layer.size;
     tFields.color.value = layer.color;
     tFields.weight.value = layer.weight;
     tFields.stroke.value = layer.stroke;
-    document.getElementById('v-tstroke').textContent = layer.stroke;
+    tFields.strokeNum.value = layer.stroke;
     tFields.bg.value = layer.bg;
-    document.getElementById('v-tbg').textContent = layer.bg;
+    tFields.bgNum.value = layer.bg;
   }
   tFields.content.addEventListener('input', ()=>{ const l=getSelectedText(); if(!l)return; l.text=tFields.content.value; renderTextLayerList(); render(); });
-  tFields.size.addEventListener('input', ()=>{ const l=getSelectedText(); if(!l)return; l.size=parseInt(tFields.size.value,10); document.getElementById('v-tsize').textContent=l.size; render(); });
+  tFields.font.addEventListener('change', ()=>{ const l=getSelectedText(); if(!l)return; l.font=tFields.font.value; render(); });
+  pairSliderNumber(tFields.size, tFields.sizeNum, (v)=>{ const l=getSelectedText(); if(!l)return; l.size=Math.round(v); render(); });
   tFields.color.addEventListener('input', ()=>{ const l=getSelectedText(); if(!l)return; l.color=tFields.color.value; render(); });
   tFields.weight.addEventListener('change', ()=>{ const l=getSelectedText(); if(!l)return; l.weight=tFields.weight.value; render(); });
-  tFields.stroke.addEventListener('input', ()=>{ const l=getSelectedText(); if(!l)return; l.stroke=parseInt(tFields.stroke.value,10); document.getElementById('v-tstroke').textContent=l.stroke; render(); });
-  tFields.bg.addEventListener('input', ()=>{ const l=getSelectedText(); if(!l)return; l.bg=parseInt(tFields.bg.value,10); document.getElementById('v-tbg').textContent=l.bg; render(); });
+  pairSliderNumber(tFields.stroke, tFields.strokeNum, (v)=>{ const l=getSelectedText(); if(!l)return; l.stroke=Math.round(v); render(); });
+  pairSliderNumber(tFields.bg, tFields.bgNum, (v)=>{ const l=getSelectedText(); if(!l)return; l.bg=Math.round(v); render(); });
   el.deleteTextBtn.addEventListener('click', ()=>{
     if(!state.selectedTextId) return;
     state.textLayers = state.textLayers.filter(l=>l.id!==state.selectedTextId);
@@ -789,8 +868,8 @@
     };
     img.src = url;
   }
-  mFields.size.addEventListener('input', ()=>{ state.mark.sizePct=parseInt(mFields.size.value,10); document.getElementById('v-msize').textContent=state.mark.sizePct; render(); });
-  mFields.op.addEventListener('input', ()=>{ state.mark.opacity=parseInt(mFields.op.value,10); document.getElementById('v-mop').textContent=state.mark.opacity; render(); });
+  pairSliderNumber(mFields.size, mFields.sizeNum, (v)=>{ state.mark.sizePct=Math.round(v); render(); });
+  pairSliderNumber(mFields.op, mFields.opNum, (v)=>{ state.mark.opacity=Math.round(v); render(); });
   document.querySelectorAll('[data-pos]').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       const map = {tl:[0.05,0.08],tc:[0.5,0.08],tr:[0.95,0.08],cl:[0.05,0.5],cc:[0.5,0.5],cr:[0.95,0.5],bl:[0.05,0.92],bc:[0.5,0.92],br:[0.95,0.92]};
@@ -872,7 +951,7 @@
     state.textLayers.forEach(layer=>{
       c.save();
       const fontPx = layer.size * (w/1000); // scale relative to a 1000px-wide reference
-      c.font = `${layer.weight} ${fontPx}px 'Barlow Condensed', sans-serif`;
+      c.font = `${layer.weight} ${fontPx}px ${layer.font || "'Barlow Condensed',sans-serif"}`;
       c.textAlign = 'center';
       c.textBaseline = 'middle';
       const px = layer.x*w, py = layer.y*h;
