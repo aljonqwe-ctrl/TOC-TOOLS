@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Photo to PDF Converter</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root{
+    --ink:#1a1d23;
+    --paper:#f7f6f3;
+    --panel:#ffffff;
+    --line:#d8d5cd;
+    --accent:#2f5d50;
+    --accent-soft:#e4ede9;
+    --warn:#b5451b;
+    --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Segoe UI", -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+    padding:32px 24px 60px;
+  }
+  h1{
+    text-align:center;
+    font-size:22px;
+    letter-spacing:.14em;
+    font-weight:700;
+    margin:0 0 28px;
+    text-transform:uppercase;
+  }
+  .layout{
+    display:grid;
+    grid-template-columns:1fr 1.3fr;
+    gap:24px;
+    max-width:1160px;
+    margin:0 auto;
+  }
+  @media (max-width:820px){
+    .layout{grid-template-columns:1fr;}
+  }
+  .panel{
+    background:var(--panel);
+    border:2px solid var(--ink);
+    border-radius:2px;
+    height:600px;
+    display:flex;
+    flex-direction:column;
+  }
+  @media (max-width:820px){
+    .panel{ height:480px; }
+  }
+  .panel-label{
+    font-size:11px;
+    letter-spacing:.06em;
+    color:#6b6558;
+    padding:14px 16px 0;
+  }
+
+  /* Dropzone */
+  #dropzone{
+    height:110px;
+    margin:14px 14px 8px;
+    border:2px dashed var(--line);
+    border-radius:4px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:10px 24px;
+    cursor:pointer;
+    transition:border-color .15s, background .15s;
+    flex-shrink:0;
+  }
+  #dropzone.drag{
+    border-color:var(--accent);
+    background:var(--accent-soft);
+  }
+  .dz-inner{max-width:280px;}
+  .dz-icon{font-size:26px;margin-bottom:6px;color:#9a9485;}
+  .dz-text{font-size:13px;color:#55504a;line-height:1.5;}
+  input[type=file]{display:none;}
+
+  .convert-row{
+    display:flex;
+    gap:8px;
+    align-items:center;
+    justify-content:center;
+    padding:12px 14px 14px;
+    flex-wrap:wrap;
+    flex-shrink:0;
+  }
+  select, .btn{
+    font-family:inherit;
+    font-size:12.5px;
+  }
+  select{
+    padding:6px 8px;
+    border:1px solid var(--line);
+    border-radius:3px;
+    background:#fff;
+  }
+  select:disabled{
+    opacity:.4;
+    cursor:not-allowed;
+  }
+  .btn{
+    border:1px solid var(--ink);
+    background:var(--ink);
+    color:#fff;
+    padding:8px 18px;
+    border-radius:3px;
+    cursor:pointer;
+    letter-spacing:.03em;
+  }
+  .btn:disabled{
+    opacity:.35;
+    cursor:not-allowed;
+  }
+  .btn.secondary{
+    background:#fff;
+    color:var(--ink);
+  }
+
+  /* Headers above grids */
+  .results-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:12px 16px 0;
+    flex-wrap:wrap;
+    gap:8px;
+    flex-shrink:0;
+  }
+  .results-actions{
+    display:flex;
+    gap:8px;
+    font-size:12px;
+  }
+  .link-btn{
+    background:none;
+    border:none;
+    color:var(--accent);
+    text-decoration:underline;
+    cursor:pointer;
+    font-size:12px;
+    padding:0;
+    font-family:inherit;
+  }
+  .link-btn:disabled{
+    color:#b6b2a8;
+    cursor:not-allowed;
+  }
+
+  /* Queue grid (source photos, reorderable) */
+  #queueGrid{
+    flex:1;
+    min-height:0;
+    margin:10px 14px 0;
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:12px;
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(88px, 1fr));
+    grid-auto-rows:min-content;
+    gap:10px;
+    align-content:start;
+    overflow-y:auto;
+  }
+  #queueGrid.empty{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#9a9485;
+    font-size:12.5px;
+    text-align:center;
+  }
+  .queue-thumb{
+    position:relative;
+    border:2px solid var(--line);
+    border-radius:4px;
+    overflow:hidden;
+    cursor:grab;
+    background:#fafaf8;
+    transition:border-color .12s, box-shadow .12s, opacity .12s;
+  }
+  .queue-thumb.dragging{opacity:.35;}
+  .queue-thumb.drag-over{
+    border-color:var(--accent);
+    box-shadow:0 0 0 2px var(--accent-soft);
+  }
+  .queue-thumb img{
+    width:100%;
+    display:block;
+    aspect-ratio:3/4;
+    object-fit:cover;
+    background:#eee;
+  }
+  .queue-thumb .order{
+    position:absolute;
+    top:5px;
+    left:5px;
+    min-width:16px;
+    height:16px;
+    padding:0 4px;
+    border-radius:8px;
+    background:rgba(47,93,80,.88);
+    color:#fff;
+    font-size:10px;
+    font-weight:700;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .queue-thumb .remove{
+    position:absolute;
+    top:4px;
+    right:4px;
+    width:19px;
+    height:19px;
+    border-radius:50%;
+    border:none;
+    background:rgba(0,0,0,.45);
+    color:#fff;
+    font-size:13px;
+    line-height:1;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .queue-thumb .remove:hover{background:var(--warn);}
+  .queue-thumb.new{animation:pop-in .25s ease-out;}
+  @keyframes pop-in{
+    from{ transform:scale(.9); opacity:0; }
+    to{ transform:scale(1); opacity:1; }
+  }
+
+  /* Output pages grid */
+  #grid{
+    flex:1;
+    min-height:0;
+    margin:10px 14px 14px;
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:16px;
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(120px, 1fr));
+    grid-auto-rows:min-content;
+    gap:14px;
+    align-content:start;
+    overflow-y:auto;
+  }
+  #grid.empty{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#9a9485;
+    font-size:13px;
+    text-align:center;
+  }
+  .thumb{
+    position:relative;
+    border:2px solid var(--line);
+    border-radius:4px;
+    overflow:hidden;
+    cursor:zoom-in;
+    background:#fafaf8;
+    transition:border-color .12s, box-shadow .12s;
+  }
+  .thumb:hover{border-color:#b8b2a4;}
+  .thumb img{
+    width:100%;
+    display:block;
+    aspect-ratio:3/4;
+    object-fit:contain;
+    background:#f0efe9;
+  }
+  .thumb .pgnum{
+    position:absolute;
+    bottom:0;
+    left:0;
+    right:0;
+    background:rgba(26,29,35,.72);
+    color:#fff;
+    font-size:10.5px;
+    text-align:center;
+    padding:3px 0;
+    letter-spacing:.04em;
+  }
+  .thumb.new{
+    animation:pop-in .25s ease-out;
+  }
+
+  /* Preview modal */
+  #previewOverlay{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(20,18,15,.82);
+    z-index:1000;
+    align-items:center;
+    justify-content:center;
+    padding:40px 20px;
+  }
+  #previewOverlay.open{display:flex;}
+  .preview-box{
+    max-width:min(820px, 92vw);
+    max-height:88vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+  .preview-box img{
+    max-width:100%;
+    max-height:72vh;
+    object-fit:contain;
+    border:3px solid #fff;
+    border-radius:3px;
+    background:#fff;
+    box-shadow:0 10px 40px rgba(0,0,0,.4);
+  }
+  .preview-meta{
+    color:#f2efe9;
+    font-size:12.5px;
+    margin-top:14px;
+    display:flex;
+    align-items:center;
+    gap:18px;
+    letter-spacing:.03em;
+  }
+  .preview-meta button{
+    font-family:inherit;
+    font-size:16px;
+    background:none;
+    border:1px solid rgba(255,255,255,.4);
+    color:#fff;
+    width:32px;
+    height:32px;
+    border-radius:50%;
+    cursor:pointer;
+  }
+  .preview-meta button:hover{background:rgba(255,255,255,.15);}
+  .preview-meta button:disabled{opacity:.3; cursor:not-allowed;}
+  #previewClose{
+    position:absolute;
+    top:18px;
+    right:24px;
+    background:none;
+    border:none;
+    color:#fff;
+    font-size:26px;
+    cursor:pointer;
+    line-height:1;
+  }
+
+  .footer-row{
+    max-width:1160px;
+    margin:20px auto 0;
+    display:flex;
+    justify-content:flex-end;
+  }
+  #downloadBtn{
+    padding:14px 30px;
+    font-size:13px;
+    font-weight:600;
+    letter-spacing:.06em;
+  }
+  .status{
+    font-size:12px;
+    color:#6b6558;
+    text-align:center;
+    margin-top:10px;
+  }
+  .status.warn{color:var(--warn);}
+</style>
+</head>
+<body>
+
+<h1>Photo to PDF Converter</h1>
+
+<div class="layout">
+  <!-- LEFT: source photos -->
+  <div class="panel">
+    <div class="panel-label">SOURCE PHOTOS</div>
+    <div id="dropzone">
+      <div class="dz-inner">
+        <div class="dz-icon">&#8615;</div>
+        <div class="dz-text">Drag &amp; drop photos here, or click to browse</div>
+      </div>
+    </div>
+    <input type="file" id="fileInput" accept="image/*" multiple>
+
+    <div class="results-header">
+      <div class="panel-label" style="padding:0;">QUEUE &mdash; drag to reorder</div>
+      <div class="results-actions">
+        <button class="link-btn" id="clearAllBtn" disabled>Clear all</button>
+      </div>
+    </div>
+    <div id="queueGrid" class="empty">Selected photos will appear here</div>
+
+    <div class="convert-row">
+      <select id="orientationSelect" title="Page orientation">
+        <option value="auto" selected>Auto (match photo)</option>
+        <option value="portrait">Vertical (Portrait)</option>
+        <option value="landscape">Horizontal (Landscape)</option>
+      </select>
+      <select id="pageSizeSelect" title="Page size">
+        <option value="a4" selected>A4 Page</option>
+        <option value="letter">Letter Page</option>
+        <option value="fit">Fit to Photo</option>
+      </select>
+      <select id="marginSelect" title="Page margin">
+        <option value="none">No Margin</option>
+        <option value="small" selected>Small Margin</option>
+        <option value="large">Large Margin</option>
+      </select>
+      <select id="qualitySelect" title="Image quality">
+        <option value="0.95">High Quality</option>
+        <option value="0.85" selected>Standard</option>
+        <option value="0.65">Compressed</option>
+      </select>
+      <button class="btn" id="convertBtn" disabled>Convert to PDF</button>
+    </div>
+  </div>
+
+  <!-- RIGHT: output pages -->
+  <div class="panel">
+    <div class="results-header">
+      <div class="panel-label" style="padding:0;">PDF PAGES</div>
+    </div>
+    <div id="grid" class="empty">Converted pages will appear here</div>
+  </div>
+</div>
+
+<div class="footer-row">
+  <button class="btn" id="downloadBtn" disabled>Download PDF</button>
+</div>
+<div class="status" id="statusMsg"></div>
+
+<div id="previewOverlay">
+  <button id="previewClose" aria-label="Close preview">&times;</button>
+  <div class="preview-box">
+    <img id="previewImg" src="" alt="Page preview">
+    <div class="preview-meta">
+      <button id="prevPageBtn" aria-label="Previous page">&#8592;</button>
+      <span id="previewLabel">Page 1</span>
+      <button id="nextPageBtn" aria-label="Next page">&#8594;</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const dropzone = document.getElementById('dropzone');
+const fileInput = document.getElementById('fileInput');
+const queueGrid = document.getElementById('queueGrid');
+const clearAllBtn = document.getElementById('clearAllBtn');
+const convertBtn = document.getElementById('convertBtn');
+const orientationSelect = document.getElementById('orientationSelect');
+const pageSizeSelect = document.getElementById('pageSizeSelect');
+const marginSelect = document.getElementById('marginSelect');
+const qualitySelect = document.getElementById('qualitySelect');
+const grid = document.getElementById('grid');
+const downloadBtn = document.getElementById('downloadBtn');
+const statusMsg = document.getElementById('statusMsg');
+const previewOverlay = document.getElementById('previewOverlay');
+const previewImg = document.getElementById('previewImg');
+const previewLabel = document.getElementById('previewLabel');
+const previewClose = document.getElementById('previewClose');
+const prevPageBtn = document.getElementById('prevPageBtn');
+const nextPageBtn = document.getElementById('nextPageBtn');
+
+let photos = [];      // { file, url, name }
+let builtPages = [];  // { index, url } (dataURLs) for the generated PDF preview
+let pdfUrl = null;
+let previewIndex = null;
+let dragSrcIndex = null;
+
+function setStatus(msg, warn=false){
+  statusMsg.textContent = msg || '';
+  statusMsg.className = 'status' + (warn ? ' warn' : '');
+}
+
+// Stop the browser from opening dropped files outside the dropzone
+['dragenter','dragover','drop'].forEach(evt=>{
+  document.addEventListener(evt, e => e.preventDefault());
+  window.addEventListener(evt, e => e.preventDefault());
+});
+
+// ---- Dropzone ----
+dropzone.addEventListener('click', () => fileInput.click());
+['dragenter','dragover'].forEach(evt=>{
+  dropzone.addEventListener(evt, e=>{
+    e.preventDefault(); e.stopPropagation();
+    if(e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
+    dropzone.classList.add('drag');
+  });
+});
+['dragleave','drop'].forEach(evt=>{
+  dropzone.addEventListener(evt, e=>{
+    e.preventDefault(); e.stopPropagation();
+    dropzone.classList.remove('drag');
+  });
+});
+dropzone.addEventListener('drop', e=>{
+  e.preventDefault(); e.stopPropagation();
+  const dt = e.dataTransfer;
+  if(dt && dt.files && dt.files.length) handleFiles(dt.files);
+  else setStatus('Could not read the dropped files — try clicking to browse instead.', true);
+});
+fileInput.addEventListener('change', e=>{
+  if(e.target.files.length) handleFiles(e.target.files);
+  fileInput.value = '';
+});
+
+function readAsDataUrl(file){
+  return new Promise((res, rej) => {
+    const reader = new FileReader();
+    reader.onload = () => res(reader.result);
+    reader.onerror = () => rej(new Error(`Could not read file "${file.name}".`));
+    reader.readAsDataURL(file);
+  });
+}
+
+async function handleFiles(fileList){
+  const files = Array.from(fileList).filter(f => f.type.startsWith('image/'));
+  if(files.length === 0){
+    setStatus('Please select image files (JPG, PNG, etc).', true);
+    return;
+  }
+  setStatus('Loading photos…');
+  for(const f of files){
+    try{
+      const dataUrl = await readAsDataUrl(f);
+      photos.push({ name: f.name, url: dataUrl });
+      renderQueue(true);
+    }catch(err){
+      console.error(err);
+      setStatus(err.message || 'One of the photos could not be read.', true);
+    }
+  }
+  setStatus('');
+  clearBuiltResults();
+}
+
+// ---- Queue (reorderable source list) ----
+function renderQueue(animateLast=false){
+  if(photos.length === 0){
+    queueGrid.innerHTML = 'Selected photos will appear here';
+    queueGrid.classList.add('empty');
+    clearAllBtn.disabled = true;
+    convertBtn.disabled = true;
+    return;
+  }
+  queueGrid.classList.remove('empty');
+  clearAllBtn.disabled = false;
+  convertBtn.disabled = false;
+  queueGrid.innerHTML = '';
+  photos.forEach((p, idx) => {
+    const div = document.createElement('div');
+    div.className = 'queue-thumb' + (animateLast && idx === photos.length-1 ? ' new' : '');
+    div.draggable = true;
+    div.dataset.idx = idx;
+    div.innerHTML = `
+      <img src="${p.url}" loading="lazy">
+      <div class="order">${idx+1}</div>
+      <button class="remove" aria-label="Remove photo">&times;</button>
+    `;
+    div.querySelector('.remove').addEventListener('click', e => {
+      e.stopPropagation();
+      removePhoto(idx);
+    });
+    div.addEventListener('dragstart', e => {
+      dragSrcIndex = idx;
+      div.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    div.addEventListener('dragend', () => div.classList.remove('dragging'));
+    div.addEventListener('dragover', e => { e.preventDefault(); div.classList.add('drag-over'); });
+    div.addEventListener('dragleave', () => div.classList.remove('drag-over'));
+    div.addEventListener('drop', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      div.classList.remove('drag-over');
+      if(dragSrcIndex === null || dragSrcIndex === idx) return;
+      const [moved] = photos.splice(dragSrcIndex, 1);
+      photos.splice(idx, 0, moved);
+      dragSrcIndex = null;
+      renderQueue();
+      clearBuiltResults();
+    });
+    queueGrid.appendChild(div);
+  });
+}
+
+function removePhoto(idx){
+  photos.splice(idx, 1);
+  renderQueue();
+  clearBuiltResults();
+}
+
+clearAllBtn.addEventListener('click', () => {
+  photos = [];
+  renderQueue();
+  clearBuiltResults();
+});
+
+// ---- Orientation select gets ignored when "Fit to Photo" is chosen ----
+pageSizeSelect.addEventListener('change', () => {
+  orientationSelect.disabled = (pageSizeSelect.value === 'fit');
+});
+
+// ---- Output panel reset ----
+function clearBuiltResults(){
+  builtPages = [];
+  if(pdfUrl){ URL.revokeObjectURL(pdfUrl); pdfUrl = null; }
+  grid.innerHTML = 'Converted pages will appear here';
+  grid.classList.add('empty');
+  downloadBtn.disabled = true;
+  setStatus('');
+}
+
+function loadImage(url){
+  return new Promise((res, rej) => {
+    const img = new Image();
+    img.onload = () => res(img);
+    img.onerror = rej;
+    img.src = url;
+  });
+}
+
+// ---- Conversion ----
+convertBtn.addEventListener('click', async () => {
+  if(photos.length === 0) return;
+  convertBtn.disabled = true;
+  convertBtn.textContent = 'Building PDF…';
+  clearBuiltResults();
+
+  const orientation = orientationSelect.value;      // auto | portrait | landscape
+  const pageSizeOpt = pageSizeSelect.value;          // a4 | letter | fit
+  const marginOpt = marginSelect.value;              // none | small | large
+  const quality = parseFloat(qualitySelect.value);
+  const marginPct = marginOpt === 'none' ? 0 : (marginOpt === 'small' ? 0.04 : 0.09);
+  const FIT_MAX_SIDE = 792; // pt (~11in) — keeps "Fit to Photo" pages at a sane printable size
+
+  try{
+    const { jsPDF } = window.jspdf;
+    let doc = null;
+
+    for(let i = 0; i < photos.length; i++){
+      setStatus(`Adding photo ${i+1} of ${photos.length}…`);
+      const p = photos[i];
+      const img = await loadImage(p.url);
+      const iw = img.naturalWidth, ih = img.naturalHeight;
+      const imgIsLandscape = iw >= ih;
+
+      let format, pageOrient;
+      if(pageSizeOpt === 'fit'){
+        // Page shape always follows the photo's own aspect ratio
+        if(imgIsLandscape){
+          format = [FIT_MAX_SIDE, FIT_MAX_SIDE * ih / iw];
+          pageOrient = 'l';
+        }else{
+          format = [FIT_MAX_SIDE * iw / ih, FIT_MAX_SIDE];
+          pageOrient = 'p';
+        }
+      }else{
+        format = pageSizeOpt; // 'a4' or 'letter'
+        pageOrient = orientation === 'auto'
+          ? (imgIsLandscape ? 'l' : 'p')
+          : (orientation === 'landscape' ? 'l' : 'p');
+      }
+
+      if(i === 0){
+        doc = new jsPDF({ orientation: pageOrient, unit: 'pt', format });
+      }else{
+        doc.addPage(format, pageOrient);
+      }
+
+      const pageW = doc.internal.pageSize.getWidth();
+      const pageH = doc.internal.pageSize.getHeight();
+      doc.setFillColor(255,255,255);
+      doc.rect(0, 0, pageW, pageH, 'F');
+
+      const availW = pageW * (1 - marginPct * 2);
+      const availH = pageH * (1 - marginPct * 2);
+      const scale = Math.min(availW / iw, availH / ih);
+      const drawW = iw * scale, drawH = ih * scale;
+      const x = (pageW - drawW) / 2;
+      const y = (pageH - drawH) / 2;
+
+      const canvas = document.createElement('canvas');
+      canvas.width = iw; canvas.height = ih;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, iw, ih);
+      ctx.drawImage(img, 0, 0);
+      const dataUrl = canvas.toDataURL('image/jpeg', quality);
+
+      doc.addImage(dataUrl, 'JPEG', x, y, drawW, drawH);
+      addPagePreview(i+1, dataUrl);
+    }
+
+    const pdfBlob = doc.output('blob');
+    pdfUrl = URL.createObjectURL(pdfBlob);
+    downloadBtn.disabled = false;
+    setStatus(`Done — ${photos.length} page${photos.length>1?'s':''} in the PDF.`);
+  }catch(err){
+    console.error(err);
+    const detail = (err && err.message) ? err.message : 'unknown error';
+    setStatus(`Could not build the PDF (${detail}). Try again with fewer or smaller photos.`, true);
+  }finally{
+    convertBtn.disabled = false;
+    convertBtn.textContent = 'Convert to PDF';
+  }
+});
+
+function addPagePreview(pageNum, dataUrl){
+  if(grid.classList.contains('empty')){
+    grid.innerHTML = '';
+    grid.classList.remove('empty');
+  }
+  builtPages.push({ index: pageNum, url: dataUrl });
+  const div = document.createElement('div');
+  div.className = 'thumb new';
+  div.innerHTML = `
+    <img src="${dataUrl}" loading="lazy">
+    <div class="pgnum">Page ${pageNum}</div>
+  `;
+  div.addEventListener('click', () => openPreview(builtPages.findIndex(pg => pg.index === pageNum)));
+  grid.appendChild(div);
+}
+
+// ---- Preview modal ----
+function openPreview(idx){
+  if(idx < 0 || idx >= builtPages.length) return;
+  previewIndex = idx;
+  const p = builtPages[idx];
+  previewImg.src = p.url;
+  previewLabel.textContent = `Page ${p.index} of ${builtPages.length}`;
+  prevPageBtn.disabled = idx === 0;
+  nextPageBtn.disabled = idx === builtPages.length - 1;
+  previewOverlay.classList.add('open');
+}
+function closePreview(){
+  previewOverlay.classList.remove('open');
+  previewIndex = null;
+}
+previewClose.addEventListener('click', closePreview);
+previewOverlay.addEventListener('click', e => { if(e.target === previewOverlay) closePreview(); });
+prevPageBtn.addEventListener('click', () => openPreview(previewIndex - 1));
+nextPageBtn.addEventListener('click', () => openPreview(previewIndex + 1));
+document.addEventListener('keydown', e => {
+  if(!previewOverlay.classList.contains('open')) return;
+  if(e.key === 'Escape') closePreview();
+  if(e.key === 'ArrowLeft') openPreview(previewIndex - 1);
+  if(e.key === 'ArrowRight') openPreview(previewIndex + 1);
+});
+
+// ---- Download ----
+function triggerDownload(url, filename){
+  try{
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.rel = 'noopener';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }catch(err){
+    console.warn('Direct download blocked, opening in new tab instead.', err);
+    window.open(url, '_blank', 'noopener');
+  }
+}
+
+downloadBtn.addEventListener('click', () => {
+  if(!pdfUrl) return;
+  const baseName = photos.length === 1
+    ? photos[0].name.replace(/\.[^.]+$/, '')
+    : 'photos';
+  triggerDownload(pdfUrl, `${baseName}.pdf`);
+  setStatus('If the download didn\'t start, use the "Open in new tab" option and save from there.');
+});
+</script>
+
+</body>
+</html>
