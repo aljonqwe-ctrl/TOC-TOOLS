@@ -112,8 +112,8 @@
   .chip.active{border-color:var(--accent);color:var(--accent);background:var(--accent-soft);}
   .chip:hover{color:var(--ink);}
 
-  .mode-row{display:flex;gap:6px;margin-bottom:14px;}
-  .mode-btn{flex:1;font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;background:var(--well);border:1px solid var(--line);color:var(--mute);padding:8px 6px;cursor:pointer;border-radius:3px;}
+  .mode-row{display:flex;flex-wrap:nowrap;gap:6px;margin-bottom:14px;}
+  .mode-btn{flex:1;min-width:0;font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;background:var(--well);border:1px solid var(--line);color:var(--mute);padding:8px 6px;cursor:pointer;border-radius:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .mode-btn:hover{color:var(--ink);}
   .mode-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:700;}
 
@@ -342,8 +342,15 @@
             <label>Weight</label>
             <select id="t-weight"><option value="400">Regular</option><option value="600" selected>Semibold</option><option value="700">Bold</option><option value="800">Black</option></select>
           </div>
-          <div class="field"><label>Outline</label><div class="slider-row"><input type="number" class="num-box" id="n-tstroke" min="0" max="12" value="0"><input type="range" id="t-stroke" min="0" max="12" value="0"></div></div>
-          <div class="field"><label>Background bar</label><div class="slider-row"><input type="number" class="num-box" id="n-tbg" min="0" max="90" value="0"><input type="range" id="t-bg" min="0" max="90" value="0"></div></div>
+          <div class="grid2" style="margin-bottom:16px;">
+            <div class="field" style="margin-bottom:0;"><label>Outline size</label><div class="slider-row"><input type="number" class="num-box" id="n-tstroke" min="0" max="12" value="0"><input type="range" id="t-stroke" min="0" max="12" value="0"></div></div>
+            <div class="field" style="margin-bottom:0;"><label>Outline color</label><input type="color" id="t-strokecolor" value="#000000"></div>
+          </div>
+          <div class="field"><label>Background bar opacity</label><div class="slider-row"><input type="number" class="num-box" id="n-tbg" min="0" max="90" value="0"><input type="range" id="t-bg" min="0" max="90" value="0"></div></div>
+          <div class="grid2" style="margin-bottom:16px;">
+            <div class="field" style="margin-bottom:0;"><label>Bar size</label><div class="slider-row"><input type="number" class="num-box" id="n-tbgsize" min="0" max="100" value="50"><input type="range" id="t-bgsize" min="0" max="100" value="50"></div></div>
+            <div class="field" style="margin-bottom:0;"><label>Bar color</label><input type="color" id="t-bgcolor" value="#000000"></div>
+          </div>
           <button class="btn danger" id="deleteTextBtn" style="width:100%;">Delete Layer</button>
         </div>
       </section>
@@ -385,9 +392,13 @@
           <input type="range" id="e-quality" min="40" max="100" value="92">
         </div>
         <div class="field"><label>File name</label><input type="text" id="e-filename" value="on-air-photo"></div>
-        <div class="row" style="justify-content:space-between;margin-bottom:16px;">
+        <div class="row" style="justify-content:space-between;margin-bottom:10px;">
           <span style="font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);">Auto-download on load</span>
           <label class="switch"><input type="checkbox" id="autoDownloadToggle"><span class="track"><span class="knob"></span></span></label>
+        </div>
+        <div class="field" style="margin-top:12px;">
+          <label>Background blur <span class="val" id="v-exportblur">45px</span></label>
+          <input type="range" id="exportBlurSlider" min="0" max="80" step="1" value="45">
         </div>
         <button class="btn primary" id="exportBtn2" style="width:100%;">Download</button>
       </section>
@@ -489,6 +500,7 @@
     sizeApply: document.getElementById('sizeApply'),
     sizeCancel: document.getElementById('sizeCancel'),
     autoDownloadToggle: document.getElementById('autoDownloadToggle'),
+    exportBlurSlider: document.getElementById('exportBlurSlider'),
   };
   const ctx = el.canvas.getContext('2d');
 
@@ -502,7 +514,10 @@
     size: document.getElementById('t-size'), sizeNum: document.getElementById('n-tsize'),
     color: document.getElementById('t-color'), weight: document.getElementById('t-weight'),
     stroke: document.getElementById('t-stroke'), strokeNum: document.getElementById('n-tstroke'),
+    strokeColor: document.getElementById('t-strokecolor'),
     bg: document.getElementById('t-bg'), bgNum: document.getElementById('n-tbg'),
+    bgSize: document.getElementById('t-bgsize'), bgSizeNum: document.getElementById('n-tbgsize'),
+    bgColor: document.getElementById('t-bgcolor'),
   };
   const mFields = {
     size: document.getElementById('m-size'), sizeNum: document.getElementById('n-msize'),
@@ -666,11 +681,15 @@
     render();
   });
   el.bgToggle.addEventListener('change', ()=>{ state.backdrop.enabled = el.bgToggle.checked; render(); });
-  el.bgBlurSlider.addEventListener('input', ()=>{
-    state.backdrop.blur = parseInt(el.bgBlurSlider.value,10);
-    document.getElementById('v-bgblur').textContent = state.backdrop.blur+'px';
+  function setBackdropBlur(v){
+    state.backdrop.blur = v;
+    el.bgBlurSlider.value = v; el.exportBlurSlider.value = v;
+    document.getElementById('v-bgblur').textContent = v+'px';
+    document.getElementById('v-exportblur').textContent = v+'px';
     render();
-  });
+  }
+  el.bgBlurSlider.addEventListener('input', ()=> setBackdropBlur(parseInt(el.bgBlurSlider.value,10)));
+  el.exportBlurSlider.addEventListener('input', ()=> setBackdropBlur(parseInt(el.exportBlurSlider.value,10)));
 
   function adjustFilterString(){
     const a = state.adjust;
@@ -846,7 +865,7 @@
 
   // ---------- text layers ----------
   function addTextLayer(){
-    const layer = { id:idCounter++, text:'LOWER THIRD', x:0.5, y:0.85, size:42, color:'#ffffff', weight:'600', stroke:0, bg:0, font:"'Barlow Condensed',sans-serif" };
+    const layer = { id:idCounter++, text:'LOWER THIRD', x:0.5, y:0.85, size:42, color:'#ffffff', weight:'600', stroke:0, strokeColor:'#000000', bg:0, bgSize:50, bgColor:'#000000', font:"'Barlow Condensed',sans-serif" };
     state.textLayers.push(layer); state.selectedTextId = layer.id;
     renderTextLayerList(); populateTextFields(layer); render();
   }
@@ -875,6 +894,11 @@
     });
   }
   function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function hexToRgba(hex, alpha){
+    const h = (hex||'#000000').replace('#','');
+    const r = parseInt(h.substring(0,2),16)||0, g = parseInt(h.substring(2,4),16)||0, b = parseInt(h.substring(4,6),16)||0;
+    return `rgba(${r},${g},${b},${alpha})`;
+  }
   function getSelectedText(){ return state.textLayers.find(l=>l.id===state.selectedTextId); }
   function populateTextFields(layer){
     el.textEditFields.style.display = 'block';
@@ -882,7 +906,11 @@
     tFields.size.value = layer.size; tFields.sizeNum.value = layer.size;
     tFields.color.value = layer.color; tFields.weight.value = layer.weight;
     tFields.stroke.value = layer.stroke; tFields.strokeNum.value = layer.stroke;
+    tFields.strokeColor.value = layer.strokeColor || '#000000';
     tFields.bg.value = layer.bg; tFields.bgNum.value = layer.bg;
+    const bgSize = layer.bgSize!=null ? layer.bgSize : 50;
+    tFields.bgSize.value = bgSize; tFields.bgSizeNum.value = bgSize;
+    tFields.bgColor.value = layer.bgColor || '#000000';
   }
   tFields.content.addEventListener('input', ()=>{ const l=getSelectedText(); if(!l)return; l.text=tFields.content.value; renderTextLayerList(); render(); });
   tFields.font.addEventListener('change', ()=>{ const l=getSelectedText(); if(!l)return; l.font=tFields.font.value; render(); });
@@ -890,7 +918,10 @@
   tFields.color.addEventListener('input', ()=>{ const l=getSelectedText(); if(!l)return; l.color=tFields.color.value; render(); });
   tFields.weight.addEventListener('change', ()=>{ const l=getSelectedText(); if(!l)return; l.weight=tFields.weight.value; render(); });
   pairSliderNumber(tFields.stroke, tFields.strokeNum, v=>{ const l=getSelectedText(); if(!l)return; l.stroke=Math.round(v); render(); });
+  tFields.strokeColor.addEventListener('input', ()=>{ const l=getSelectedText(); if(!l)return; l.strokeColor=tFields.strokeColor.value; render(); });
   pairSliderNumber(tFields.bg, tFields.bgNum, v=>{ const l=getSelectedText(); if(!l)return; l.bg=Math.round(v); render(); });
+  pairSliderNumber(tFields.bgSize, tFields.bgSizeNum, v=>{ const l=getSelectedText(); if(!l)return; l.bgSize=Math.round(v); render(); });
+  tFields.bgColor.addEventListener('input', ()=>{ const l=getSelectedText(); if(!l)return; l.bgColor=tFields.bgColor.value; render(); });
   el.deleteTextBtn.addEventListener('click', ()=>{
     if(!state.selectedTextId) return;
     state.textLayers = state.textLayers.filter(l=>l.id!==state.selectedTextId);
@@ -1050,9 +1081,11 @@
       const px = layer.x*w, py = layer.y*h;
       const metrics = c.measureText(layer.text);
       const tw = metrics.width, th = fontPx*1.2;
-      layer._box = {x:px-tw/2-14, y:py-th/2-8, w:tw+28, h:th+16};
-      if(layer.bg>0){ c.fillStyle = `rgba(0,0,0,${layer.bg/100})`; c.fillRect(layer._box.x,layer._box.y,layer._box.w,layer._box.h); }
-      if(layer.stroke>0){ c.lineWidth = layer.stroke*(w/1000)*2; c.strokeStyle='#000000'; c.lineJoin='round'; c.strokeText(layer.text,px,py); }
+      const padScale = (layer.bgSize!=null ? layer.bgSize : 50)/50;
+      const padX = 14*padScale, padY = 8*padScale;
+      layer._box = {x:px-tw/2-padX, y:py-th/2-padY, w:tw+padX*2, h:th+padY*2};
+      if(layer.bg>0){ c.fillStyle = hexToRgba(layer.bgColor||'#000000', layer.bg/100); c.fillRect(layer._box.x,layer._box.y,layer._box.w,layer._box.h); }
+      if(layer.stroke>0){ c.lineWidth = layer.stroke*(w/1000)*2; c.strokeStyle=layer.strokeColor||'#000000'; c.lineJoin='round'; c.strokeText(layer.text,px,py); }
       c.fillStyle = layer.color; c.fillText(layer.text,px,py);
       c.restore();
     });
