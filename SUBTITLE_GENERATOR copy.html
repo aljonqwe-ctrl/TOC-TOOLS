@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Quote Subtitle Video Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@500;600;700;800&family=Playfair+Display:wght@500;700&family=Cormorant+Garamond:wght@500;600&family=Montserrat:wght@500;600&family=Lora:wght@500;600&family=Georgia&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#332f45;
+    --muted:#8b859b;
+    --panel:#ffffff;
+    --border:#e6e1f0;
+    --accent:#e0876f;
+    --accent-dark:#c96952;
+    --field-bg:#faf8fc;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    font-family:'Red Hat Display',sans-serif;
+    background:linear-gradient(135deg,#fdf1ec 0%,#f4eefb 50%,#eef1fb 100%);
+    color:var(--ink);
+    min-height:100vh;
+    padding:32px;
+    display:flex;
+    justify-content:center;
+  }
+  .page-wrap{
+    width:100%;
+    max-width:900px;
+  }
+  h1{
+    font-family:'Red Hat Display',sans-serif;
+    font-weight:800;
+    font-size:24px;
+    letter-spacing:0.5px;
+    margin:0 0 4px 0;
+    color:var(--ink);
+    text-align:center;
+  }
+  .sub{
+    color:var(--muted);
+    font-size:13px;
+    margin:0 auto 28px auto;
+    max-width:640px;
+    line-height:1.5;
+    text-align:center;
+  }
+  .layout{
+    display:flex;
+    gap:28px;
+    align-items:flex-start;
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:22px;
+    width:340px;
+    flex-shrink:0;
+    box-shadow:0 12px 30px -18px rgba(51,47,69,0.25);
+  }
+  label{
+    display:block;
+    font-size:11px;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    color:var(--accent-dark);
+    margin-bottom:8px;
+    margin-top:20px;
+  }
+  label:first-of-type{margin-top:0;}
+  .label-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+  }
+  .label-row span.val{
+    color:var(--muted);
+    text-transform:none;
+    letter-spacing:0;
+    font-size:11px;
+    font-weight:500;
+  }
+  textarea{
+    width:100%;
+    min-height:120px;
+    background:var(--field-bg);
+    border:1px solid var(--border);
+    border-radius:8px;
+    color:var(--ink);
+    padding:10px;
+    font-family:'Red Hat Display',sans-serif;
+    font-size:13px;
+    resize:vertical;
+    line-height:1.5;
+  }
+  select, input[type=color]{
+    width:100%;
+    background:var(--field-bg);
+    border:1px solid var(--border);
+    border-radius:8px;
+    color:var(--ink);
+    padding:9px 10px;
+    font-size:13px;
+    font-family:'Red Hat Display',sans-serif;
+  }
+  input[type=color]{padding:4px;height:38px;cursor:pointer;}
+  input[type=range]{
+    width:100%;
+    accent-color:var(--accent);
+  }
+  .row2{display:flex;gap:10px;}
+  .row2 > div{flex:1;}
+  input[type=file]{
+    width:100%;
+    font-size:12px;
+    color:var(--muted);
+    font-family:'Red Hat Display',sans-serif;
+  }
+  .filename{
+    font-size:11px;
+    color:var(--muted);
+    margin-top:6px;
+  }
+  button{
+    width:100%;
+    margin-top:24px;
+    background:var(--accent);
+    color:#fff;
+    border:none;
+    border-radius:8px;
+    padding:13px;
+    font-weight:700;
+    font-size:13px;
+    letter-spacing:0.5px;
+    cursor:pointer;
+    font-family:'Red Hat Display',sans-serif;
+  }
+  button:disabled{
+    background:#e7e1ee;
+    color:#b0abbf;
+    cursor:not-allowed;
+  }
+  button:not(:disabled):hover{ background:var(--accent-dark); }
+  .preview-wrap{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:14px;
+  }
+  canvas{
+    border-radius:14px;
+    border:1px solid var(--border);
+    box-shadow:0 12px 30px -18px rgba(51,47,69,0.25);
+    background:
+      linear-gradient(45deg,#1c2438 25%,transparent 25%),
+      linear-gradient(-45deg,#1c2438 25%,transparent 25%),
+      linear-gradient(45deg,transparent 75%,#1c2438 75%),
+      linear-gradient(-45deg,transparent 75%,#1c2438 75%);
+    background-size:16px 16px;
+    background-position:0 0,0 8px,8px -8px,-8px 0px;
+    background-color:#000;
+  }
+  .status{
+    font-size:12px;
+    color:var(--muted);
+    min-height:18px;
+    text-align:center;
+    max-width:320px;
+  }
+  .progress-track{
+    width:100%;
+    max-width:320px;
+    height:4px;
+    background:var(--field-bg);
+    border-radius:2px;
+    overflow:hidden;
+    display:none;
+  }
+  .progress-fill{
+    height:100%;
+    width:0%;
+    background:var(--accent);
+  }
+  .download-link{
+    display:none;
+    width:100%;
+    max-width:320px;
+    text-align:center;
+    background:transparent;
+    border:1px solid var(--accent);
+    color:var(--accent-dark);
+    padding:11px;
+    border-radius:8px;
+    text-decoration:none;
+    font-size:13px;
+    font-weight:700;
+  }
+  .note{
+    font-size:11px;
+    color:var(--muted);
+    line-height:1.5;
+    max-width:320px;
+    text-align:center;
+  }
+</style>
+</head>
+<body>
+
+<div class="page-wrap">
+
+<h1>Quote Subtitle Video Generator</h1>
+<p class="sub">Paste your script, upload your narration audio, style the captions, pick an output size, then generate a video. Captions are limited to 2 lines and paced automatically to match your audio's length.</p>
+
+<div class="layout">
+
+  <div class="panel">
+    <label>Script</label>
+    <textarea id="script" placeholder="Paste your quote or narration script here...">for me, Past Lives feels like a story about the people we leave behind when life forces us to choose a different future. Sometimes, we leave our hometown, our friends, even the person we love—not because we stopped loving them, but because we believe there's a better life waiting somewhere else. And years later, you can't help but wonder… what if I had stayed?</textarea>
+
+    <label>Narration audio</label>
+    <input type="file" id="audioFile" accept="audio/*">
+    <div class="filename" id="audioName">No file selected</div>
+
+    <label>Output size</label>
+    <select id="outputSize">
+      <option value="1080,1920" selected>YouTube Shorts / TikTok / Reels — 1080×1920 (9:16)</option>
+      <option value="1080,1350">Instagram Portrait Post — 1080×1350 (4:5)</option>
+      <option value="1080,1080">Instagram / Facebook Square — 1080×1080 (1:1)</option>
+      <option value="1920,1080">YouTube / Facebook Landscape — 1920×1080 (16:9)</option>
+    </select>
+
+    <div class="row2">
+      <div>
+        <label>Font color</label>
+        <input type="color" id="fontColor" value="#332f45">
+      </div>
+      <div>
+        <label>Background color</label>
+        <input type="color" id="bgColor" value="#fdf1ec">
+      </div>
+    </div>
+
+    <div class="label-row">
+      <label style="margin:0;">Background opacity</label>
+      <span class="val" id="bgOpacityVal">100%</span>
+    </div>
+    <input type="range" id="bgOpacity" min="0" max="100" value="100">
+
+    <label>Font style</label>
+    <select id="fontStyle">
+      <option value="'Playfair Display', serif" selected>Playfair Display (bold serif)</option>
+      <option value="'Cormorant Garamond', serif">Cormorant Garamond (elegant serif)</option>
+      <option value="'Lora', serif">Lora (soft serif)</option>
+      <option value="Georgia, serif">Georgia (classic serif)</option>
+      <option value="'Montserrat', sans-serif">Montserrat (clean sans)</option>
+      <option value="'Red Hat Display', sans-serif">Red Hat Display (modern sans)</option>
+    </select>
+
+    <label>Caption position</label>
+    <select id="position">
+      <option value="center" selected>Center</option>
+      <option value="bottom">Lower third</option>
+    </select>
+
+    <button id="generateBtn">Generate video</button>
+  </div>
+
+  <div class="preview-wrap">
+    <canvas id="canvas" width="1080" height="1920"></canvas>
+    <div class="progress-track" id="progressTrack"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="status" id="status">Upload audio and click Generate to preview.</div>
+    <a class="download-link" id="downloadLink">Download video (.mp4)</a>
+    <div class="note" id="exportNote">Exports as .mp4 at the selected output size. Timing is estimated from word count vs. audio length, not true speech recognition. Note: exported video has no alpha channel — a reduced background opacity will render as fading toward solid black, not true transparency.</div>
+  </div>
+
+</div>
+
+</div>
+
+<script src="https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js"></script>
+<script src="https://unpkg.com/@ffmpeg/util@0.12.1/dist/umd/index.js"></script>
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const scriptEl = document.getElementById('script');
+const audioFileEl = document.getElementById('audioFile');
+const audioNameEl = document.getElementById('audioName');
+const outputSizeEl = document.getElementById('outputSize');
+const fontColorEl = document.getElementById('fontColor');
+const bgColorEl = document.getElementById('bgColor');
+const bgOpacityEl = document.getElementById('bgOpacity');
+const bgOpacityValEl = document.getElementById('bgOpacityVal');
+const fontStyleEl = document.getElementById('fontStyle');
+const positionEl = document.getElementById('position');
+const generateBtn = document.getElementById('generateBtn');
+const statusEl = document.getElementById('status');
+const progressTrack = document.getElementById('progressTrack');
+const progressFill = document.getElementById('progressFill');
+const downloadLink = document.getElementById('downloadLink');
+
+// Reference resolution the styling constants below were designed for (full-size Shorts frame).
+const REF_WIDTH = 1080;
+let SCALE = canvas.width / REF_WIDTH; // recomputed whenever the output size changes
+
+let audioEl = null;
+let audioObjectUrl = null;
+let ffmpegInstance = null;
+
+audioFileEl.addEventListener('change', () => {
+  const file = audioFileEl.files[0];
+  if(!file){ audioNameEl.textContent = 'No file selected'; return; }
+  audioNameEl.textContent = file.name;
+  if(audioObjectUrl) URL.revokeObjectURL(audioObjectUrl);
+  audioObjectUrl = URL.createObjectURL(file);
+  audioEl = new Audio(audioObjectUrl);
+  audioEl.crossOrigin = 'anonymous';
+});
+
+bgOpacityEl.addEventListener('input', () => {
+  bgOpacityValEl.textContent = bgOpacityEl.value + '%';
+});
+
+// --- Output size handling ---
+// Sets the canvas's real pixel resolution (used for export) and scales
+// its on-screen CSS size so the preview keeps the correct aspect ratio.
+function updateCanvasDisplaySize(){
+  const maxDim = 480; // largest on-screen dimension, in px
+  const ratio = canvas.width / canvas.height;
+  let dispW, dispH;
+  if(ratio >= 1){
+    dispW = maxDim;
+    dispH = maxDim / ratio;
+  } else {
+    dispH = maxDim;
+    dispW = maxDim * ratio;
+  }
+  canvas.style.width = Math.round(dispW) + 'px';
+  canvas.style.height = Math.round(dispH) + 'px';
+}
+
+function applyOutputSize(){
+  const [w, h] = outputSizeEl.value.split(',').map(Number);
+  canvas.width = w;
+  canvas.height = h;
+  SCALE = canvas.width / REF_WIDTH;
+  updateCanvasDisplaySize();
+}
+
+outputSizeEl.addEventListener('change', () => {
+  applyOutputSize();
+  drawStaticPreview();
+});
+
+function hexToRgba(hex, alphaPct){
+  const h = hex.replace('#','');
+  const r = parseInt(h.substring(0,2),16);
+  const g = parseInt(h.substring(2,4),16);
+  const b = parseInt(h.substring(4,6),16);
+  return `rgba(${r},${g},${b},${alphaPct/100})`;
+}
+
+function paintBackground(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  const opacity = parseInt(bgOpacityEl.value,10);
+  if(opacity > 0){
+    ctx.fillStyle = hexToRgba(bgColorEl.value, opacity);
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+  }
+}
+
+// Draw a static preview frame whenever styling changes
+function drawStaticPreview(){
+  paintBackground();
+  drawCaptionChunk(getChunks()[0] ? getChunks()[0].lines : ['Your caption','preview appears here']);
+}
+[fontColorEl,bgColorEl,bgOpacityEl,fontStyleEl,positionEl,scriptEl].forEach(el=>{
+  el.addEventListener('input', drawStaticPreview);
+});
+
+// --- Text chunking: split script into chunks that fit within 2 lines ---
+function wrapWordsToLines(words, maxWidth, font){
+  ctx.font = font;
+  const lines = [];
+  let current = '';
+  for(const w of words){
+    const test = current ? current + ' ' + w : w;
+    if(ctx.measureText(test).width > maxWidth && current){
+      lines.push(current);
+      current = w;
+    } else {
+      current = test;
+    }
+  }
+  if(current) lines.push(current);
+  return lines;
+}
+
+function getChunks(){
+  const text = scriptEl.value.trim();
+  if(!text) return [];
+  const words = text.split(/\s+/);
+  const fontSize = Math.round(64 * SCALE);
+  const font = `600 ${fontSize}px ${fontStyleEl.value}`;
+  const maxWidth = canvas.width - Math.round(160 * SCALE);
+
+  const chunks = [];
+  let remaining = words.slice();
+
+  while(remaining.length){
+    // greedily take words until wrapping would exceed 2 lines
+    let count = 1;
+    let bestLines = wrapWordsToLines(remaining.slice(0,count), maxWidth, font);
+    while(count < remaining.length){
+      const testLines = wrapWordsToLines(remaining.slice(0,count+1), maxWidth, font);
+      if(testLines.length > 2) break;
+      count++;
+      bestLines = testLines;
+    }
+    const chunkWords = remaining.slice(0,count);
+    chunks.push({ words: chunkWords, lines: bestLines, wordCount: chunkWords.length });
+    remaining = remaining.slice(count);
+  }
+  return chunks;
+}
+
+function drawCaptionChunk(lines){
+  const fontSize = Math.round(64 * SCALE);
+  ctx.font = `600 ${fontSize}px ${fontStyleEl.value}`;
+  ctx.fillStyle = fontColorEl.value;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  const spacing = fontSize * 1.3;
+  const totalHeight = lines.length * spacing;
+
+  let startY;
+  if(positionEl.value === 'bottom'){
+    const bottomOffset = Math.round(340 * SCALE);
+    startY = canvas.height - bottomOffset - totalHeight/2 + spacing/2;
+  } else {
+    startY = canvas.height/2 - totalHeight/2 + spacing/2;
+  }
+
+  lines.forEach((line, i) => {
+    ctx.fillText(line, canvas.width/2, startY + i*spacing);
+  });
+}
+
+function redrawFrame(chunks, currentTime){
+  paintBackground();
+
+  let active = chunks.find(c => currentTime >= c.start && currentTime < c.end);
+  if(!active) active = chunks[chunks.length-1];
+  if(active) drawCaptionChunk(active.lines);
+}
+
+function assignTiming(chunks, duration){
+  const totalWords = chunks.reduce((s,c)=>s+c.wordCount,0);
+  let t = 0;
+  chunks.forEach(c=>{
+    const dur = (c.wordCount/totalWords) * duration;
+    c.start = t;
+    c.end = t + dur;
+    t += dur;
+  });
+  return chunks;
+}
+
+// --- MP4 support helpers ---
+function pickNativeMp4MimeType(){
+  const candidates = [
+    'video/mp4;codecs=avc1.42E01E,mp4a.40.2',
+    'video/mp4;codecs=h264,aac',
+    'video/mp4'
+  ];
+  for(const c of candidates){
+    if(window.MediaRecorder && MediaRecorder.isTypeSupported(c)) return c;
+  }
+  return null;
+}
+
+async function getFfmpeg(onLog){
+  if(ffmpegInstance) return ffmpegInstance;
+  const { FFmpeg } = FFmpegWASM;
+  const { toBlobURL } = FFmpegUtil;
+  const ffmpeg = new FFmpeg();
+  if(onLog) ffmpeg.on('log', ({message}) => onLog(message));
+  const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
+  await ffmpeg.load({
+    coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+    wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+  });
+  ffmpegInstance = ffmpeg;
+  return ffmpeg;
+}
+
+async function convertWebmToMp4(webmBlob, onProgress){
+  const { fetchFile } = FFmpegUtil;
+  const ffmpeg = await getFfmpeg();
+  ffmpeg.on('progress', ({ progress }) => {
+    if(onProgress) onProgress(Math.min(99, Math.round(progress*100)));
+  });
+  await ffmpeg.writeFile('input.webm', await fetchFile(webmBlob));
+  await ffmpeg.exec(['-i','input.webm','-c:v','libx264','-pix_fmt','yuv420p','-preset','veryfast','-c:a','aac','output.mp4']);
+  const data = await ffmpeg.readFile('output.mp4');
+  return new Blob([data.buffer], { type: 'video/mp4' });
+}
+
+// --- Generate & record ---
+generateBtn.addEventListener('click', async () => {
+  if(!audioEl){
+    statusEl.textContent = 'Please upload an audio file first.';
+    return;
+  }
+  const chunks = getChunks();
+  if(!chunks.length){
+    statusEl.textContent = 'Please enter a script first.';
+    return;
+  }
+
+  generateBtn.disabled = true;
+  downloadLink.style.display = 'none';
+  statusEl.textContent = 'Loading audio...';
+
+  await new Promise((resolve, reject) => {
+    if(audioEl.readyState >= 1){ resolve(); return; }
+    audioEl.addEventListener('loadedmetadata', resolve, {once:true});
+    audioEl.addEventListener('error', reject, {once:true});
+  });
+
+  const duration = audioEl.duration;
+  assignTiming(chunks, duration);
+
+  // set up audio graph so audio is captured into the recording
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const source = audioCtx.createMediaElementSource(audioEl);
+  const dest = audioCtx.createMediaStreamDestination();
+  source.connect(dest);
+  source.connect(audioCtx.destination); // also hear it while recording
+
+  const canvasStream = canvas.captureStream(30);
+  const combined = new MediaStream([
+    ...canvasStream.getVideoTracks(),
+    ...dest.stream.getAudioTracks()
+  ]);
+
+  const nativeMp4Mime = pickNativeMp4MimeType();
+  let recordMimeType = nativeMp4Mime;
+  if(!recordMimeType){
+    recordMimeType = 'video/webm;codecs=vp9,opus';
+    if(!MediaRecorder.isTypeSupported(recordMimeType)) recordMimeType = 'video/webm;codecs=vp8,opus';
+    if(!MediaRecorder.isTypeSupported(recordMimeType)) recordMimeType = 'video/webm';
+  }
+  const needsTranscode = !nativeMp4Mime;
+
+  const recorder = new MediaRecorder(combined, { mimeType: recordMimeType });
+  const recordedChunks = [];
+  recorder.ondataavailable = e => { if(e.data.size > 0) recordedChunks.push(e.data); };
+
+  recorder.onstop = async () => {
+    audioCtx.close();
+    const rawBlob = new Blob(recordedChunks, { type: needsTranscode ? 'video/webm' : 'video/mp4' });
+
+    if(!needsTranscode){
+      finishWithBlob(rawBlob);
+      return;
+    }
+
+    try{
+      progressFill.style.width = '0%';
+      statusEl.textContent = 'Converting to MP4 (first run downloads a ~30MB converter, then it\'s cached)...';
+      const mp4Blob = await convertWebmToMp4(rawBlob, (pct) => {
+        progressFill.style.width = pct + '%';
+        statusEl.textContent = `Converting to MP4... ${pct}%`;
+      });
+      finishWithBlob(mp4Blob);
+    }catch(err){
+      console.error(err);
+      statusEl.textContent = 'MP4 conversion failed — downloading as .webm instead.';
+      finishWithBlob(rawBlob, true);
+    }
+  };
+
+  function finishWithBlob(blob, isWebmFallback){
+    const url = URL.createObjectURL(blob);
+    downloadLink.href = url;
+    const isMp4 = blob.type === 'video/mp4';
+    downloadLink.download = isMp4 ? 'quote_short.mp4' : 'quote_short.webm';
+    downloadLink.textContent = isMp4 ? 'Download video (.mp4)' : 'Download video (.webm)';
+    downloadLink.style.display = 'block';
+    if(!isWebmFallback){
+      statusEl.textContent = 'Done — your video is ready to download.';
+    }
+    progressTrack.style.display = 'none';
+    generateBtn.disabled = false;
+  }
+
+  audioEl.currentTime = 0;
+  progressTrack.style.display = 'block';
+  progressFill.style.width = '0%';
+  statusEl.textContent = 'Recording...';
+
+  recorder.start();
+  await audioEl.play();
+
+  function animate(){
+    redrawFrame(chunks, audioEl.currentTime);
+    const pct = Math.min(100, (audioEl.currentTime / duration) * 100);
+    progressFill.style.width = pct + '%';
+    if(!audioEl.paused && !audioEl.ended){
+      requestAnimationFrame(animate);
+    }
+  }
+  animate();
+
+  audioEl.addEventListener('ended', () => {
+    setTimeout(()=> recorder.stop(), 200);
+  }, {once:true});
+});
+
+// initial preview
+window.addEventListener('load', () => {
+  applyOutputSize();
+  drawStaticPreview();
+});
+</script>
+
+</body>
+</html>
