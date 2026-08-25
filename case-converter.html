@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Case Converter</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --offwhite:#eef0f3;
+    --charcoal:#585858;
+    --navy:#123a6b;
+    --skyblue:#b3dce8;
+    --yellow:#eae696;
+    --white:#ffffff;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    min-height:100vh;
+    background:var(--offwhite);
+    color:var(--navy);
+    font-family:'Space Grotesk', sans-serif;
+  }
+
+  main{
+    max-width:900px;
+    margin:0 auto;
+    padding:44px 20px 60px;
+  }
+
+  header{
+    text-align:center;
+    margin-bottom:30px;
+  }
+  header h1{
+    font-family:'Fredoka', sans-serif;
+    font-weight:700;
+    font-size:clamp(34px, 6vw, 52px);
+    margin:0;
+    color:var(--navy);
+    letter-spacing:0.5px;
+  }
+  header .sub{
+    margin-top:8px;
+    color:var(--charcoal);
+    font-size:15px;
+    font-weight:500;
+  }
+  header .badge{
+    display:inline-block;
+    margin-top:14px;
+    padding:6px 16px;
+    border-radius:999px;
+    font-family:'Fredoka', sans-serif;
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:0.4px;
+    background:var(--yellow);
+    color:var(--navy);
+  }
+
+  .card{
+    background:var(--white);
+    border:2px solid var(--navy);
+    border-radius:18px;
+    box-shadow:6px 6px 0 var(--navy);
+  }
+
+  textarea{
+    width:100%;
+    min-height:220px;
+    background:transparent;
+    border:none;
+    color:var(--navy);
+    font-family:'Space Grotesk', sans-serif;
+    font-size:16px;
+    padding:20px;
+    resize:vertical;
+    outline:none;
+  }
+  textarea::placeholder{color:#9aa5b1;}
+
+  .input-wrap:focus-within{
+    box-shadow:8px 8px 0 var(--navy);
+  }
+
+  .stats{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-top:16px;
+  }
+  .stats .pill{
+    font-size:12px;
+    font-weight:500;
+    color:var(--navy);
+    background:var(--skyblue);
+    border-radius:999px;
+    padding:6px 14px;
+  }
+  .stats .pill b{
+    font-weight:700;
+  }
+
+  .section-label{
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:13px;
+    letter-spacing:0.4px;
+    color:var(--charcoal);
+    margin:30px 4px 12px;
+    text-transform:uppercase;
+  }
+
+  .btn-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+
+  button{
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:13px;
+    letter-spacing:0.2px;
+    color:var(--navy);
+    padding:11px 18px;
+    border-radius:999px;
+    border:2px solid var(--navy);
+    background:var(--white);
+    cursor:pointer;
+    transition:transform .12s ease, box-shadow .12s ease, background .12s ease;
+    box-shadow:3px 3px 0 var(--navy);
+  }
+  button:hover{
+    transform:translate(-1px,-1px);
+    box-shadow:4px 4px 0 var(--navy);
+  }
+  button:active{
+    transform:translate(2px,2px);
+    box-shadow:1px 1px 0 var(--navy);
+  }
+
+  button.primary{
+    background:var(--navy);
+    color:var(--white);
+    box-shadow:3px 3px 0 var(--charcoal);
+  }
+  button.primary:hover{box-shadow:4px 4px 0 var(--charcoal);}
+
+  button.sky{
+    background:var(--skyblue);
+    border-color:var(--navy);
+  }
+
+  button.yellow{
+    background:var(--yellow);
+    border-color:var(--navy);
+  }
+
+  button.ghost{
+    background:transparent;
+    color:var(--charcoal);
+    border:2px dashed var(--charcoal);
+    box-shadow:none;
+  }
+  button.ghost:hover{box-shadow:none; transform:none; background:var(--offwhite);}
+
+  .toast{
+    position:fixed;
+    bottom:24px;
+    right:24px;
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:13px;
+    background:var(--navy);
+    color:var(--white);
+    padding:12px 20px;
+    border-radius:14px;
+    opacity:0;
+    transform:translateY(10px);
+    transition:all .25s ease;
+    z-index:100;
+    box-shadow:4px 4px 0 var(--charcoal);
+  }
+  .toast.show{opacity:1; transform:translateY(0);}
+
+  ::selection{background:var(--yellow); color:var(--navy);}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Case Converter</h1>
+    <div class="sub">clean up and reformat any text</div>
+    <div class="badge">no install needed</div>
+  </header>
+
+  <div class="card input-wrap">
+    <textarea id="input" placeholder="paste your text here..."></textarea>
+  </div>
+
+  <div class="stats">
+    <span class="pill">chars <b id="charCount">0</b></span>
+    <span class="pill">no-space <b id="charNoSpaceCount">0</b></span>
+    <span class="pill">words <b id="wordCount">0</b></span>
+    <span class="pill">sentences <b id="sentenceCount">0</b></span>
+    <span class="pill">lines <b id="lineCount">0</b></span>
+  </div>
+
+  <div class="section-label">Case Transforms</div>
+  <div class="btn-row">
+    <button onclick="apply('upper')">UPPER CASE</button>
+    <button onclick="apply('lower')">lower case</button>
+    <button onclick="apply('sentence')">Sentence case</button>
+    <button onclick="apply('title')">Title Case</button>
+    <button onclick="apply('capitalized')">Capitalized Case</button>
+    <button onclick="apply('alternating')">aLtErNaTiNg</button>
+    <button onclick="apply('inverse')">iNVERSE</button>
+  </div>
+
+  <div class="section-label">Text Utilities</div>
+  <div class="btn-row">
+    <button class="sky" onclick="apply('removeExtraSpaces')">remove extra spaces</button>
+    <button class="sky" onclick="apply('removeLineBreaks')">remove line breaks</button>
+    <button class="sky" onclick="apply('trim')">trim lines</button>
+    <button class="sky" onclick="apply('reverse')">reverse text</button>
+  </div>
+
+  <div class="section-label">Actions</div>
+  <div class="btn-row">
+    <button class="primary" onclick="copyText()">copy to clipboard</button>
+    <button class="yellow" onclick="downloadText()">download .txt</button>
+    <button class="ghost" onclick="clearText()">clear</button>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const input = document.getElementById('input');
+
+function updateStats(){
+  const text = input.value;
+  document.getElementById('charCount').textContent = text.length;
+  document.getElementById('charNoSpaceCount').textContent = text.replace(/\s/g,'').length;
+  document.getElementById('wordCount').textContent = (text.trim().match(/\S+/g) || []).length;
+  document.getElementById('sentenceCount').textContent = (text.match(/[.!?]+(?=\s|$)/g) || []).length;
+  document.getElementById('lineCount').textContent = text === '' ? 0 : text.split(/\n/).length;
+}
+input.addEventListener('input', updateStats);
+updateStats();
+
+function toTitleCase(str){
+  const minor = new Set(['a','an','the','and','but','or','nor','for','so','yet','at','by','in','of','on','to','up','as','is']);
+  const words = str.toLowerCase().split(/(\s+)/);
+  let wordIndex = 0;
+  const totalWords = str.trim().split(/\s+/).length;
+  return words.map((w) => {
+    if(/^\s+$/.test(w) || w === '') return w;
+    const isFirst = wordIndex === 0;
+    const isLast = wordIndex === totalWords - 1;
+    wordIndex++;
+    if(!isFirst && !isLast && minor.has(w)) return w;
+    return w.charAt(0).toUpperCase() + w.slice(1);
+  }).join('');
+}
+
+function apply(mode){
+  let text = input.value;
+  switch(mode){
+    case 'upper':
+      text = text.toUpperCase(); break;
+    case 'lower':
+      text = text.toLowerCase(); break;
+    case 'sentence':
+      text = text.toLowerCase().replace(/(^\s*\w|[.!?]\s*\w)/g, c => c.toUpperCase());
+      break;
+    case 'title':
+      text = toTitleCase(text); break;
+    case 'capitalized':
+      text = text.replace(/\b\w/g, c => c.toUpperCase()); break;
+    case 'alternating':
+      text = text.split('').map((c,i) => i % 2 === 0 ? c.toLowerCase() : c.toUpperCase()).join('');
+      break;
+    case 'inverse':
+      text = text.split('').map(c => c === c.toUpperCase() ? c.toLowerCase() : c.toUpperCase()).join('');
+      break;
+    case 'removeExtraSpaces':
+      text = text.replace(/[ \t]+/g,' ').replace(/ ?\n ?/g,'\n').trim();
+      break;
+    case 'removeLineBreaks':
+      text = text.replace(/\r?\n+/g,' ').replace(/ +/g,' ').trim();
+      break;
+    case 'trim':
+      text = text.split('\n').map(l => l.trim()).join('\n');
+      break;
+    case 'reverse':
+      text = text.split('').reverse().join('');
+      break;
+  }
+  input.value = text;
+  updateStats();
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1600);
+}
+
+function copyText(){
+  navigator.clipboard.writeText(input.value).then(() => showToast('copied to clipboard'));
+}
+
+function downloadText(){
+  const blob = new Blob([input.value], {type:'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'converted-text.txt';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('downloading...');
+}
+
+function clearText(){
+  input.value = '';
+  updateStats();
+}
+</script>
+</body>
+</html>
