@@ -16,6 +16,20 @@
     --radius:20px;
     --font:-apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
   }
+  html[data-theme="dark"]{
+    --bg:#222a33;
+    --text:#e3edf5;
+    --muted:#8ca0b3;
+    --accent:#38bdf8;
+    --accent-soft:rgba(56,189,248,0.22);
+    --shadow-dark:#181e25;
+    --shadow-light:#2c3641;
+  }
+  html{ transition:background-color .2s ease; }
+  body{ transition:background-color .2s ease, color .2s ease; }
+  #topbar, .tool-card, .tool-icon, #backBtn, #themeToggle{
+    transition: box-shadow .2s ease, background-color .2s ease, transform .16s ease, color .2s ease;
+  }
   *{box-sizing:border-box;}
   html,body{height:100%;}
   body{
@@ -75,6 +89,29 @@
     transform:translateY(0);
     box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
   }
+
+  #topbar-right{
+    display:flex; align-items:center; gap:12px;
+  }
+  #themeToggle{
+    display:flex; align-items:center; justify-content:center;
+    width:38px; height:38px;
+    border-radius:50%;
+    border:none;
+    background:var(--bg);
+    color:var(--accent);
+    cursor:pointer;
+    box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
+  }
+  #themeToggle:hover{ transform:translateY(-1px); }
+  #themeToggle:active{
+    transform:translateY(0);
+    box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+  }
+  #themeToggle svg{ width:18px; height:18px; }
+  #themeToggle .moon{ display:none; }
+  html[data-theme="dark"] #themeToggle .sun{ display:none; }
+  html[data-theme="dark"] #themeToggle .moon{ display:block; }
 
   /* ---- Home view ---- */
   #homeView{
@@ -168,10 +205,21 @@
 
 <div id="topbar">
   <div class="logo"><span class="dot"></span>TOC TOOLS<span class="sub" id="toolLabel"></span></div>
-  <button id="backBtn">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M15 18l-6-6 6-6"/></svg>
-    Back to Tools
-  </button>
+  <div id="topbar-right">
+    <button id="backBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M15 18l-6-6 6-6"/></svg>
+      Back to Tools
+    </button>
+    <button id="themeToggle" title="Toggle dark mode" aria-label="Toggle dark mode">
+      <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="4.5"/>
+        <path d="M12 2.5v2.5M12 19v2.5M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2.5 12H5M19 12h2.5M4.2 19.8L6 18M18 6l1.8-1.8"/>
+      </svg>
+      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>
+      </svg>
+    </button>
+  </div>
 </div>
 
 <div id="homeView">
@@ -275,6 +323,23 @@
 </div>
 
 <script>
+  const themeToggle = document.getElementById('themeToggle');
+  const root = document.documentElement;
+
+  function setTheme(theme){
+    if(theme === 'dark'){ root.setAttribute('data-theme','dark'); }
+    else{ root.removeAttribute('data-theme'); }
+  }
+
+  // Default to the user's system preference on load
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  setTheme(prefersDark ? 'dark' : 'light');
+
+  themeToggle.addEventListener('click', () => {
+    const isDark = root.getAttribute('data-theme') === 'dark';
+    setTheme(isDark ? 'light' : 'dark');
+  });
+
   const homeView = document.getElementById('homeView');
   const toolView = document.getElementById('toolView');
   const toolFrame = document.getElementById('toolFrame');
