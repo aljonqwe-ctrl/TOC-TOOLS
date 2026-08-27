@@ -8,19 +8,23 @@
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --offwhite:#eef0f3;
-    --charcoal:#585858;
-    --navy:#123a6b;
-    --skyblue:#b3dce8;
-    --yellow:#eae696;
-    --white:#ffffff;
+    --bg:#dcf3ea;
+    --text:#1f4a3d;
+    --muted:#7fae9c;
+    --accent:#ff6f91;
+    --accent-soft:rgba(255,111,145,0.20);
+    --gold:#f4a261;
+    --gold-soft:rgba(244,162,97,0.22);
+    --shadow-dark:#b9d9cb;
+    --shadow-light:#f5fffb;
+    --radius:20px;
   }
   *{box-sizing:border-box;}
   body{
     margin:0;
     min-height:100vh;
-    background:var(--offwhite);
-    color:var(--navy);
+    background:var(--bg);
+    color:var(--text);
     font-family:'Space Grotesk', sans-serif;
   }
 
@@ -32,40 +36,41 @@
 
   header{
     text-align:center;
-    margin-bottom:30px;
+    margin-bottom:34px;
   }
   header h1{
     font-family:'Fredoka', sans-serif;
     font-weight:700;
     font-size:clamp(34px, 6vw, 52px);
     margin:0;
-    color:var(--navy);
+    color:var(--text);
     letter-spacing:0.5px;
   }
   header .sub{
     margin-top:8px;
-    color:var(--charcoal);
+    color:var(--muted);
     font-size:15px;
     font-weight:500;
   }
   header .badge{
     display:inline-block;
-    margin-top:14px;
-    padding:6px 16px;
+    margin-top:16px;
+    padding:8px 18px;
     border-radius:999px;
     font-family:'Fredoka', sans-serif;
     font-size:12px;
     font-weight:600;
     letter-spacing:0.4px;
-    background:var(--yellow);
-    color:var(--navy);
+    color:var(--accent);
+    background:var(--bg);
+    box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
   }
 
   .card{
-    background:var(--white);
-    border:2px solid var(--navy);
-    border-radius:18px;
-    box-shadow:6px 6px 0 var(--navy);
+    background:var(--bg);
+    border-radius:var(--radius);
+    box-shadow: inset 9px 9px 16px var(--shadow-dark), inset -9px -9px 16px var(--shadow-light);
+    transition:box-shadow .15s ease;
   }
 
   textarea{
@@ -73,35 +78,37 @@
     min-height:220px;
     background:transparent;
     border:none;
-    color:var(--navy);
+    color:var(--text);
     font-family:'Space Grotesk', sans-serif;
     font-size:16px;
-    padding:20px;
+    padding:22px;
     resize:vertical;
     outline:none;
   }
-  textarea::placeholder{color:#9aa5b1;}
+  textarea::placeholder{color:var(--muted);}
 
   .input-wrap:focus-within{
-    box-shadow:8px 8px 0 var(--navy);
+    box-shadow: inset 9px 9px 16px var(--shadow-dark), inset -9px -9px 16px var(--shadow-light), 0 0 0 3px var(--accent-soft);
   }
 
   .stats{
     display:flex;
     flex-wrap:wrap;
-    gap:10px;
-    margin-top:16px;
+    gap:12px;
+    margin-top:18px;
   }
   .stats .pill{
     font-size:12px;
     font-weight:500;
-    color:var(--navy);
-    background:var(--skyblue);
+    color:var(--text);
+    background:var(--bg);
     border-radius:999px;
-    padding:6px 14px;
+    padding:7px 15px;
+    box-shadow: 4px 4px 9px var(--shadow-dark), -4px -4px 9px var(--shadow-light);
   }
   .stats .pill b{
     font-weight:700;
+    color:var(--accent);
   }
 
   .section-label{
@@ -109,15 +116,15 @@
     font-weight:600;
     font-size:13px;
     letter-spacing:0.4px;
-    color:var(--charcoal);
-    margin:30px 4px 12px;
+    color:var(--muted);
+    margin:32px 4px 14px;
     text-transform:uppercase;
   }
 
   .btn-row{
     display:flex;
     flex-wrap:wrap;
-    gap:10px;
+    gap:12px;
   }
 
   button{
@@ -125,48 +132,54 @@
     font-weight:600;
     font-size:13px;
     letter-spacing:0.2px;
-    color:var(--navy);
-    padding:11px 18px;
+    color:var(--text);
+    padding:12px 20px;
     border-radius:999px;
-    border:2px solid var(--navy);
-    background:var(--white);
+    border:none;
+    background:var(--bg);
     cursor:pointer;
-    transition:transform .12s ease, box-shadow .12s ease, background .12s ease;
-    box-shadow:3px 3px 0 var(--navy);
+    transition:box-shadow .12s ease, transform .12s ease, color .12s ease;
+    box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
   }
   button:hover{
-    transform:translate(-1px,-1px);
-    box-shadow:4px 4px 0 var(--navy);
+    color:var(--accent);
   }
   button:active{
-    transform:translate(2px,2px);
-    box-shadow:1px 1px 0 var(--navy);
+    box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
   }
 
   button.primary{
-    background:var(--navy);
-    color:var(--white);
-    box-shadow:3px 3px 0 var(--charcoal);
+    background:var(--accent);
+    color:#ffffff;
+    box-shadow: 6px 6px 14px rgba(255,111,145,0.35), -6px -6px 14px rgba(245,255,251,0.8);
   }
-  button.primary:hover{box-shadow:4px 4px 0 var(--charcoal);}
+  button.primary:hover{ color:#ffffff; opacity:.92; }
+  button.primary:active{
+    box-shadow: inset 4px 4px 10px rgba(200,60,95,0.45), inset -3px -3px 8px rgba(255,255,255,0.35);
+  }
 
   button.sky{
-    background:var(--skyblue);
-    border-color:var(--navy);
+    color:#2563eb;
   }
 
   button.yellow{
-    background:var(--yellow);
-    border-color:var(--navy);
+    background:var(--gold);
+    color:#4a2c0a;
+    box-shadow: 6px 6px 14px rgba(244,162,97,0.4), -6px -6px 14px rgba(245,255,251,0.8);
+  }
+  button.yellow:hover{ color:#4a2c0a; opacity:.9; }
+  button.yellow:active{
+    box-shadow: inset 4px 4px 10px rgba(190,120,60,0.45), inset -3px -3px 8px rgba(255,255,255,0.35);
   }
 
   button.ghost{
     background:transparent;
-    color:var(--charcoal);
-    border:2px dashed var(--charcoal);
+    color:var(--muted);
+    border:none;
     box-shadow:none;
   }
-  button.ghost:hover{box-shadow:none; transform:none; background:var(--offwhite);}
+  button.ghost:hover{ box-shadow:none; color:var(--text); background:transparent; text-decoration:underline; text-underline-offset:3px; }
+  button.ghost:active{ box-shadow:none; }
 
   .toast{
     position:fixed;
@@ -175,19 +188,19 @@
     font-family:'Fredoka', sans-serif;
     font-weight:600;
     font-size:13px;
-    background:var(--navy);
-    color:var(--white);
-    padding:12px 20px;
+    background:var(--bg);
+    color:var(--text);
+    padding:13px 22px;
     border-radius:14px;
     opacity:0;
     transform:translateY(10px);
     transition:all .25s ease;
     z-index:100;
-    box-shadow:4px 4px 0 var(--charcoal);
+    box-shadow: 6px 6px 14px var(--shadow-dark), -6px -6px 14px var(--shadow-light);
   }
   .toast.show{opacity:1; transform:translateY(0);}
 
-  ::selection{background:var(--yellow); color:var(--navy);}
+  ::selection{background:var(--gold-soft); color:var(--text);}
 </style>
 </head>
 <body>
@@ -195,7 +208,7 @@
   <header>
     <h1>Case Converter</h1>
     <div class="sub">clean up and reformat any text</div>
-    <div class="badge"> </div>
+    <div class="badge">no install needed</div>
   </header>
 
   <div class="card input-wrap">
