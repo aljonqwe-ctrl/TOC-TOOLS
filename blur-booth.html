@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>TOC Blur Booth — Neumorphic</title>
+<title>TOC Blur Booth</title>
 <style>
   :root{
     --bg:#f3ede1;
@@ -16,21 +16,23 @@
     --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Roboto,sans-serif;
     --mono: 'JetBrains Mono','SF Mono',ui-monospace,Menlo,monospace;
   }
-  html[data-theme="dark"]{
-    --bg:#2b2b30;
-    --text:#e9e5da;
-    --dim:#8b8579;
-    --shadow-dark:#1b1b1e;
-    --shadow-light:#3b3b42;
-    --accent:#8b95ff;
-    --accent-soft:rgba(139,149,255,0.18);
+  html.dark{
+    --bg:#26282e;
+    --text:#e7e5df;
+    --dim:#8c8f97;
+    --shadow-dark:#1a1b1f;
+    --shadow-light:#323540;
+    --accent:#8590ff;
+    --accent-soft:rgba(133,144,255,0.2);
+  }
+  html, body, .layer, button, input[type=range], .region, .stage, .bottomBar, .drop-frame, .region .tag, .region .del, .region .bw, .region .track, .switch .track, .switch .knob{
+    transition: background-color .2s ease, color .2s ease, box-shadow .2s ease;
   }
   *{box-sizing:border-box;}
   html,body{
     margin:0; height:100%;
     background: var(--bg);
     color:var(--text); font-family:var(--sans); -webkit-font-smoothing:antialiased;
-    transition:background .2s ease, color .2s ease;
   }
   body{ display:flex; align-items:center; justify-content:center; padding:28px; }
   .rig{ width:100%; max-width:1180px; }
@@ -39,14 +41,13 @@
     display:flex; align-items:baseline; justify-content:space-between;
     margin-bottom:22px; padding-bottom:16px;
   }
+  .header-right{ display:flex; align-items:center; gap:14px; align-self:center; }
+  .theme-toggle{ display:flex; align-items:center; gap:8px; }
+  .theme-toggle span{ font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--dim); }
   .brand{ font-size:13px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); font-weight:700; }
   .brand span{ color:var(--dim); margin-left:8px; letter-spacing:.02em; text-transform:none; font-weight:400; }
   .out-tag{ font-family:var(--mono); font-size:10.5px; color:var(--dim); letter-spacing:.06em; }
   .out-tag b{ color:var(--text); }
-
-  .header-right{ display:flex; align-items:center; gap:16px; }
-  .theme-toggle{ display:flex; align-items:center; gap:8px; }
-  .theme-toggle svg{ width:14px; height:14px; stroke:var(--dim); flex:0 0 auto; }
 
   .workspace{ display:flex; gap:22px; align-items:flex-start; }
   .stageCol{ flex:1; min-width:0; }
@@ -84,9 +85,24 @@
     box-shadow: 3px 3px 6px var(--shadow-dark), -3px -3px 6px var(--shadow-light);
   }
   .region .bw.active{ background:var(--accent); color:#fff; box-shadow:2px 2px 5px rgba(111,123,247,0.4); }
+  .region .track{
+    position:absolute; bottom:-22px; left:-2px; font-family:var(--mono); font-size:8px; letter-spacing:.03em;
+    color:var(--text); background:var(--bg); border-radius:6px;
+    padding:3px 6px; text-transform:uppercase; cursor:pointer; white-space:nowrap;
+    box-shadow: 3px 3px 6px var(--shadow-dark), -3px -3px 6px var(--shadow-light);
+  }
+  .region .track.active{ background:var(--accent); color:#fff; box-shadow:2px 2px 5px rgba(111,123,247,0.4); }
   .region .handle{
     position:absolute; right:-6px; bottom:-6px; width:14px; height:14px; border-radius:50%;
     background:var(--accent); cursor:se-resize; box-shadow:2px 2px 5px rgba(111,123,247,0.4);
+  }
+
+  .scrubBox{ position:relative; flex:1; min-width:120px; }
+  .scrubBox input[type=range]{ display:block; width:100%; }
+  .kfTicks{ position:absolute; left:0; right:0; top:100%; height:10px; pointer-events:none; }
+  .kfTicks .kf{
+    position:absolute; top:2px; width:7px; height:7px; border-radius:2px; background:var(--accent);
+    transform:translateX(-50%) rotate(45deg); box-shadow:0 0 0 2px var(--bg);
   }
 
   .strokeMark{ position:absolute; display:flex; gap:5px; transform:translate(-100%,-100%); z-index:5; }
@@ -228,12 +244,25 @@
     flex-wrap:wrap; background:var(--bg); border-radius:var(--radius); padding:14px 18px;
     box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light);
   }
-  .autoDownload-inline{ display:flex; align-items:center; gap:10px; }
-  .autoDownload-inline span{ font-size:11px; letter-spacing:.05em; text-transform:uppercase; color:var(--text); font-weight:700; }
+  .playbackBar{ display:flex; align-items:center; gap:14px; flex:1; min-width:220px; }
+  .playBtn{
+    width:40px; height:40px; border-radius:50%; flex:0 0 auto;
+    background:var(--bg); display:flex; align-items:center; justify-content:center; cursor:pointer;
+    box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
+    transition:box-shadow .1s ease;
+  }
+  .playBtn:active{ box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light); }
+  .playBtn svg{ width:16px; height:16px; }
+  .scrubWrap{ flex:1; display:flex; align-items:center; gap:10px; min-width:120px; }
+  .timeText{ font-family:var(--mono); font-size:10px; color:var(--dim); white-space:nowrap; }
   .actions-inline{ display:flex; gap:12px; }
   .actions-inline button{ padding:12px 20px; }
 
-  @media (max-width:820px){
+    .autoDownload-inline{ display:flex; align-items:center; gap:10px; }
+  .autoDownload-inline span{ font-size:11px; letter-spacing:.05em; text-transform:uppercase; color:var(--text); font-weight:700; }
+  .topTabs{ margin-bottom:18px; max-width:280px; }
+
+@media (max-width:820px){
     .workspace{ flex-direction:column; }
     .sidebar{ width:100%; flex:none; flex-direction:row; flex-wrap:wrap; }
     .layer{ flex:1 1 220px; }
@@ -245,20 +274,25 @@
 <body>
 <div class="rig">
   <header>
-    <div class="brand">BLUR BOOTH <span>/ photo redaction</span></div>
+    <div class="brand">BLUR BOOTH <span>/ photo &amp; video redaction</span></div>
     <div class="header-right">
-      <div class="out-tag">output <b>1920 × 1080</b></div>
       <div class="theme-toggle">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
-        <label class="switch" title="Toggle dark mode">
-          <input type="checkbox" id="themeToggle">
+        <span>Dark</span>
+        <label class="switch">
+          <input type="checkbox" id="darkModeToggle">
           <span class="track"><span class="knob"></span></span>
         </label>
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
       </div>
+      <div class="out-tag">output <b>1920 &times; 1080</b></div>
     </div>
   </header>
 
+  <div class="mode-row topTabs">
+    <button type="button" class="mode-btn active" id="tabPhotoBtn">Photo</button>
+    <button type="button" class="mode-btn" id="tabVideoBtn">Video</button>
+  </div>
+
+  <div id="photoWorkspace">
   <div class="workspace">
     <div class="stageCol">
       <div class="stage" id="stage">
@@ -359,9 +393,144 @@
 
     </div>
   </div>
+  </div>
+
+  <div id="videoWorkspace" style="display:none;">
+  <div class="workspace">
+    <div class="stageCol">
+      <div class="stage" id="vStage">
+        <div class="drop" id="vDropZone">
+          <div class="iris">
+            <svg viewBox="0 0 64 64">
+              <g id="vIrisBlades" fill="none" stroke="#93a1b5" stroke-width="1.6">
+                <path d="M32 32 L32 6 A26 26 0 0 1 54.5 19 Z"/>
+                <path d="M32 32 L54.5 19 A26 26 0 0 1 54.5 45 Z"/>
+                <path d="M32 32 L54.5 45 A26 26 0 0 1 32 58 Z"/>
+                <path d="M32 32 L32 58 A26 26 0 0 1 9.5 45 Z"/>
+                <path d="M32 32 L9.5 45 A26 26 0 0 1 9.5 19 Z"/>
+                <path d="M32 32 L9.5 19 A26 26 0 0 1 32 6 Z"/>
+              </g>
+            </svg>
+          </div>
+          <div class="drop-label">Drop a video, or click to browse</div>
+          <div class="drop-frame">canvas locked to 1920×1080</div>
+          <div class="drop-sub">Everything happens in this tab — nothing is uploaded anywhere</div>
+          <input type="file" id="vFileInput" accept="video/*">
+        </div>
+
+        <div class="canvasWrap" id="vCanvasWrap" style="display:none;">
+          <canvas id="vCanvas" width="1920" height="1080"></canvas>
+          <div class="regionsLayer" id="vRegionsLayer"></div>
+        </div>
+      </div>
+      <div class="foot" id="vStatusLine">waiting for a video</div>
+
+      <div class="bottomBar">
+        <div class="playbackBar">
+          <div class="playBtn" id="vPlayPauseBtn"></div>
+          <div class="scrubWrap">
+            <div class="scrubBox">
+              <input type="range" id="vScrubber" min="0" max="0" step="0.01" value="0">
+              <div class="kfTicks" id="vKfTicks"></div>
+            </div>
+            <span class="timeText" id="vTimeText">0:00 / 0:00</span>
+          </div>
+        </div>
+        <div class="actions-inline">
+          <button id="vResetBtn">Reset</button>
+          <button class="primary" id="vExportBtn" disabled>Export Video</button>
+        </div>
+      </div>
+
+      <div class="layer disabled" id="vRegionLayer" style="margin-top:16px;">
+        <div class="layer-head">
+          <div class="layer-title"><span class="chip"></span>Redaction blur</div>
+        </div>
+
+        <div class="mode-row" style="max-width:360px;">
+          <button type="button" class="mode-btn active" id="vModeBoxBtn" data-mode="box">Box</button>
+          <button type="button" class="mode-btn" id="vModeFreehandBtn" data-mode="freehand">Freehand</button>
+        </div>
+
+        <div id="vBoxToolPanel">
+          <div class="layer-sub">Drag a box directly on the video, or drag the icon onto the exact spot you want obscured. By default the box stays fixed for the whole clip — click its <b>TRACK</b> button to keyframe its position instead: pause at different points in the clip and drag the box to a new spot each time, and it will move smoothly between those points, like keyframing in Premiere.</div>
+          <div class="tool-row">
+            <div class="blur-tool" id="vBlurToolIcon" title="Drag onto the video">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#6f7bf7" stroke-width="2" stroke-linecap="round">
+                <circle cx="12" cy="12" r="7"/>
+                <path d="M12 5 L12 3 M12 21 L12 19 M5 12 L3 12 M21 12 L19 12"/>
+              </svg>
+            </div>
+            <div class="tool-note">drag onto the video to place a box</div>
+          </div>
+        </div>
+
+        <div id="vFreehandToolPanel" style="display:none;">
+          <div class="layer-sub">Click and drag directly on the video to freely paint over anything you want obscured — any shape, not just boxes. Pause first for precise painting.</div>
+          <div class="slider-row"><span>Brush size</span><b id="vBrushReadout">60px</b></div>
+          <input type="range" id="vBrushSlider" min="10" max="200" step="2" value="60">
+        </div>
+
+        <div class="slider-row" style="margin-top:14px;"><span>Blur strength</span><b id="vBlurReadout">18px</b></div>
+        <input type="range" id="vBlurSlider" min="1" max="40" step="1" value="18">
+
+        <div class="layer-head" style="margin-top:16px;">
+          <div class="layer-title"><span class="chip"></span>Desaturate area</div>
+        </div>
+        <div class="layer-sub">Each box or freehand stroke gets its own <b>B/W</b> button right on the video — click it to turn just that redacted spot black &amp; white, independent of the others, for the whole clip.</div>
+
+        <div class="clear-link" id="vClearBtn">Clear all redactions</div>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <div class="layer disabled" id="vZoomLayer">
+        <div class="layer-head">
+          <div class="layer-title"><span class="chip"></span>Video zoom</div>
+        </div>
+        <div class="layer-sub">Zoom in for a tighter crop, or back out to reveal more of the frame. Scroll on the video to zoom too. Set this before placing redaction boxes so they line up with the zoomed view.</div>
+        <div class="slider-row"><span>Zoom</span><b id="vZoomReadout">100%</b></div>
+        <input type="range" id="vZoomSlider" min="100" max="400" step="1" value="100">
+        <div class="mode-row" style="margin-top:14px;">
+          <button type="button" class="mode-btn" id="vPanModeBtn">Reposition</button>
+        </div>
+        <div class="clear-link" id="vResetZoomBtn">Reset zoom &amp; position</div>
+      </div>
+
+      <div class="layer disabled" id="vBgLayer">
+        <div class="layer-head">
+          <div class="layer-title"><span class="chip"></span>Backdrop fill</div>
+          <label class="switch">
+            <input type="checkbox" id="vBgToggle" checked>
+            <span class="track"><span class="knob"></span></span>
+          </label>
+        </div>
+        <div class="layer-sub">If your video isn't 16:9, this fills the empty top/bottom or sides with a stretched, blurred copy of the same frame instead of black bars.</div>
+        <div class="slider-row"><span>Backdrop blur</span><b id="vBgBlurReadout">45px</b></div>
+        <input type="range" id="vBgBlurSlider" min="0" max="80" step="1" value="45">
+      </div>
+
+      <div class="layer disabled" id="vAudioLayer">
+        <div class="layer-head">
+          <div class="layer-title"><span class="chip"></span>Audio</div>
+          <label class="switch">
+            <input type="checkbox" id="vIncludeAudioToggle" checked>
+            <span class="track"><span class="knob"></span></span>
+          </label>
+        </div>
+        <div class="layer-sub">Keep the original audio track in the exported file. Preview playback here is always muted. Audio capture support varies by browser — works best in Chrome or Edge.</div>
+      </div>
+
+    </div>
+  </div>
+  </div>
 </div>
 
+<script src="https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js"></script>
+<script src="https://unpkg.com/@ffmpeg/util@0.12.1/dist/umd/index.js"></script>
 <script>
+(function(){
+// ================= PHOTO TOOL =================
 const dropZone     = document.getElementById('dropZone');
 const fileInput    = document.getElementById('fileInput');
 const stage        = document.getElementById('stage');
@@ -389,7 +558,6 @@ const autoDownloadToggle = document.getElementById('autoDownloadToggle');
 const statusLine   = document.getElementById('statusLine');
 const blades       = document.getElementById('irisBlades');
 const blurToolIcon = document.getElementById('blurToolIcon');
-const themeToggle  = document.getElementById('themeToggle');
 
 const OUT_W = 1920, OUT_H = 1080;
 let img = null;
@@ -429,11 +597,6 @@ function setMode(next){
 }
 modeBoxBtn.addEventListener('click', () => setMode('box'));
 modeFreehandBtn.addEventListener('click', () => setMode('freehand'));
-
-themeToggle.addEventListener('change', () => {
-  document.documentElement.setAttribute('data-theme', themeToggle.checked ? 'dark' : 'light');
-  if(img) render();
-});
 brushSlider.addEventListener('input', () => { brushReadout.textContent = brushSlider.value + 'px'; });
 
 dropZone.addEventListener('click', () => fileInput.click());
@@ -707,7 +870,7 @@ function drawBase(){
     ctx.fillStyle = 'rgba(0,0,0,0.18)';
     ctx.fillRect(0,0,OUT_W,OUT_H);
   } else {
-    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#f3ede1';
+    ctx.fillStyle = '#f3ede1';
     ctx.fillRect(0,0,OUT_W,OUT_H);
   }
 
@@ -834,6 +997,855 @@ exportBtn.addEventListener('click', () => {
   render();
   downloadPNG();
 });
+})();
+
+(function(){
+// ================= VIDEO TOOL =================
+const dropZone     = document.getElementById('vDropZone');
+const fileInput    = document.getElementById('vFileInput');
+const stage        = document.getElementById('vStage');
+const canvasWrap   = document.getElementById('vCanvasWrap');
+const canvas       = document.getElementById('vCanvas');
+const ctx          = canvas.getContext('2d');
+const regionsLayer = document.getElementById('vRegionsLayer');
+const bgLayer      = document.getElementById('vBgLayer');
+const regionLayer  = document.getElementById('vRegionLayer');
+const audioLayer   = document.getElementById('vAudioLayer');
+const zoomLayer    = document.getElementById('vZoomLayer');
+const zoomSlider   = document.getElementById('vZoomSlider');
+const zoomReadout  = document.getElementById('vZoomReadout');
+const panModeBtn   = document.getElementById('vPanModeBtn');
+const resetZoomBtn = document.getElementById('vResetZoomBtn');
+const bgToggle     = document.getElementById('vBgToggle');
+const bgBlurSlider = document.getElementById('vBgBlurSlider');
+const bgBlurReadout= document.getElementById('vBgBlurReadout');
+const blurSlider   = document.getElementById('vBlurSlider');
+const blurReadout  = document.getElementById('vBlurReadout');
+const modeBoxBtn   = document.getElementById('vModeBoxBtn');
+const modeFreehandBtn = document.getElementById('vModeFreehandBtn');
+const boxToolPanel = document.getElementById('vBoxToolPanel');
+const freehandToolPanel = document.getElementById('vFreehandToolPanel');
+const brushSlider  = document.getElementById('vBrushSlider');
+const brushReadout = document.getElementById('vBrushReadout');
+const exportBtn    = document.getElementById('vExportBtn');
+const resetBtn     = document.getElementById('vResetBtn');
+const clearBtn     = document.getElementById('vClearBtn');
+const includeAudioToggle = document.getElementById('vIncludeAudioToggle');
+const statusLine   = document.getElementById('vStatusLine');
+const blades       = document.getElementById('vIrisBlades');
+const blurToolIcon = document.getElementById('vBlurToolIcon');
+const playPauseBtn = document.getElementById('vPlayPauseBtn');
+const scrubber     = document.getElementById('vScrubber');
+const kfTicks      = document.getElementById('vKfTicks');
+const timeText     = document.getElementById('vTimeText');
+
+const PLAY_ICON  = '<svg viewBox="0 0 24 24" fill="#6f7bf7"><path d="M8 5v14l11-7z"/></svg>';
+const PAUSE_ICON = '<svg viewBox="0 0 24 24" fill="#6f7bf7"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>';
+playPauseBtn.innerHTML = PLAY_ICON;
+
+const OUT_W = 1920, OUT_H = 1080;
+let video = null;
+const off = document.createElement('canvas');
+off.width = OUT_W; off.height = OUT_H;
+const offCtx = off.getContext('2d');
+const offGray = document.createElement('canvas');
+offGray.width = OUT_W; offGray.height = OUT_H;
+const offGrayCtx = offGray.getContext('2d');
+const mask = document.createElement('canvas');
+mask.width = OUT_W; mask.height = OUT_H;
+const maskCtx = mask.getContext('2d');
+const maskGray = document.createElement('canvas');
+maskGray.width = OUT_W; maskGray.height = OUT_H;
+const maskGrayCtx = maskGray.getContext('2d');
+let regions = [];
+let strokes = [];
+let currentStroke = null;
+let regionSeq = 1;
+let mode = 'box';
+let scrubbing = false;
+let zoom = 1;
+let panX = 0, panY = 0;
+let panMode = false;
+
+function formatTime(t){
+  if(!isFinite(t) || t < 0) return '0:00';
+  const m = Math.floor(t/60);
+  const s = Math.floor(t%60).toString().padStart(2,'0');
+  return m + ':' + s;
+}
+function updateTimeText(){
+  const cur = video ? video.currentTime : 0;
+  const dur = video ? video.duration : 0;
+  timeText.textContent = formatTime(cur) + ' / ' + formatTime(dur);
+}
+
+let irisAngle = 0;
+function idleSpin(){
+  irisAngle += 0.15;
+  blades.setAttribute('transform', 'rotate(' + (Math.sin(irisAngle*0.5)*6) + ' 32 32)');
+  if(!video) requestAnimationFrame(idleSpin);
+}
+requestAnimationFrame(idleSpin);
+
+// continuously redraw while playing; render() is also called on demand elsewhere (paused edits, seeks, slider changes)
+function frameLoop(){
+  if(video && !video.paused && !video.ended){ render(); updateOverlayDOM(); }
+  requestAnimationFrame(frameLoop);
+}
+requestAnimationFrame(frameLoop);
+
+function setMode(next){
+  mode = next;
+  modeBoxBtn.classList.toggle('active', mode === 'box');
+  modeFreehandBtn.classList.toggle('active', mode === 'freehand');
+  boxToolPanel.style.display = mode === 'box' ? '' : 'none';
+  freehandToolPanel.style.display = mode === 'freehand' ? '' : 'none';
+  setPanMode(false);
+}
+
+function setPanMode(next){
+  panMode = next;
+  panModeBtn.classList.toggle('active', panMode);
+  regionsLayer.style.cursor = panMode ? 'grab' : (mode === 'freehand' ? 'cell' : 'crosshair');
+}
+
+function updateZoomUI(){
+  zoomSlider.value = Math.round(zoom * 100);
+  zoomReadout.textContent = Math.round(zoom * 100) + '%';
+}
+
+panModeBtn.addEventListener('click', () => setPanMode(!panMode));
+
+zoomSlider.addEventListener('input', () => {
+  zoom = parseInt(zoomSlider.value, 10) / 100;
+  zoomReadout.textContent = zoomSlider.value + '%';
+  render();
+});
+
+resetZoomBtn.addEventListener('click', () => {
+  zoom = 1; panX = 0; panY = 0;
+  updateZoomUI();
+  setPanMode(false);
+  render();
+});
+
+canvasWrap.addEventListener('wheel', (e) => {
+  if(!video) return;
+  e.preventDefault();
+  const delta = e.deltaY > 0 ? -10 : 10;
+  zoom = Math.max(1, Math.min(4, zoom + delta / 100));
+  updateZoomUI();
+  render();
+}, { passive: false });
+
+function startPan(e){
+  const s = getScale();
+  const startX = e.clientX, startY = e.clientY;
+  const orig = { x: panX, y: panY };
+  function onMove(ev){
+    panX = orig.x + (ev.clientX - startX) * s.sx;
+    panY = orig.y + (ev.clientY - startY) * s.sy;
+    render();
+  }
+  function onUp(){ document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); }
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
+}
+modeBoxBtn.addEventListener('click', () => setMode('box'));
+modeFreehandBtn.addEventListener('click', () => setMode('freehand'));
+brushSlider.addEventListener('input', () => { brushReadout.textContent = brushSlider.value + 'px'; });
+
+dropZone.addEventListener('click', () => fileInput.click());
+['dragenter','dragover'].forEach(evt => stage.addEventListener(evt, e=>{ e.preventDefault(); dropZone.classList.add('dragging'); }));
+['dragleave','drop'].forEach(evt => stage.addEventListener(evt, e=>{ e.preventDefault(); dropZone.classList.remove('dragging'); }));
+stage.addEventListener('drop', e=>{ const f=e.dataTransfer.files[0]; if(f && f.type.startsWith('video/')) loadVideo(f); });
+fileInput.addEventListener('change', e=>{ const f=e.target.files[0]; if(f) loadVideo(f); });
+
+function loadVideo(file){
+  cleanup();
+  video = document.createElement('video');
+  video.playsInline = true;
+  video.muted = true;
+  video.loop = true;
+  video.style.position = 'fixed';
+  video.style.left = '-9999px';
+  video.style.top = '-9999px';
+  document.body.appendChild(video);
+
+  video.addEventListener('loadedmetadata', () => {
+    dropZone.classList.add('hidden');
+    canvasWrap.style.display = 'inline-block';
+    bgLayer.classList.remove('disabled');
+    regionLayer.classList.remove('disabled');
+    audioLayer.classList.remove('disabled');
+    zoomLayer.classList.remove('disabled');
+    exportBtn.disabled = false;
+    scrubber.max = video.duration || 0;
+    scrubber.value = 0;
+    updateTimeText();
+    const isExact = video.videoWidth === OUT_W && video.videoHeight === OUT_H;
+    bgToggle.checked = !isExact;
+    render();
+    video.play().catch(()=>{});
+    statusLine.textContent = isExact
+      ? 'video loaded at exactly 1920×1080 — drag the icon onto anything you want blurred'
+      : 'video loaded (' + video.videoWidth + '×' + video.videoHeight + ') — fit onto the 1920×1080 canvas with a blurred backdrop filling the gaps';
+  });
+  video.addEventListener('timeupdate', () => {
+    if(!scrubbing) scrubber.value = video.currentTime;
+    updateTimeText();
+  });
+  video.addEventListener('seeked', () => { render(); updateOverlayDOM(); });
+  video.addEventListener('play', () => playPauseBtn.innerHTML = PAUSE_ICON);
+  video.addEventListener('pause', () => playPauseBtn.innerHTML = PLAY_ICON);
+
+  video.src = URL.createObjectURL(file);
+}
+
+playPauseBtn.addEventListener('click', () => {
+  if(!video) return;
+  if(video.paused) video.play(); else video.pause();
+});
+
+scrubber.addEventListener('mousedown', () => scrubbing = true);
+scrubber.addEventListener('input', () => {
+  if(!video) return;
+  video.currentTime = parseFloat(scrubber.value);
+  updateTimeText();
+  render();
+  updateOverlayDOM();
+});
+scrubber.addEventListener('change', () => scrubbing = false);
+window.addEventListener('mouseup', () => scrubbing = false);
+
+function getRegionRect(region, t){
+  if(!region.track || region.keyframes.length === 0){
+    return { x: region.x, y: region.y, w: region.w, h: region.h };
+  }
+  const kfs = region.keyframes;
+  if(t <= kfs[0].t){ const k = kfs[0]; return { x:k.x, y:k.y, w:k.w, h:k.h }; }
+  const last = kfs[kfs.length-1];
+  if(t >= last.t){ return { x:last.x, y:last.y, w:last.w, h:last.h }; }
+  for(let i=0;i<kfs.length-1;i++){
+    const a = kfs[i], b = kfs[i+1];
+    if(t >= a.t && t <= b.t){
+      const f = (t - a.t) / ((b.t - a.t) || 1);
+      return {
+        x: a.x + (b.x-a.x)*f,
+        y: a.y + (b.y-a.y)*f,
+        w: a.w + (b.w-a.w)*f,
+        h: a.h + (b.h-a.h)*f,
+      };
+    }
+  }
+  return { x: region.x, y: region.y, w: region.w, h: region.h };
+}
+
+function upsertKeyframe(region, t, rect){
+  const EPS = 0.05;
+  const idx = region.keyframes.findIndex(k => Math.abs(k.t - t) < EPS);
+  const kf = { t, x: rect.x, y: rect.y, w: rect.w, h: rect.h };
+  if(idx >= 0) region.keyframes[idx] = kf;
+  else {
+    region.keyframes.push(kf);
+    region.keyframes.sort((a,b) => a.t - b.t);
+  }
+}
+
+function addRegion(rect){
+  const region = { id: regionSeq++, x: rect.x, y: rect.y, w: rect.w, h: rect.h, gray: false, track: false, keyframes: [] };
+  regions.push(region);
+  buildRegionDOM(region);
+  updateOverlayDOM();
+  render();
+}
+
+function buildRegionDOM(region){
+  const el = document.createElement('div');
+  el.className = 'region';
+  el.dataset.id = region.id;
+  el.innerHTML = '<div class="tag">blur</div><div class="bw">B/W</div><div class="del">&times;</div><div class="track">Track</div><div class="handle"></div>';
+  regionsLayer.appendChild(el);
+
+  el.querySelector('.bw').addEventListener('click', (e)=>{
+    e.stopPropagation();
+    region.gray = !region.gray;
+    e.currentTarget.classList.toggle('active', region.gray);
+    render();
+  });
+
+  el.querySelector('.del').addEventListener('click', (e)=>{
+    e.stopPropagation();
+    regions = regions.filter(r => r.id !== region.id);
+    el.remove();
+    updateOverlayDOM();
+    render();
+  });
+
+  el.querySelector('.track').addEventListener('click', (e)=>{
+    e.stopPropagation();
+    const t = video ? video.currentTime : 0;
+    if(region.track){
+      const rect = getRegionRect(region, t);
+      region.x = rect.x; region.y = rect.y; region.w = rect.w; region.h = rect.h;
+      region.track = false;
+      statusLine.textContent = 'tracking off — box frozen at its current position';
+    } else {
+      region.track = true;
+      if(region.keyframes.length === 0){
+        upsertKeyframe(region, t, { x: region.x, y: region.y, w: region.w, h: region.h });
+      }
+      statusLine.textContent = 'tracking on — pause at another point in the clip and drag the box to add a keyframe there';
+    }
+    e.currentTarget.classList.toggle('active', region.track);
+    updateOverlayDOM();
+    render();
+  });
+
+  el.addEventListener('mousedown', (e)=>{
+    if(e.target.classList.contains('handle') || e.target.classList.contains('del') || e.target.classList.contains('bw') || e.target.classList.contains('track')) return;
+    e.stopPropagation();
+    const s = getScale();
+    const startX = e.clientX, startY = e.clientY;
+    const t = video ? video.currentTime : 0;
+    const orig = getRegionRect(region, t);
+    if(region.track) upsertKeyframe(region, t, orig);
+    function onMove(ev){
+      const nx = Math.max(0, Math.min(OUT_W - orig.w, orig.x + (ev.clientX - startX) * s.sx));
+      const ny = Math.max(0, Math.min(OUT_H - orig.h, orig.y + (ev.clientY - startY) * s.sy));
+      if(region.track){
+        upsertKeyframe(region, t, { x: nx, y: ny, w: orig.w, h: orig.h });
+      } else {
+        region.x = nx; region.y = ny;
+      }
+      updateOverlayDOM(); render();
+    }
+    function onUp(){ document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); }
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+    updateOverlayDOM(); render();
+  });
+
+  el.querySelector('.handle').addEventListener('mousedown', (e)=>{
+    e.stopPropagation();
+    const s = getScale();
+    const startX = e.clientX, startY = e.clientY;
+    const t = video ? video.currentTime : 0;
+    const orig = getRegionRect(region, t);
+    if(region.track) upsertKeyframe(region, t, orig);
+    function onMove(ev){
+      const nw = Math.max(16, Math.min(OUT_W - orig.x, orig.w + (ev.clientX - startX) * s.sx));
+      const nh = Math.max(16, Math.min(OUT_H - orig.y, orig.h + (ev.clientY - startY) * s.sy));
+      if(region.track){
+        upsertKeyframe(region, t, { x: orig.x, y: orig.y, w: nw, h: nh });
+      } else {
+        region.w = nw; region.h = nh;
+      }
+      updateOverlayDOM(); render();
+    }
+    function onUp(){ document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); }
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+    updateOverlayDOM(); render();
+  });
+}
+
+function strokeBounds(s){
+  let minX=Infinity, minY=Infinity, maxX=-Infinity, maxY=-Infinity;
+  s.points.forEach(p=>{
+    minX = Math.min(minX, p.x); minY = Math.min(minY, p.y);
+    maxX = Math.max(maxX, p.x); maxY = Math.max(maxY, p.y);
+  });
+  const r = s.size / 2;
+  return { minX: minX - r, minY: minY - r, maxX: maxX + r, maxY: maxY + r };
+}
+
+function buildStrokeMarker(stroke){
+  const el = document.createElement('div');
+  el.className = 'strokeMark';
+  el.dataset.id = stroke.id;
+  el.innerHTML = '<div class="bw">B/W</div><div class="del">&times;</div>';
+  regionsLayer.appendChild(el);
+
+  el.querySelector('.bw').addEventListener('click', (e)=>{
+    e.stopPropagation();
+    stroke.gray = !stroke.gray;
+    e.currentTarget.classList.toggle('active', stroke.gray);
+    render();
+  });
+  el.querySelector('.del').addEventListener('click', (e)=>{
+    e.stopPropagation();
+    strokes = strokes.filter(s => s.id !== stroke.id);
+    el.remove();
+    render();
+  });
+  return el;
+}
+
+function getScale(){ return { sx: OUT_W / canvas.clientWidth, sy: OUT_H / canvas.clientHeight }; }
+
+function updateOverlayDOM(){
+  const s = getScale();
+  const t = video ? video.currentTime : 0;
+  regions.forEach(region => {
+    const el = regionsLayer.querySelector('.region[data-id="' + region.id + '"]');
+    if(!el) return;
+    const rect = getRegionRect(region, t);
+    el.style.left   = (rect.x / s.sx) + 'px';
+    el.style.top    = (rect.y / s.sy) + 'px';
+    el.style.width  = (rect.w / s.sx) + 'px';
+    el.style.height = (rect.h / s.sy) + 'px';
+  });
+  strokes.forEach(stroke => {
+    const el = regionsLayer.querySelector('.strokeMark[data-id="' + stroke.id + '"]');
+    if(!el) return;
+    const b = strokeBounds(stroke);
+    el.style.left = (b.maxX / s.sx) + 'px';
+    el.style.top  = (b.minY / s.sy) + 'px';
+  });
+  updateKfTicks();
+}
+
+function updateKfTicks(){
+  kfTicks.innerHTML = '';
+  if(!video || !video.duration) return;
+  const dur = video.duration;
+  regions.forEach(r => {
+    if(!r.track) return;
+    r.keyframes.forEach(k => {
+      const dot = document.createElement('div');
+      dot.className = 'kf';
+      dot.style.left = (Math.min(1, Math.max(0, k.t / dur)) * 100) + '%';
+      kfTicks.appendChild(dot);
+    });
+  });
+}
+window.addEventListener('resize', updateOverlayDOM);
+
+regionsLayer.addEventListener('mousedown', (e)=>{
+  if(e.target !== regionsLayer || !video) return;
+  if(panMode){ startPan(e); return; }
+  if(mode === 'freehand'){ startFreehand(e); return; }
+  const s = getScale();
+  const rect = canvas.getBoundingClientRect();
+  const startX = (e.clientX - rect.left) * s.sx;
+  const startY = (e.clientY - rect.top) * s.sy;
+  const creating = { x: startX, y: startY, w: 0, h: 0 };
+  function onMove(ev){
+    const curX = (ev.clientX - rect.left) * s.sx;
+    const curY = (ev.clientY - rect.top) * s.sy;
+    creating.x = Math.min(startX, curX);
+    creating.y = Math.min(startY, curY);
+    creating.w = Math.abs(curX - startX);
+    creating.h = Math.abs(curY - startY);
+  }
+  function onUp(){
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+    if(creating.w > 12 && creating.h > 12){
+      creating.x = Math.max(0, Math.min(OUT_W - creating.w, creating.x));
+      creating.y = Math.max(0, Math.min(OUT_H - creating.h, creating.y));
+      addRegion(creating);
+    }
+  }
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
+});
+
+function startFreehand(e){
+  const s = getScale();
+  const rect = canvas.getBoundingClientRect();
+  const size = parseInt(brushSlider.value, 10);
+  const stroke = { points: [], size, gray: false };
+
+  function addPoint(clientX, clientY){
+    stroke.points.push({ x: (clientX - rect.left) * s.sx, y: (clientY - rect.top) * s.sy });
+  }
+  addPoint(e.clientX, e.clientY);
+  currentStroke = stroke;
+  render();
+
+  function onMove(ev){
+    addPoint(ev.clientX, ev.clientY);
+    render();
+  }
+  function onUp(){
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+    if(stroke.points.length){
+      stroke.id = regionSeq++;
+      strokes.push(stroke);
+      buildStrokeMarker(stroke);
+      updateOverlayDOM();
+    }
+    currentStroke = null;
+    render();
+    statusLine.textContent = 'freehand redaction painted — use its B/W button to desaturate just that spot';
+  }
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
+}
+
+let ghost = null;
+blurToolIcon.addEventListener('mousedown', (e)=>{
+  e.preventDefault();
+  if(!video || mode !== 'box') return;
+  ghost = document.createElement('div');
+  ghost.className = 'ghost-tool';
+  ghost.innerHTML = blurToolIcon.innerHTML;
+  document.body.appendChild(ghost);
+  moveGhost(e.clientX, e.clientY);
+
+  function onMove(ev){
+    moveGhost(ev.clientX, ev.clientY);
+    stage.style.outline = isOverCanvas(ev.clientX, ev.clientY) ? '2px dashed var(--accent)' : 'none';
+  }
+  function onUp(ev){
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+    stage.style.outline = 'none';
+    if(ghost){ ghost.remove(); ghost = null; }
+    if(isOverCanvas(ev.clientX, ev.clientY)) placeRegionAtClient(ev.clientX, ev.clientY);
+  }
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
+});
+
+function moveGhost(x,y){ if(ghost){ ghost.style.left = x+'px'; ghost.style.top = y+'px'; } }
+
+function isOverCanvas(clientX, clientY){
+  const rect = canvas.getBoundingClientRect();
+  return clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom;
+}
+
+function placeRegionAtClient(clientX, clientY){
+  const s = getScale();
+  const rect = canvas.getBoundingClientRect();
+  const cx = (clientX - rect.left) * s.sx;
+  const cy = (clientY - rect.top) * s.sy;
+  const rw = Math.round(OUT_W * 0.16);
+  const rh = Math.round(OUT_H * 0.2);
+  const x = Math.max(0, Math.min(OUT_W - rw, cx - rw/2));
+  const y = Math.max(0, Math.min(OUT_H - rh, cy - rh/2));
+  addRegion({ x: x, y: y, w: rw, h: rh });
+  statusLine.textContent = 'blur box placed — drag its corner to resize, or drag its body to move';
+}
+
+function drawBase(){
+  ctx.filter = 'none';
+  ctx.clearRect(0,0,OUT_W,OUT_H);
+  if(!video || !video.videoWidth) return;
+
+  const iw = video.videoWidth, ih = video.videoHeight;
+  const isExact = iw === OUT_W && ih === OUT_H;
+
+  if(!isExact && bgToggle.checked){
+    const coverScale = Math.max(OUT_W/iw, OUT_H/ih);
+    const cw = iw*coverScale, ch = ih*coverScale;
+    const cx = (OUT_W-cw)/2, cy = (OUT_H-ch)/2;
+    const bgBlur = parseInt(bgBlurSlider.value,10);
+    ctx.filter = bgBlur > 0 ? ('blur(' + bgBlur + 'px)') : 'none';
+    ctx.drawImage(video, cx, cy, cw, ch);
+    ctx.filter = 'none';
+    ctx.fillStyle = 'rgba(0,0,0,0.18)';
+    ctx.fillRect(0,0,OUT_W,OUT_H);
+  } else {
+    ctx.fillStyle = '#f3ede1';
+    ctx.fillRect(0,0,OUT_W,OUT_H);
+  }
+
+  const containScale = Math.min(OUT_W/iw, OUT_H/ih);
+  const baseW = iw*containScale, baseH = ih*containScale;
+  const dw = baseW*zoom, dh = baseH*zoom;
+  let dx = (OUT_W-dw)/2 + panX;
+  let dy = (OUT_H-dh)/2 + panY;
+  dx = dw > OUT_W ? Math.min(0, Math.max(OUT_W-dw, dx)) : (OUT_W-dw)/2;
+  dy = dh > OUT_H ? Math.min(0, Math.max(OUT_H-dh, dy)) : (OUT_H-dh)/2;
+  ctx.drawImage(video, dx, dy, dw, dh);
+}
+
+function paintMask(targetCtx, list){
+  targetCtx.fillStyle = '#fff';
+  targetCtx.strokeStyle = '#fff';
+  list.forEach(item => {
+    if(item.w !== undefined){
+      targetCtx.fillRect(item.x, item.y, item.w, item.h);
+      return;
+    }
+    if(!item.points.length) return;
+    targetCtx.lineWidth = item.size;
+    targetCtx.lineCap = 'round';
+    targetCtx.lineJoin = 'round';
+    if(item.points.length === 1){
+      targetCtx.beginPath();
+      targetCtx.arc(item.points[0].x, item.points[0].y, item.size/2, 0, Math.PI*2);
+      targetCtx.fill();
+    } else {
+      targetCtx.beginPath();
+      targetCtx.moveTo(item.points[0].x, item.points[0].y);
+      for(let i=1;i<item.points.length;i++) targetCtx.lineTo(item.points[i].x, item.points[i].y);
+      targetCtx.stroke();
+    }
+  });
+}
+
+function render(){
+  if(!video || !video.videoWidth) return;
+  drawBase();
+  const t = video.currentTime;
+  const liveRegions = regions.map(r => {
+    const rect = getRegionRect(r, t);
+    return { id: r.id, gray: r.gray, x: rect.x, y: rect.y, w: rect.w, h: rect.h };
+  });
+  const allStrokes = currentStroke ? strokes.concat([currentStroke]) : strokes;
+  const items = liveRegions.concat(allStrokes);
+  if(items.length){
+    const blur = parseInt(blurSlider.value, 10);
+    const colorItems = items.filter(it => !it.gray);
+    const grayItems = items.filter(it => it.gray);
+
+    if(colorItems.length){
+      maskCtx.clearRect(0,0,OUT_W,OUT_H);
+      paintMask(maskCtx, colorItems);
+      offCtx.clearRect(0,0,OUT_W,OUT_H);
+      offCtx.filter = 'blur(' + blur + 'px)';
+      offCtx.drawImage(canvas, 0, 0);
+      offCtx.filter = 'none';
+      offCtx.globalCompositeOperation = 'destination-in';
+      offCtx.drawImage(mask, 0, 0);
+      offCtx.globalCompositeOperation = 'source-over';
+      ctx.drawImage(off, 0, 0);
+    }
+
+    if(grayItems.length){
+      maskGrayCtx.clearRect(0,0,OUT_W,OUT_H);
+      paintMask(maskGrayCtx, grayItems);
+      offGrayCtx.clearRect(0,0,OUT_W,OUT_H);
+      offGrayCtx.filter = 'blur(' + blur + 'px) grayscale(1)';
+      offGrayCtx.drawImage(canvas, 0, 0);
+      offGrayCtx.filter = 'none';
+      offGrayCtx.globalCompositeOperation = 'destination-in';
+      offGrayCtx.drawImage(maskGray, 0, 0);
+      offGrayCtx.globalCompositeOperation = 'source-over';
+      ctx.drawImage(offGray, 0, 0);
+    }
+  }
+}
+
+bgToggle.addEventListener('change', render);
+bgBlurSlider.addEventListener('input', () => {
+  bgBlurReadout.textContent = bgBlurSlider.value + 'px';
+  render();
+});
+blurSlider.addEventListener('input', () => {
+  blurReadout.textContent = blurSlider.value + 'px';
+  render();
+});
+
+clearBtn.addEventListener('click', () => {
+  regions = [];
+  strokes = [];
+  currentStroke = null;
+  regionsLayer.innerHTML = '';
+  updateOverlayDOM();
+  render();
+});
+
+resetBtn.addEventListener('click', () => {
+  cleanup();
+  dropZone.classList.remove('hidden');
+  canvasWrap.style.display = 'none';
+  bgLayer.classList.add('disabled');
+  regionLayer.classList.add('disabled');
+  audioLayer.classList.add('disabled');
+  zoomLayer.classList.add('disabled');
+  exportBtn.disabled = true;
+  zoomSlider.value = 100;
+  zoomReadout.textContent = '100%';
+  panModeBtn.classList.remove('active');
+  scrubber.max = 0; scrubber.value = 0;
+  timeText.textContent = '0:00 / 0:00';
+  kfTicks.innerHTML = '';
+  playPauseBtn.innerHTML = PLAY_ICON;
+  statusLine.textContent = 'waiting for a video';
+  requestAnimationFrame(idleSpin);
+});
+
+function cleanup(){
+  if(video){
+    video.pause();
+    if(video.src){ URL.revokeObjectURL(video.src); }
+    video.remove();
+  }
+  video = null;
+  regions = [];
+  strokes = [];
+  currentStroke = null;
+  zoom = 1; panX = 0; panY = 0; panMode = false;
+  regionsLayer.innerHTML = '';
+  ctx.clearRect(0,0,OUT_W,OUT_H);
+}
+
+let ffmpegInstance = null;
+async function getFFmpeg(){
+  if(ffmpegInstance) return ffmpegInstance;
+  const { FFmpeg } = FFmpegWASM;
+  const { toBlobURL } = FFmpegUtil;
+  const ffmpeg = new FFmpeg();
+  const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
+  await ffmpeg.load({
+    coreURL: await toBlobURL(baseURL + '/ffmpeg-core.js', 'text/javascript'),
+    wasmURL: await toBlobURL(baseURL + '/ffmpeg-core.wasm', 'application/wasm'),
+  });
+  ffmpegInstance = ffmpeg;
+  return ffmpeg;
+}
+
+async function convertWebmToMp4(webmBlob){
+  const ffmpeg = await getFFmpeg();
+  const { fetchFile } = FFmpegUtil;
+  await ffmpeg.writeFile('input.webm', await fetchFile(webmBlob));
+  await ffmpeg.exec(['-i','input.webm','-c:v','libx264','-preset','veryfast','-crf','20','-pix_fmt','yuv420p','-c:a','aac','-b:a','192k','output.mp4']);
+  const data = await ffmpeg.readFile('output.mp4');
+  await ffmpeg.deleteFile('input.webm');
+  await ffmpeg.deleteFile('output.mp4');
+  return new Blob([data.buffer], { type: 'video/mp4' });
+}
+
+function downloadBlob(blob, filename){
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function startExport(){
+  if(!video) return;
+  if(typeof canvas.captureStream !== 'function' || typeof MediaRecorder === 'undefined'){
+    statusLine.textContent = 'this browser cannot export video (try Chrome or Edge)';
+    return;
+  }
+
+  const wasLoop = video.loop;
+  const wasPaused = video.paused;
+  video.loop = false;
+
+  let stream;
+  try{
+    stream = canvas.captureStream(30);
+  } catch(err){
+    statusLine.textContent = 'canvas export failed to start in this browser';
+    return;
+  }
+
+  if(includeAudioToggle.checked){
+    try{
+      const src = video.captureStream ? video.captureStream() : (video.mozCaptureStream ? video.mozCaptureStream() : null);
+      if(src){ src.getAudioTracks().forEach(t => stream.addTrack(t)); }
+    } catch(err){ /* audio capture unsupported — export continues video-only */ }
+  }
+
+  let mimeType = 'video/mp4;codecs=avc1.640028,mp4a.40.2';
+  if(!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/mp4';
+  if(!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/webm;codecs=vp9,opus';
+  if(!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/webm;codecs=vp8,opus';
+  if(!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/webm';
+  const recordedNativeMp4 = mimeType.indexOf('mp4') !== -1;
+
+  const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 8000000 });
+  const chunks = [];
+  recorder.ondataavailable = (e) => { if(e.data && e.data.size) chunks.push(e.data); };
+  recorder.onstop = async () => {
+    video.loop = wasLoop;
+    if(wasPaused) video.pause();
+    const rawBlob = new Blob(chunks, { type: mimeType });
+
+    if(recordedNativeMp4){
+      downloadBlob(rawBlob, 'blurred-video-1920x1080.mp4');
+      exportBtn.disabled = false;
+      exportBtn.textContent = 'Export Video';
+      statusLine.textContent = 'video exported as MP4 (1920×1080)';
+      return;
+    }
+
+    exportBtn.textContent = 'Converting to MP4…';
+    statusLine.textContent = 'this browser can only record WebM directly, so converting to MP4 now — this can take a while for longer clips, keep this tab open';
+    try{
+      const mp4Blob = await convertWebmToMp4(rawBlob);
+      downloadBlob(mp4Blob, 'blurred-video-1920x1080.mp4');
+      statusLine.textContent = 'video exported as MP4 (1920×1080)';
+    } catch(err){
+      console.error(err);
+      downloadBlob(rawBlob, 'blurred-video-1920x1080.webm');
+      statusLine.textContent = 'MP4 conversion failed in this browser — exported as WebM instead';
+    }
+    exportBtn.disabled = false;
+    exportBtn.textContent = 'Export Video';
+  };
+
+  exportBtn.disabled = true;
+  exportBtn.textContent = 'Exporting…';
+  statusLine.textContent = 'exporting — playing through the full clip, keep this tab open';
+
+  function onEnded(){
+    video.removeEventListener('ended', onEnded);
+    recorder.stop();
+  }
+  function beginRecording(){
+    video.removeEventListener('seeked', beginRecording);
+    recorder.start(250);
+    video.addEventListener('ended', onEnded);
+    video.play();
+  }
+  video.addEventListener('seeked', beginRecording);
+  video.currentTime = 0;
+}
+
+exportBtn.addEventListener('click', startExport);
+
+window.__blurBoothVideoPause = function(){ if(video) video.pause(); };
+})();
+
+// ================= TAB SWITCHING =================
+(function(){
+  const tabPhotoBtn = document.getElementById('tabPhotoBtn');
+  const tabVideoBtn = document.getElementById('tabVideoBtn');
+  const photoWorkspace = document.getElementById('photoWorkspace');
+  const videoWorkspace = document.getElementById('videoWorkspace');
+
+  function showTab(tab){
+    const isPhoto = tab === 'photo';
+    tabPhotoBtn.classList.toggle('active', isPhoto);
+    tabVideoBtn.classList.toggle('active', !isPhoto);
+    photoWorkspace.style.display = isPhoto ? '' : 'none';
+    videoWorkspace.style.display = isPhoto ? 'none' : '';
+    if(isPhoto && window.__blurBoothVideoPause) window.__blurBoothVideoPause();
+    // let each tool recompute overlay positions now that its canvas is visible/hidden
+    window.dispatchEvent(new Event('resize'));
+  }
+  tabPhotoBtn.addEventListener('click', () => showTab('photo'));
+  tabVideoBtn.addEventListener('click', () => showTab('video'));
+})();
+
+// ================= DARK MODE =================
+(function(){
+  const darkToggle = document.getElementById('darkModeToggle');
+  const root = document.documentElement;
+  let saved = null;
+  try { saved = localStorage.getItem('blurBoothTheme'); } catch(e){}
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const useDark = saved ? saved === 'dark' : prefersDark;
+
+  root.classList.toggle('dark', useDark);
+  darkToggle.checked = useDark;
+
+  darkToggle.addEventListener('change', () => {
+    root.classList.toggle('dark', darkToggle.checked);
+    try { localStorage.setItem('blurBoothTheme', darkToggle.checked ? 'dark' : 'light'); } catch(e){}
+  });
+})();
+
 </script>
 </body>
 </html>
