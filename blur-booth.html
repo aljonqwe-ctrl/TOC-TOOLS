@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>TOC Blur Booth</title>
 <style>
   :root{
@@ -30,12 +31,12 @@
   }
   *{box-sizing:border-box;}
   html,body{
-    margin:0; height:100%;
+    margin:0; min-height:100%;
     background: var(--bg);
     color:var(--text); font-family:var(--sans); -webkit-font-smoothing:antialiased;
   }
-  body{ display:flex; align-items:center; justify-content:center; padding:28px; }
-  .rig{ width:100%; max-width:1180px; }
+  body{ display:flex; justify-content:center; padding:28px; overflow-y:auto; }
+  .rig{ width:100%; max-width:1440px; margin:auto 0; }
 
   header{
     display:flex; align-items:baseline; justify-content:space-between;
@@ -141,7 +142,7 @@
   input[type=file]{ display:none; }
 
   /* sidebar */
-  .sidebar{ width:260px; flex:0 0 260px; display:flex; flex-direction:column; gap:16px; }
+  .sidebar{ width:300px; flex:0 0 300px; display:flex; flex-direction:column; gap:16px; }
   .layer{
     background:var(--bg); border-radius:var(--radius); padding:18px;
     box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light);
@@ -442,45 +443,6 @@
         </div>
       </div>
 
-      <div class="layer disabled" id="vRegionLayer" style="margin-top:16px;">
-        <div class="layer-head">
-          <div class="layer-title"><span class="chip"></span>Redaction blur</div>
-        </div>
-
-        <div class="mode-row" style="max-width:360px;">
-          <button type="button" class="mode-btn active" id="vModeBoxBtn" data-mode="box">Box</button>
-          <button type="button" class="mode-btn" id="vModeFreehandBtn" data-mode="freehand">Freehand</button>
-        </div>
-
-        <div id="vBoxToolPanel">
-          <div class="layer-sub">Drag a box directly on the video, or drag the icon onto the exact spot you want obscured. By default the box stays fixed for the whole clip — click its <b>TRACK</b> button to keyframe its position instead: pause at different points in the clip and drag the box to a new spot each time, and it will move smoothly between those points, like keyframing in Premiere.</div>
-          <div class="tool-row">
-            <div class="blur-tool" id="vBlurToolIcon" title="Drag onto the video">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#6f7bf7" stroke-width="2" stroke-linecap="round">
-                <circle cx="12" cy="12" r="7"/>
-                <path d="M12 5 L12 3 M12 21 L12 19 M5 12 L3 12 M21 12 L19 12"/>
-              </svg>
-            </div>
-            <div class="tool-note">drag onto the video to place a box</div>
-          </div>
-        </div>
-
-        <div id="vFreehandToolPanel" style="display:none;">
-          <div class="layer-sub">Click and drag directly on the video to freely paint over anything you want obscured — any shape, not just boxes. Pause first for precise painting.</div>
-          <div class="slider-row"><span>Brush size</span><b id="vBrushReadout">60px</b></div>
-          <input type="range" id="vBrushSlider" min="10" max="200" step="2" value="60">
-        </div>
-
-        <div class="slider-row" style="margin-top:14px;"><span>Blur strength</span><b id="vBlurReadout">18px</b></div>
-        <input type="range" id="vBlurSlider" min="1" max="40" step="1" value="18">
-
-        <div class="layer-head" style="margin-top:16px;">
-          <div class="layer-title"><span class="chip"></span>Desaturate area</div>
-        </div>
-        <div class="layer-sub">Each box or freehand stroke gets its own <b>B/W</b> button right on the video — click it to turn just that redacted spot black &amp; white, independent of the others, for the whole clip.</div>
-
-        <div class="clear-link" id="vClearBtn">Clear all redactions</div>
-      </div>
     </div>
 
     <div class="sidebar">
@@ -520,7 +482,48 @@
         </div>
         <div class="layer-sub">Keep the original audio track in the exported file. Preview playback here is always muted. Audio capture support varies by browser — works best in Chrome or Edge.</div>
       </div>
+    </div>
 
+    <div class="sidebar">
+      <div class="layer disabled" id="vRegionLayer">
+        <div class="layer-head">
+          <div class="layer-title"><span class="chip"></span>Redaction blur</div>
+        </div>
+
+        <div class="mode-row">
+          <button type="button" class="mode-btn active" id="vModeBoxBtn" data-mode="box">Box</button>
+          <button type="button" class="mode-btn" id="vModeFreehandBtn" data-mode="freehand">Freehand</button>
+        </div>
+
+        <div id="vBoxToolPanel">
+          <div class="layer-sub">Drag a box directly on the video, or drag the icon onto the exact spot you want obscured. By default the box stays fixed for the whole clip — click its <b>TRACK</b> button to keyframe its position instead: pause at different points in the clip and drag the box to a new spot each time, and it will move smoothly between those points, like keyframing in Premiere.</div>
+          <div class="tool-row">
+            <div class="blur-tool" id="vBlurToolIcon" title="Drag onto the video">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#6f7bf7" stroke-width="2" stroke-linecap="round">
+                <circle cx="12" cy="12" r="7"/>
+                <path d="M12 5 L12 3 M12 21 L12 19 M5 12 L3 12 M21 12 L19 12"/>
+              </svg>
+            </div>
+            <div class="tool-note">drag onto the video to place a box</div>
+          </div>
+        </div>
+
+        <div id="vFreehandToolPanel" style="display:none;">
+          <div class="layer-sub">Click and drag directly on the video to freely paint over anything you want obscured — any shape, not just boxes. Pause first for precise painting.</div>
+          <div class="slider-row"><span>Brush size</span><b id="vBrushReadout">60px</b></div>
+          <input type="range" id="vBrushSlider" min="10" max="200" step="2" value="60">
+        </div>
+
+        <div class="slider-row" style="margin-top:14px;"><span>Blur strength</span><b id="vBlurReadout">18px</b></div>
+        <input type="range" id="vBlurSlider" min="1" max="40" step="1" value="18">
+
+        <div class="layer-head" style="margin-top:16px;">
+          <div class="layer-title"><span class="chip"></span>Desaturate area</div>
+        </div>
+        <div class="layer-sub">Each box or freehand stroke gets its own <b>B/W</b> button right on the video — click it to turn just that redacted spot black &amp; white, independent of the others, for the whole clip.</div>
+
+        <div class="clear-link" id="vClearBtn">Clear all redactions</div>
+      </div>
     </div>
   </div>
   </div>
