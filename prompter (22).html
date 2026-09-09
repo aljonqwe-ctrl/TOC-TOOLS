@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prompter — TOC Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  html[data-theme="dark"]{
+    --bg: #191c1b;
+    --panel: #191c1b;
+    --stage-bg: #000000;
+    --shadow-dark: #0d0f0e;
+    --shadow-light: #262c29;
+    --line: rgba(255,255,255,0.08);
+    --phosphor: #34c3ff;
+    --phosphor-dim: #1a6f8a;
+    --text: #ffffff;
+    --text-dim: #8a9691;
+    --danger: #ff5b5b;
+  }
+  html[data-theme="light"]{
+    --bg: #e8ebe8;
+    --panel: #e8ebe8;
+    --stage-bg: #f3f4f2;
+    --shadow-dark: #c2c6c2;
+    --shadow-light: #ffffff;
+    --line: rgba(0,0,0,0.08);
+    --phosphor: #1170c9;
+    --phosphor-dim: #5f8fae;
+    --text: #1c211f;
+    --text-dim: #62695f;
+    --danger: #c93b56;
+  }
+  :root{
+    --mono: 'Courier New', Courier, monospace;
+    --script-font: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    --script-weight: 500;
+    --stage-margin: 4vw;
+    --radius-lg: 22px;
+    --radius-md: 14px;
+    --radius-sm: 10px;
+  }
+
+  *{box-sizing:border-box;}
+
+  html,body{
+    height:100%;
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--mono);
+    overflow:hidden;
+    transition:background .3s ease, color .3s ease;
+  }
+
+  /* ---------- neumorphic building blocks ---------- */
+  .neu-raise{
+    background:var(--bg);
+    border-radius:var(--radius-lg);
+    box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light);
+    border:1px solid var(--line);
+  }
+  .neu-inset{
+    background:var(--bg);
+    border-radius:var(--radius-md);
+    box-shadow: inset 5px 5px 12px var(--shadow-dark), inset -5px -5px 12px var(--shadow-light);
+    border:1px solid var(--line);
+  }
+  .neu-btn{
+    background:var(--bg);
+    border-radius:var(--radius-sm);
+    box-shadow: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light);
+    border:1px solid var(--line);
+    transition: box-shadow .15s ease, color .15s ease;
+  }
+  .neu-btn:hover{ color:var(--phosphor); }
+  .neu-btn:active, .neu-btn.active{
+    box-shadow: inset 3px 3px 8px var(--shadow-dark), inset -3px -3px 8px var(--shadow-light);
+    color:var(--phosphor);
+  }
+
+  /* ---------- SETUP SCREEN ---------- */
+  #setup{
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    gap:28px;
+    overflow-y:auto;
+  }
+
+  .setup-inner{
+    width:100%;
+    max-width:min(1500px, 94vw);
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+  }
+
+  .brand{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    border-bottom:1px solid var(--line);
+    padding-bottom:10px;
+    margin-bottom:4px;
+    gap:14px;
+  }
+  .brand .brand-left{ display:flex; align-items:baseline; gap:10px; }
+  .brand .dot{
+    color:var(--phosphor);
+    animation:blink 1.4s steps(1) infinite;
+  }
+  @keyframes blink{ 50%{opacity:0.15;} }
+  .brand h1{
+    font-size:15px;
+    letter-spacing:2px;
+    font-weight:400;
+    margin:0;
+    color:var(--text);
+  }
+  .brand span.tag{
+    font-size:11px;
+    color:var(--text-dim);
+  }
+
+  .theme-toggle{
+    display:flex;
+    gap:4px;
+    padding:4px;
+    border-radius:999px;
+  }
+  .theme-toggle button{
+    border:none;
+    background:transparent;
+    color:var(--text-dim);
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:1px;
+    padding:7px 12px;
+    border-radius:999px;
+    cursor:pointer;
+    transition:.15s ease;
+  }
+  .theme-toggle button.active{
+    background:var(--bg);
+    box-shadow: inset 3px 3px 7px var(--shadow-dark), inset -3px -3px 7px var(--shadow-light);
+    color:var(--phosphor);
+  }
+
+  #scriptInput{
+    width:100%;
+    min-height:280px;
+    max-height:50vh;
+    overflow-y:auto;
+    resize:vertical;
+    background:var(--panel);
+    border-radius:var(--radius-lg);
+    box-shadow: inset 6px 6px 14px var(--shadow-dark), inset -6px -6px 14px var(--shadow-light);
+    border:1px solid var(--line);
+    color:var(--text);
+    font-family:var(--script-font);
+    font-weight:var(--script-weight);
+    font-size:20px;
+    line-height:1.5;
+    padding:22px;
+    outline:none;
+    white-space:pre-wrap;
+    position:relative;
+  }
+  #scriptInput:empty:before{
+    content: attr(data-placeholder);
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:0 60px;
+    font-family:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-weight:700;
+    font-size:clamp(24px, 4vw, 44px);
+    color:var(--phosphor);
+    pointer-events:none;
+  }
+  #scriptInput:focus{
+    box-shadow: inset 6px 6px 14px var(--shadow-dark), inset -6px -6px 14px var(--shadow-light), 0 0 0 1.5px var(--phosphor);
+  }
+  #scriptInput b, #scriptInput strong{ color:inherit; }
+  #scriptInput u{ text-decoration-color:var(--phosphor); text-underline-offset:3px; }
+
+  .row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:14px;
+    align-items:center;
+    font-size:12px;
+    color:var(--text-dim);
+  }
+
+  .field{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:9px 14px;
+    background:var(--panel);
+    border-radius:999px;
+    box-shadow: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light);
+    border:1px solid var(--line);
+  }
+  .field label{ white-space:nowrap; }
+  .field input[type=range]{
+    accent-color:var(--phosphor);
+    width:130px;
+  }
+  .field .val{
+    min-width:30px;
+    text-align:right;
+    color:var(--phosphor);
+    font-size:13px;
+  }
+  .field input[type=checkbox]{
+    accent-color:var(--phosphor);
+  }
+  .field select{
+    background:transparent;
+    border:none;
+    color:var(--phosphor);
+    font-family:var(--mono);
+    font-size:13px;
+    outline:none;
+  }
+  .field select option{ background:var(--panel); }
+
+  /* format + highlight color toolbar */
+  .highlight-bar{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:10px;
+    font-size:11px;
+    color:var(--text-dim);
+    padding:12px 14px;
+    background:var(--panel);
+    border-radius:var(--radius-md);
+    box-shadow: 5px 5px 12px var(--shadow-dark), -5px -5px 12px var(--shadow-light);
+    border:1px solid var(--line);
+  }
+  .highlight-bar .label{ color:var(--text-dim); white-space:nowrap; }
+
+  .format-btn{
+    width:28px;
+    height:28px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:var(--bg);
+    border-radius:8px;
+    box-shadow: 3px 3px 7px var(--shadow-dark), -3px -3px 7px var(--shadow-light);
+    border:1px solid var(--line);
+    color:var(--text);
+    font-family:var(--mono);
+    font-size:13px;
+    cursor:pointer;
+  }
+  .format-btn:hover{ color:var(--phosphor); }
+  .format-btn:active{
+    box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);
+  }
+  .toolbar-divider{ width:1px; height:20px; background:var(--line); margin:0 2px; }
+  .format-btn.wide{
+    width:auto;
+    padding:0 10px;
+    font-size:11px;
+    letter-spacing:.3px;
+  }
+
+  .swatch{
+    width:22px;
+    height:22px;
+    border-radius:7px;
+    border:1px solid var(--line);
+    cursor:pointer;
+    padding:0;
+    box-shadow: 2px 2px 5px var(--shadow-dark), -2px -2px 5px var(--shadow-light);
+  }
+  .swatch:hover{ outline:1.5px solid var(--phosphor); }
+  .swatch.custom-wrap{
+    position:relative;
+    width:22px;
+    height:22px;
+    border-radius:7px;
+    border:1px dashed var(--phosphor-dim);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--phosphor-dim);
+    font-size:13px;
+    cursor:pointer;
+    overflow:hidden;
+    background:var(--bg);
+  }
+  .swatch.custom-wrap input[type=color]{
+    position:absolute;
+    inset:-4px;
+    width:200%;
+    height:200%;
+    border:none;
+    padding:0;
+    cursor:pointer;
+    background:transparent;
+  }
+  #clearColorBtn{
+    background:var(--bg);
+    border:1px solid var(--line);
+    border-radius:999px;
+    color:var(--text-dim);
+    padding:6px 12px;
+    font-family:var(--mono);
+    font-size:11px;
+    cursor:pointer;
+    box-shadow: 3px 3px 7px var(--shadow-dark), -3px -3px 7px var(--shadow-light);
+  }
+  #clearColorBtn:hover{ color:var(--danger); }
+  #clearColorBtn:active{
+    box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);
+  }
+
+  button{
+    font-family:var(--mono);
+    cursor:pointer;
+  }
+
+  #startBtn{
+    width:100%;
+    padding:18px;
+    background:var(--bg);
+    border-radius:var(--radius-lg);
+    box-shadow: 7px 7px 15px var(--shadow-dark), -7px -7px 15px var(--shadow-light);
+    border:1px solid var(--line);
+    color:var(--phosphor);
+    font-size:16px;
+    letter-spacing:4px;
+    transition:box-shadow .15s, color .15s;
+  }
+  #startBtn:hover{
+    color:var(--phosphor);
+  }
+  #startBtn:active:not(:disabled){
+    box-shadow: inset 5px 5px 12px var(--shadow-dark), inset -5px -5px 12px var(--shadow-light);
+  }
+  #startBtn:disabled{
+    color:var(--line);
+    cursor:not-allowed;
+    box-shadow: inset 4px 4px 10px var(--shadow-dark), inset -4px -4px 10px var(--shadow-light);
+  }
+
+  .hint{
+    font-size:11px;
+    color:var(--phosphor-dim);
+  }
+
+  /* ---------- PROMPTER SCREEN ---------- */
+  #stage{
+    position:fixed;
+    inset:0;
+    display:none;
+    background:var(--stage-bg);
+    flex-direction:column;
+  }
+  #stage.active{ display:flex; }
+
+  #exitCorner{
+    position:absolute;
+    top:0; left:0;
+    width:120px;
+    height:100px;
+    z-index:50;
+    display:flex;
+    align-items:flex-start;
+    justify-content:flex-start;
+    padding:16px;
+  }
+  #exitHoverBtn{
+    background:var(--panel);
+    color:var(--text);
+    border:1px solid var(--line);
+    border-radius:var(--radius-sm);
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:1px;
+    padding:8px 14px;
+    cursor:pointer;
+    box-shadow: 4px 4px 10px var(--shadow-dark), -4px -4px 10px var(--shadow-light);
+    opacity:0;
+    transform:translateY(-6px);
+    transition: opacity .18s ease, transform .18s ease;
+    pointer-events:none;
+  }
+  #exitCorner:hover #exitHoverBtn,
+  #exitHoverBtn:focus-visible{
+    opacity:1;
+    transform:translateY(0);
+    pointer-events:auto;
+  }
+  #exitHoverBtn:hover{ color:var(--phosphor); }
+
+  #viewport{
+    flex:1;
+    overflow:hidden;
+    position:relative;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
+            mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
+  }
+
+  #centerLine{
+    position:absolute;
+    left:0; right:0; top:38%;
+    border-top:1px solid rgba(52,195,255,0.18);
+    pointer-events:none;
+    z-index:2;
+    display:none;
+  }
+  #centerLine.show{ display:block; }
+
+  #scrollTrack{
+    position:absolute;
+    left:0; right:0; top:0;
+    will-change:transform;
+    padding:0 var(--stage-margin);
+  }
+  #scrollTrack .pad-top{
+    height:60vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:flex-end;
+    align-items:center;
+    padding-bottom:9vh;
+  }
+  #scrollTrack .pad-bottom{ height:70vh; }
+
+  .start-marker{
+    font-family:var(--mono);
+    font-weight:700;
+    letter-spacing:.35em;
+    color:var(--text-dim);
+    opacity:.6;
+    text-align:center;
+    font-size:clamp(20px, 4vw, 40px);
+  }
+  .start-marker .chevron{
+    display:block;
+    margin:10px auto 0;
+    font-size:.5em;
+    animation:startBob 1.6s ease-in-out infinite;
+  }
+  @keyframes startBob{
+    0%,100%{ transform:translateY(0); }
+    50%{ transform:translateY(8px); }
+  }
+
+  #scriptText{
+    font-family:var(--script-font);
+    font-weight:var(--script-weight);
+    color:var(--text);
+    text-align:center;
+    white-space:pre-wrap;
+    padding:0 1vw;
+  }
+  #scriptText b, #scriptText strong{ color:inherit; -webkit-text-stroke:.6px currentColor; }
+  #scriptText u{ text-decoration-color:var(--phosphor); text-underline-offset:.12em; text-decoration-thickness:.06em; }
+
+  #controls{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin:14px;
+    padding:10px 16px;
+    background:var(--bg);
+    border-radius:999px;
+    box-shadow: 6px 6px 14px var(--shadow-dark), -6px -6px 14px var(--shadow-light);
+    border:1px solid var(--line);
+    font-size:11px;
+    color:var(--text-dim);
+    flex-wrap:wrap;
+  }
+
+  #controls .grp{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    border-right:1px solid var(--line);
+    padding-right:10px;
+    margin-right:2px;
+  }
+  #controls .grp:last-child{ border-right:none; }
+
+  #controls button{
+    background:var(--bg);
+    border-radius:999px;
+    box-shadow: 3px 3px 7px var(--shadow-dark), -3px -3px 7px var(--shadow-light);
+    border:1px solid var(--line);
+    color:var(--phosphor);
+    padding:7px 12px;
+    font-size:12px;
+  }
+  #controls button:hover{ color:var(--phosphor); }
+  #controls button:active{
+    box-shadow: inset 3px 3px 7px var(--shadow-dark), inset -3px -3px 7px var(--shadow-light);
+  }
+  #controls button.active{
+    box-shadow: inset 3px 3px 7px var(--shadow-dark), inset -3px -3px 7px var(--shadow-light);
+    color:var(--phosphor);
+  }
+
+  #controls input[type=range]{
+    accent-color:var(--phosphor);
+    width:90px;
+  }
+
+  #controls select{
+    background:var(--bg);
+    border-radius:999px;
+    box-shadow: 3px 3px 7px var(--shadow-dark), -3px -3px 7px var(--shadow-light);
+    border:1px solid var(--line);
+    color:var(--phosphor);
+    padding:7px 10px;
+    font-family:var(--mono);
+    font-size:12px;
+    outline:none;
+  }
+  #controls select option{ background:var(--panel); }
+
+  #exitBtn{
+    margin-left:auto;
+    color:var(--danger) !important;
+  }
+
+  .val{
+    min-width:26px;
+    text-align:center;
+    color:var(--phosphor);
+  }
+
+  #stage.mirror #viewport{
+    transform:scaleX(-1);
+  }
+
+  /* ---------- right-click format menu ---------- */
+  .ctx-menu{
+    position:fixed;
+    z-index:1000;
+    display:none;
+    flex-direction:column;
+    gap:4px;
+    padding:8px;
+    min-width:198px;
+    background:var(--bg);
+    border-radius:var(--radius-md);
+  }
+  .ctx-menu.show{ display:flex; }
+  .ctx-item{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    width:100%;
+    text-align:left;
+    background:transparent;
+    border:none;
+    border-radius:8px;
+    color:var(--text);
+    font-family:var(--mono);
+    font-size:12.5px;
+    padding:9px 10px;
+    cursor:pointer;
+  }
+  .ctx-item:hover{
+    background:var(--bg);
+    box-shadow: inset 3px 3px 7px var(--shadow-dark), inset -3px -3px 7px var(--shadow-light);
+    color:var(--phosphor);
+  }
+  .ctx-item b, .ctx-item u{ width:14px; display:inline-block; }
+  .ctx-divider{ height:1px; background:var(--line); margin:4px 2px; }
+  .ctx-label{
+    font-size:10px;
+    letter-spacing:.06em;
+    color:var(--text-dim);
+    padding:2px 10px 4px;
+  }
+  .ctx-colors{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    padding:2px 10px 4px;
+  }
+
+  @media (max-width:640px){
+    .brand h1{ font-size:12px; letter-spacing:1px; }
+    #scriptInput{ font-size:16px; padding:14px; }
+    #controls{ font-size:10px; }
+    .field input[type=range]{ width:90px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="setup">
+  <div class="setup-inner">
+    <div class="brand">
+      <div class="brand-left">
+        <h1>PROMPTER<span class="dot">_</span></h1>
+        <span class="tag">TOC TOOLS</span>
+      </div>
+      <div class="theme-toggle neu-inset" id="themeToggleSetup">
+        <button type="button" data-theme-choice="dark" class="active">dark</button>
+        <button type="button" data-theme-choice="light">light</button>
+      </div>
+    </div>
+
+    <div id="scriptInput" contenteditable="true" data-placeholder="Type or paste your script..."></div>
+
+    <div class="highlight-bar">
+      <span class="label">format selected text:</span>
+      <button type="button" class="format-btn" id="boldBtn" title="bold"><b>B</b></button>
+      <button type="button" class="format-btn" id="underlineBtn" title="underline"><u>U</u></button>
+      <div class="toolbar-divider"></div>
+      <button type="button" class="format-btn wide" id="capitalizeBtn" title="Capitalize Case">Capitalize Case</button>
+      <button type="button" class="format-btn wide" id="lowercaseBtn" title="small case">small case</button>
+      <button type="button" class="format-btn wide" id="uppercaseBtn" title="UPPER CASE">UPPER CASE</button>
+      <button type="button" class="format-btn wide" id="sentenceCaseBtn" title="Sentence case">Sentence case</button>
+      <div class="toolbar-divider"></div>
+      <span class="label">highlight color:</span>
+      <button class="swatch" data-color="#ffe14d" style="background:#ffe14d" title="yellow"></button>
+      <button class="swatch" data-color="#ff5b5b" style="background:#ff5b5b" title="red"></button>
+      <button class="swatch" data-color="#4dc3ff" style="background:#4dc3ff" title="blue"></button>
+      <button class="swatch" data-color="#ff8a3d" style="background:#ff8a3d" title="orange"></button>
+      <button class="swatch" data-color="#ffffff" style="background:#ffffff" title="white"></button>
+      <label class="swatch custom-wrap" title="custom color">
+        +
+        <input type="color" id="customColor" value="#34c3ff">
+      </label>
+      <button id="clearColorBtn">clear color</button>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label for="fontSize">size</label>
+        <input type="range" id="fontSize" value="128" min="16" max="140" step="2">
+        <span class="val" id="fontSizeVal">128</span>
+      </div>
+      <div class="field">
+        <label for="speedInit">speed</label>
+        <input type="range" id="speedInit" value="4" min="1" max="20" step="1">
+        <span class="val" id="speedInitVal">4</span>
+      </div>
+      <div class="field">
+        <label for="mirrorInit">mirror</label>
+        <input type="checkbox" id="mirrorInit">
+      </div>
+      <div class="field">
+        <label for="alignInit">align</label>
+        <select id="alignInit">
+          <option value="center">center</option>
+          <option value="left" selected>left</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="spacingInit">line spacing</label>
+        <input type="range" id="spacingInit" value="1" min="1" max="3" step="0.1">
+        <span class="val" id="spacingInitVal">1</span>
+      </div>
+      <div class="field">
+        <label for="guideInit">center guide</label>
+        <input type="checkbox" id="guideInit">
+      </div>
+      <div class="field">
+        <label for="fontInit">font</label>
+        <select id="fontInit">
+          <option value="'Jornada Sans Medium', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" data-weight="500">Jornada Sans Medium</option>
+          <option value="'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" data-weight="600">Inter SemiBold</option>
+          <option value="'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" data-weight="500" selected>Roboto</option>
+          <option value="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" data-weight="400">Default (System)</option>
+          <option value="Arial, Helvetica, sans-serif" data-weight="400">Arial</option>
+          <option value="Helvetica, Arial, sans-serif" data-weight="400">Helvetica</option>
+          <option value="Verdana, Geneva, sans-serif" data-weight="400">Verdana</option>
+          <option value="'Trebuchet MS', sans-serif" data-weight="400">Trebuchet MS</option>
+          <option value="Georgia, 'Times New Roman', serif" data-weight="400">Georgia</option>
+          <option value="'Times New Roman', Times, serif" data-weight="400">Times New Roman</option>
+          <option value="'Courier New', Courier, monospace" data-weight="400">Courier (mono)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="marginInit">canvas width</label>
+        <input type="range" id="marginInit" value="3" min="1" max="16" step="0.5">
+        <span class="val" id="marginInitVal">3</span>
+      </div>
+    </div>
+
+    <button id="startBtn" disabled>START</button>
+    <div class="hint">select text above, then use B / U, a case button, or a swatch to format it — or right-click the selection · space to play/pause once running · ↑↓ move script · esc to exit</div>
+  </div>
+</div>
+
+<div id="ctxMenu" class="ctx-menu neu-raise">
+  <button type="button" class="ctx-item" id="ctxBold"><b>B</b> Bold</button>
+  <button type="button" class="ctx-item" id="ctxUnderline"><u>U</u> Underline</button>
+  <div class="ctx-divider"></div>
+  <button type="button" class="ctx-item" id="ctxCapitalize">Capitalize Case</button>
+  <button type="button" class="ctx-item" id="ctxLowercase">small case</button>
+  <button type="button" class="ctx-item" id="ctxUppercase">UPPER CASE</button>
+  <button type="button" class="ctx-item" id="ctxSentenceCase">Sentence case</button>
+  <div class="ctx-divider"></div>
+  <div class="ctx-label">color</div>
+  <div class="ctx-colors">
+    <button class="swatch" data-color="#ffe14d" style="background:#ffe14d" title="yellow"></button>
+    <button class="swatch" data-color="#ff5b5b" style="background:#ff5b5b" title="red"></button>
+    <button class="swatch" data-color="#4dc3ff" style="background:#4dc3ff" title="blue"></button>
+    <button class="swatch" data-color="#ff8a3d" style="background:#ff8a3d" title="orange"></button>
+    <button class="swatch" data-color="#ffffff" style="background:#ffffff" title="white"></button>
+    <label class="swatch custom-wrap" title="custom color">
+      +
+      <input type="color" id="ctxCustomColor" value="#34c3ff">
+    </label>
+  </div>
+  <div class="ctx-divider"></div>
+  <button type="button" class="ctx-item" id="ctxClear">Clear formatting</button>
+</div>
+
+<div id="stage">
+  <div id="exitCorner">
+    <button id="exitHoverBtn" title="Exit prompter">✕ exit</button>
+  </div>
+  <div id="viewport">
+    <div id="centerLine"></div>
+    <div id="scrollTrack">
+      <div class="pad-top">
+        <div class="start-marker">START<span class="chevron">▾</span></div>
+      </div>
+      <div id="scriptText"></div>
+      <div class="pad-bottom"></div>
+    </div>
+  </div>
+
+  <div id="controls">
+    <div class="grp">
+      <button id="playPause">▶ play</button>
+    </div>
+    <div class="grp">
+      <span>speed</span>
+      <input type="range" id="speedSlider" min="1" max="20" step="1" value="4">
+      <span class="val" id="speedVal">4</span>
+    </div>
+    <div class="grp">
+      <span>size</span>
+      <input type="range" id="sizeSlider" min="16" max="160" step="2" value="48">
+      <span class="val" id="sizeVal">48</span>
+    </div>
+    <div class="grp">
+      <span>spacing</span>
+      <input type="range" id="spacingSlider" min="1" max="3" step="0.1" value="1">
+      <span class="val" id="spacingVal">1</span>
+    </div>
+    <button id="exitBtn">exit</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  const setup = document.getElementById('setup');
+  const stage = document.getElementById('stage');
+  const scriptInput = document.getElementById('scriptInput');
+  const startBtn = document.getElementById('startBtn');
+  const scriptText = document.getElementById('scriptText');
+  const scrollTrack = document.getElementById('scrollTrack');
+  const viewport = document.getElementById('viewport');
+
+  const fontSizeField = document.getElementById('fontSize');
+  const fontSizeVal = document.getElementById('fontSizeVal');
+  const speedInitField = document.getElementById('speedInit');
+  const speedInitVal = document.getElementById('speedInitVal');
+  const mirrorInitField = document.getElementById('mirrorInit');
+  const alignInitField = document.getElementById('alignInit');
+  const spacingInitField = document.getElementById('spacingInit');
+  const spacingInitVal = document.getElementById('spacingInitVal');
+  const guideInitField = document.getElementById('guideInit');
+  const fontInitField = document.getElementById('fontInit');
+  const marginInitField = document.getElementById('marginInit');
+  const marginInitVal = document.getElementById('marginInitVal');
+
+  const playPauseBtn = document.getElementById('playPause');
+  const speedSlider = document.getElementById('speedSlider');
+  const speedVal = document.getElementById('speedVal');
+  const sizeSlider = document.getElementById('sizeSlider');
+  const sizeVal = document.getElementById('sizeVal');
+  const spacingSlider = document.getElementById('spacingSlider');
+  const spacingVal = document.getElementById('spacingVal');
+  const centerLine = document.getElementById('centerLine');
+  const exitBtn = document.getElementById('exitBtn');
+  const exitHoverBtn = document.getElementById('exitHoverBtn');
+  const customColor = document.getElementById('customColor');
+  const clearColorBtn = document.getElementById('clearColorBtn');
+  const boldBtn = document.getElementById('boldBtn');
+  const underlineBtn = document.getElementById('underlineBtn');
+  const capitalizeBtn = document.getElementById('capitalizeBtn');
+  const lowercaseBtn = document.getElementById('lowercaseBtn');
+  const uppercaseBtn = document.getElementById('uppercaseBtn');
+  const sentenceCaseBtn = document.getElementById('sentenceCaseBtn');
+  const themeToggleSetup = document.getElementById('themeToggleSetup');
+  const ctxMenu = document.getElementById('ctxMenu');
+  const ctxBoldBtn = document.getElementById('ctxBold');
+  const ctxUnderlineBtn = document.getElementById('ctxUnderline');
+  const ctxCapitalizeBtn = document.getElementById('ctxCapitalize');
+  const ctxLowercaseBtn = document.getElementById('ctxLowercase');
+  const ctxUppercaseBtn = document.getElementById('ctxUppercase');
+  const ctxSentenceCaseBtn = document.getElementById('ctxSentenceCase');
+  const ctxClearBtn = document.getElementById('ctxClear');
+  const ctxCustomColor = document.getElementById('ctxCustomColor');
+
+  // ---- theme (dark / light) ----
+  function setTheme(mode){
+    document.documentElement.setAttribute('data-theme', mode);
+    themeToggleSetup.querySelectorAll('[data-theme-choice]').forEach(b => {
+      b.classList.toggle('active', b.getAttribute('data-theme-choice') === mode);
+    });
+  }
+  themeToggleSetup.querySelectorAll('[data-theme-choice]').forEach(b => {
+    b.addEventListener('click', () => setTheme(b.getAttribute('data-theme-choice')));
+  });
+
+  // ---- bold / underline on selected script text ----
+  function applyFormat(cmd){
+    scriptInput.focus();
+    document.execCommand(cmd, false, null);
+    startBtn.disabled = scriptInput.textContent.trim().length === 0;
+  }
+  boldBtn.addEventListener('mousedown', (e) => e.preventDefault()); // keep selection
+  underlineBtn.addEventListener('mousedown', (e) => e.preventDefault());
+  boldBtn.addEventListener('click', () => applyFormat('bold'));
+  underlineBtn.addEventListener('click', () => applyFormat('underline'));
+
+  // ---- case conversion (Capitalize Case / small case / UPPER CASE /
+  // Sentence case). If text is highlighted, only that selection is
+  // converted. If nothing is highlighted, it falls back to the whole
+  // script. Either way, rather than rebuilding the range as plain text
+  // (which would strip bold/underline/highlight color), this walks the
+  // text nodes touched by the range and rewrites their characters in
+  // place — same length in, same length out — so formatting spans stay
+  // intact. ----
+  function applyCase(mode){
+    scriptInput.focus();
+    const sel = window.getSelection();
+    const found = getSelectionRangeInEditor();
+    let range;
+    if(found){
+      range = found.range;
+    } else {
+      // nothing highlighted — apply to the entire script
+      range = document.createRange();
+      range.selectNodeContents(scriptInput);
+    }
+
+    const walker = document.createTreeWalker(scriptInput, NodeFilter.SHOW_TEXT, null);
+    const nodes = [];
+    let n;
+    while(n = walker.nextNode()){
+      if(range.intersectsNode(n)) nodes.push(n);
+    }
+    if(nodes.length === 0) return;
+
+    const isWordChar = (ch) => /[A-Za-z0-9]/.test(ch);
+    let atWordStart = true;     // for 'capitalize'
+    let atSentenceStart = true; // for 'sentence'
+
+    nodes.forEach((node) => {
+      const start = node === range.startContainer ? range.startOffset : 0;
+      const end = node === range.endContainer ? range.endOffset : node.nodeValue.length;
+      if(start >= end) return;
+      const before = node.nodeValue.slice(0, start);
+      const selected = node.nodeValue.slice(start, end);
+      const after = node.nodeValue.slice(end);
+
+      let out = '';
+      for(const ch of selected){
+        if(mode === 'lower'){
+          out += ch.toLowerCase();
+        } else if(mode === 'upper'){
+          out += ch.toUpperCase();
+        } else if(mode === 'capitalize'){
+          if(isWordChar(ch)){
+            out += atWordStart ? ch.toUpperCase() : ch.toLowerCase();
+            atWordStart = false;
+          } else {
+            out += ch;
+            atWordStart = true;
+          }
+        } else if(mode === 'sentence'){
+          if(/[A-Za-z]/.test(ch)){
+            out += atSentenceStart ? ch.toUpperCase() : ch.toLowerCase();
+            atSentenceStart = false;
+          } else {
+            out += ch;
+            if(/[.!?\n]/.test(ch)) atSentenceStart = true;
+          }
+        }
+      }
+      node.nodeValue = before + out + after;
+    });
+
+    // node lengths are unchanged, so the range's boundaries are still
+    // valid — reselect it so the (highlighted or whole-script) text stays
+    // selected after the conversion.
+    sel.removeAllRanges();
+    sel.addRange(range);
+    startBtn.disabled = scriptInput.textContent.trim().length === 0;
+  }
+
+  [capitalizeBtn, lowercaseBtn, uppercaseBtn, sentenceCaseBtn].forEach(btn => {
+    btn.addEventListener('mousedown', (e) => e.preventDefault()); // keep selection
+  });
+  capitalizeBtn.addEventListener('click', () => applyCase('capitalize'));
+  lowercaseBtn.addEventListener('click', () => applyCase('lower'));
+  uppercaseBtn.addEventListener('click', () => applyCase('upper'));
+  sentenceCaseBtn.addEventListener('click', () => applyCase('sentence'));
+
+  // ---- Ctrl+B / Cmd+B shortcut for bold on the script text ----
+  scriptInput.addEventListener('keydown', (e) => {
+    if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b'){
+      e.preventDefault();
+      applyFormat('bold');
+    }
+  });
+
+  // ---- right-click menu: bold / underline / color on the current selection ----
+  function hideCtxMenu(){ ctxMenu.classList.remove('show'); }
+  function showCtxMenu(x, y){
+    ctxMenu.classList.add('show');
+    ctxMenu.style.left = '0px';
+    ctxMenu.style.top = '0px';
+    const rect = ctxMenu.getBoundingClientRect();
+    const maxX = window.innerWidth - rect.width - 10;
+    const maxY = window.innerHeight - rect.height - 10;
+    ctxMenu.style.left = Math.max(6, Math.min(x, maxX)) + 'px';
+    ctxMenu.style.top = Math.max(6, Math.min(y, maxY)) + 'px';
+  }
+
+  scriptInput.addEventListener('contextmenu', (e) => {
+    const sel = window.getSelection();
+    if(!sel || sel.rangeCount === 0 || sel.isCollapsed) return; // no highlight — let the normal menu show
+    const range = sel.getRangeAt(0);
+    if(!scriptInput.contains(range.commonAncestorContainer)) return;
+    e.preventDefault();
+    showCtxMenu(e.clientX, e.clientY);
+  });
+
+  document.addEventListener('mousedown', (e) => {
+    if(ctxMenu.classList.contains('show') && !ctxMenu.contains(e.target)) hideCtxMenu();
+  });
+  document.addEventListener('keydown', (e) => {
+    if(e.key === 'Escape' && ctxMenu.classList.contains('show')) hideCtxMenu();
+  });
+  // scrolling or resizing invalidates the menu's anchored position
+  window.addEventListener('resize', hideCtxMenu);
+  document.addEventListener('scroll', hideCtxMenu, true);
+
+  ctxBoldBtn.addEventListener('mousedown', (e) => e.preventDefault());
+  ctxUnderlineBtn.addEventListener('mousedown', (e) => e.preventDefault());
+  ctxCapitalizeBtn.addEventListener('mousedown', (e) => e.preventDefault());
+  ctxLowercaseBtn.addEventListener('mousedown', (e) => e.preventDefault());
+  ctxUppercaseBtn.addEventListener('mousedown', (e) => e.preventDefault());
+  ctxSentenceCaseBtn.addEventListener('mousedown', (e) => e.preventDefault());
+  ctxClearBtn.addEventListener('mousedown', (e) => e.preventDefault());
+  ctxBoldBtn.addEventListener('click', () => { applyFormat('bold'); hideCtxMenu(); });
+  ctxUnderlineBtn.addEventListener('click', () => { applyFormat('underline'); hideCtxMenu(); });
+  ctxCapitalizeBtn.addEventListener('click', () => { applyCase('capitalize'); hideCtxMenu(); });
+  ctxLowercaseBtn.addEventListener('click', () => { applyCase('lower'); hideCtxMenu(); });
+  ctxUppercaseBtn.addEventListener('click', () => { applyCase('upper'); hideCtxMenu(); });
+  ctxSentenceCaseBtn.addEventListener('click', () => { applyCase('sentence'); hideCtxMenu(); });
+  ctxClearBtn.addEventListener('click', () => {
+    scriptInput.focus();
+    document.execCommand('removeFormat', false, null);
+    startBtn.disabled = scriptInput.textContent.trim().length === 0;
+    hideCtxMenu();
+  });
+  // the ctx menu's color swatches share the .swatch[data-color] class with the
+  // toolbar's, so the generic handler below already colors the text — this
+  // just closes the menu afterward.
+  ctxMenu.querySelectorAll('.swatch[data-color]').forEach(btn => {
+    btn.addEventListener('click', hideCtxMenu);
+  });
+  ctxCustomColor.addEventListener('input', () => { applyColor(ctxCustomColor.value); hideCtxMenu(); });
+
+  // ---- line spacing + center guide ----
+  spacingInitField.addEventListener('input', () => { spacingInitVal.textContent = spacingInitField.value; });
+
+  // ---- font + canvas width: live-preview in the editor too ----
+  fontInitField.addEventListener('change', () => {
+    document.documentElement.style.setProperty('--script-font', fontInitField.value);
+    const weight = fontInitField.selectedOptions[0]?.dataset.weight || '400';
+    document.documentElement.style.setProperty('--script-weight', weight);
+  });
+  marginInitField.addEventListener('input', () => {
+    marginInitVal.textContent = marginInitField.value;
+  });
+
+  let speed = 4;
+  let fontSize = 128;
+  let lineSpacing = 1;
+  let guideOn = false;
+  let mirrored = false;
+  let playing = false;
+  let posY = 0;
+  let rafId = null;
+  let lastTime = null;
+
+  // ---- setup: enable start once there's content ----
+  scriptInput.addEventListener('input', () => {
+    startBtn.disabled = scriptInput.textContent.trim().length === 0;
+  });
+
+  // ---- force plain-text paste: strips any inline font-size/style that
+  // rides along with copied text and would later ignore the size slider.
+  // Prefers text/plain (what was literally typed/copied, e.g. "|" pipes,
+  // ";" semicolons) since some sources' text/html is a rendered form that
+  // can drop characters that were only structural in the source (a "|"
+  // used as a markdown table separator disappears once rendered to an
+  // actual <table>). Falls back to decoding text/html only when no
+  // text/plain is provided at all.
+  scriptInput.addEventListener('paste', (e) => {
+    e.preventDefault();
+    const cd = e.clipboardData || window.clipboardData;
+    if(!cd) return;
+    let text = cd.getData('text/plain') || '';
+    if(!text){
+      const html = cd.getData('text/html');
+      if(html){
+        const tmp = document.createElement('div');
+        tmp.innerHTML = html;
+        text = tmp.textContent || tmp.innerText || '';
+      }
+    }
+    if(!text) return;
+
+    const sel = window.getSelection();
+    if(!sel || sel.rangeCount === 0) return;
+    const range = sel.getRangeAt(0);
+    range.deleteContents();
+    const node = document.createTextNode(text);
+    range.insertNode(node);
+    range.setStartAfter(node);
+    range.setEndAfter(node);
+    sel.removeAllRanges();
+    sel.addRange(range);
+
+    // e.preventDefault() above means the browser never fires its own
+    // native 'input' event for this change, so the Start-button-enable
+    // listener never runs on paste. Fire one ourselves so pasting alone
+    // is enough — no need to type/delete a character afterward just to
+    // wake the button up.
+    scriptInput.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+
+  // ---- setup: live slider labels ----
+  fontSizeField.addEventListener('input', () => {
+    fontSizeVal.textContent = fontSizeField.value;
+    scriptInput.style.fontSize = fontSizeField.value + 'px';
+  });
+  speedInitField.addEventListener('input', () => { speedInitVal.textContent = speedInitField.value; });
+
+  // ---- highlight coloring on the editable script (plain DOM, no execCommand) ----
+  function getSelectionRangeInEditor(){
+    const sel = window.getSelection();
+    if(!sel || sel.rangeCount === 0 || sel.isCollapsed) return null;
+    const range = sel.getRangeAt(0);
+    if(!scriptInput.contains(range.commonAncestorContainer)) return null;
+    return { sel, range };
+  }
+
+  function applyColor(color){
+    scriptInput.focus();
+    const found = getSelectionRangeInEditor();
+    if(!found) return;
+    const { sel, range } = found;
+    const span = document.createElement('span');
+    span.style.color = color;
+    try {
+      range.surroundContents(span);
+    } catch(err) {
+      const contents = range.extractContents();
+      span.appendChild(contents);
+      range.insertNode(span);
+    }
+    sel.removeAllRanges();
+    startBtn.disabled = scriptInput.textContent.trim().length === 0;
+  }
+
+  document.querySelectorAll('.swatch[data-color]').forEach(btn => {
+    btn.addEventListener('mousedown', (e) => e.preventDefault()); // keep selection
+    btn.addEventListener('click', () => applyColor(btn.getAttribute('data-color')));
+  });
+
+  customColor.addEventListener('mousedown', (e) => {
+    // don't lose the text selection when opening the color input
+  });
+  customColor.addEventListener('input', () => applyColor(customColor.value));
+
+  clearColorBtn.addEventListener('mousedown', (e) => e.preventDefault());
+  clearColorBtn.addEventListener('click', () => applyColor('#34c3ff'));
+
+  function speedToPxPerSec(s){
+    return 14 + s * 12;
+  }
+
+  function startPrompter(){
+    fontSize = parseInt(fontSizeField.value, 10) || 128;
+    speed = parseInt(speedInitField.value, 10) || 4;
+    mirrored = mirrorInitField.checked;
+    lineSpacing = parseFloat(spacingInitField.value) || 1;
+    guideOn = guideInitField.checked;
+    const align = alignInitField.value;
+    const fontFamily = fontInitField.value;
+    const fontWeight = fontInitField.selectedOptions[0]?.dataset.weight || '400';
+    const margin = parseFloat(marginInitField.value) || 3;
+
+    scriptText.innerHTML = scriptInput.innerHTML;
+    scriptText.style.fontSize = fontSize + 'px';
+    scriptText.style.textAlign = align === 'left' ? 'left' : 'center';
+    scriptText.style.lineHeight = lineSpacing;
+
+    document.documentElement.style.setProperty('--script-font', fontFamily);
+    document.documentElement.style.setProperty('--script-weight', fontWeight);
+    document.documentElement.style.setProperty('--stage-margin', margin + 'vw');
+
+    sizeSlider.value = fontSize;
+    sizeVal.textContent = fontSize;
+    speedSlider.value = speed;
+    speedVal.textContent = speed;
+    spacingSlider.value = lineSpacing;
+    spacingVal.textContent = lineSpacing;
+
+    stage.classList.toggle('mirror', mirrored);
+    centerLine.classList.toggle('show', guideOn);
+
+    setup.style.display = 'none';
+    stage.classList.add('active');
+
+    posY = 0;
+    scrollTrack.style.transform = 'translateY(0px)';
+
+    playing = false;
+    playPauseBtn.textContent = '▶ play';
+  }
+
+  startBtn.addEventListener('click', startPrompter);
+
+  spacingSlider.addEventListener('input', () => {
+    lineSpacing = parseFloat(spacingSlider.value);
+    scriptText.style.lineHeight = lineSpacing;
+    spacingVal.textContent = lineSpacing;
+  });
+
+  function tick(ts){
+    if(!playing){ lastTime = null; return; }
+    if(lastTime === null) lastTime = ts;
+    const dt = (ts - lastTime) / 1000;
+    lastTime = ts;
+
+    posY += speedToPxPerSec(speed) * dt;
+    scrollTrack.style.transform = 'translateY(-' + posY + 'px)';
+
+    const maxScroll = scrollTrack.scrollHeight - viewport.clientHeight;
+    if(posY < maxScroll + 200){
+      rafId = requestAnimationFrame(tick);
+    } else {
+      playing = false;
+      playPauseBtn.textContent = '▶ play';
+    }
+  }
+
+  function play(){
+    if(playing) return;
+    playing = true;
+    playPauseBtn.textContent = '❚❚ pause';
+    lastTime = null;
+    rafId = requestAnimationFrame(tick);
+  }
+
+  function pause(){
+    playing = false;
+    playPauseBtn.textContent = '▶ play';
+    if(rafId) cancelAnimationFrame(rafId);
+  }
+
+  playPauseBtn.addEventListener('click', () => playing ? pause() : play());
+
+  speedSlider.addEventListener('input', () => {
+    speed = parseInt(speedSlider.value, 10);
+    speedVal.textContent = speed;
+  });
+
+  sizeSlider.addEventListener('input', () => {
+    fontSize = parseInt(sizeSlider.value, 10);
+    scriptText.style.fontSize = fontSize + 'px';
+    sizeVal.textContent = fontSize;
+  });
+
+  // ---- manual nudge with arrow keys: eases the script up/down over a
+  // short glide instead of snapping straight to the new position, so it
+  // reads like scrolling rather than a jump cut. Composes additively with
+  // whatever the auto-scroll (tick) is doing, so it also works while
+  // playing, not just when paused. ----
+  const NUDGE_STEP = 60;    // total px covered by one key press
+  const NUDGE_DURATION = 220; // ms for the glide to complete
+  let nudgeState = null;
+
+  function nudgeStep(ts){
+    if(!nudgeState) return;
+    if(nudgeState.startTime === null) nudgeState.startTime = ts;
+    const elapsed = ts - nudgeState.startTime;
+    const t = Math.min(1, elapsed / NUDGE_DURATION);
+    const eased = 1 - Math.pow(1 - t, 3); // ease-out cubic
+    const targetApplied = nudgeState.totalDelta * eased;
+    const deltaThisFrame = targetApplied - nudgeState.applied;
+    nudgeState.applied = targetApplied;
+
+    const maxScroll = Math.max(0, scrollTrack.scrollHeight - viewport.clientHeight) + 200;
+    posY = Math.min(maxScroll, Math.max(0, posY + deltaThisFrame));
+    scrollTrack.style.transform = 'translateY(-' + posY + 'px)';
+
+    if(t < 1){
+      nudgeState.rafId = requestAnimationFrame(nudgeStep);
+    } else {
+      nudgeState = null;
+    }
+  }
+
+  function nudgePosition(delta){
+    if(nudgeState){
+      cancelAnimationFrame(nudgeState.rafId);
+    }
+    nudgeState = { startTime: null, totalDelta: delta, applied: 0, rafId: null };
+    nudgeState.rafId = requestAnimationFrame(nudgeStep);
+  }
+
+  // ---- mouse wheel / trackpad scroll while the prompter is running:
+  // moves the script directly by the wheel delta, on top of whatever
+  // auto-scroll (tick) or nudge is already doing. ----
+  viewport.addEventListener('wheel', (e) => {
+    if(!stage.classList.contains('active')) return;
+    e.preventDefault();
+    if(nudgeState){
+      cancelAnimationFrame(nudgeState.rafId);
+      nudgeState = null;
+    }
+    const maxScroll = Math.max(0, scrollTrack.scrollHeight - viewport.clientHeight) + 200;
+    posY = Math.min(maxScroll, Math.max(0, posY + e.deltaY));
+    scrollTrack.style.transform = 'translateY(-' + posY + 'px)';
+  }, { passive:false });
+
+  exitBtn.addEventListener('click', exitPrompter);
+  exitHoverBtn.addEventListener('click', exitPrompter);
+
+  function exitPrompter(){
+    pause();
+    stage.classList.remove('active');
+    setup.style.display = 'flex';
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if(!stage.classList.contains('active')) return;
+
+    if(e.code === 'Space'){
+      e.preventDefault();
+      playing ? pause() : play();
+    } else if(e.code === 'ArrowUp'){
+      e.preventDefault();
+      nudgePosition(-NUDGE_STEP);
+    } else if(e.code === 'ArrowDown'){
+      e.preventDefault();
+      nudgePosition(NUDGE_STEP);
+    } else if(e.code === 'Escape'){
+      exitPrompter();
+    }
+  });
+})();
+</script>
+</body>
+</html>
