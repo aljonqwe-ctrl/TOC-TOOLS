@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TOC Tools</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#e3f1f8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222a33" media="(prefers-color-scheme: dark)">
 <style>
   :root{
     --bg:#e3f1f8;
@@ -400,6 +405,12 @@
   }
 
   backBtn.addEventListener('click', goHome);
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js');
+    });
+  }
 </script>
 
 </body>
