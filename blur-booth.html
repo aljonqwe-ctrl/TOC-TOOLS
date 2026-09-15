@@ -61,6 +61,57 @@
   }
   .canvasWrap{ position:relative; display:inline-block; line-height:0; border-radius:12px; overflow:hidden; }
   .canvasWrap canvas{ max-width:100%; max-height:60vh; display:block; border-radius:12px; }
+  #canvas, #regionsLayer{ transform-origin:50% 50%; }
+
+  .fsBtn{
+    position:absolute; top:14px; right:14px; z-index:20;
+    width:38px; height:38px; border-radius:50%; flex:0 0 auto;
+    background:var(--bg); display:flex; align-items:center; justify-content:center;
+    cursor:pointer; color:var(--text); border:none;
+    box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
+    transition: box-shadow .1s ease, color .15s ease;
+  }
+  .fsBtn:hover{ color:var(--accent); }
+  .fsBtn:active{ box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light); }
+  .fsBtn svg{ width:18px; height:18px; pointer-events:none; }
+
+  .stage:fullscreen{
+    width:100vw; height:100vh; max-width:none; border-radius:0; padding:40px;
+    box-shadow:none; background:var(--bg);
+  }
+  .stage:-webkit-full-screen{
+    width:100vw; height:100vh; max-width:none; border-radius:0; padding:40px;
+    box-shadow:none; background:var(--bg);
+  }
+  .stage:fullscreen .canvasWrap canvas,
+  .stage:-webkit-full-screen .canvasWrap canvas{
+    max-height:92vh; max-width:94vw;
+  }
+  .stage:fullscreen .fsBtn,
+  .stage:-webkit-full-screen .fsBtn{
+    top:24px; right:24px;
+  }
+  .stage:fullscreen .zoomCtl,
+  .stage:-webkit-full-screen .zoomCtl{
+    bottom:24px; right:24px;
+  }
+
+  .zoomCtl{
+    position:absolute; bottom:14px; right:14px; z-index:20;
+    display:flex; flex-direction:column; align-items:center; gap:6px;
+    background:var(--bg); border-radius:22px; padding:6px;
+    box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
+  }
+  .zoomCtl button{
+    width:32px; height:32px; border-radius:50%; border:none; padding:0;
+    background:var(--bg); color:var(--text); font-size:18px; line-height:1;
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    box-shadow: 3px 3px 6px var(--shadow-dark), -3px -3px 6px var(--shadow-light);
+    transition: box-shadow .1s ease, color .15s ease;
+  }
+  .zoomCtl button:hover{ color:var(--accent); }
+  .zoomCtl button:active{ box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light); }
+  .zoomCtl .zoomReadout{ font-size:10px; color:var(--dim); letter-spacing:.01em; user-select:none; }
 
   .regionsLayer{ position:absolute; inset:0; cursor:crosshair; }
   .region{
@@ -319,6 +370,18 @@
         <div class="canvasWrap" id="canvasWrap" style="display:none;">
           <canvas id="canvas" width="1920" height="1080"></canvas>
           <div class="regionsLayer" id="regionsLayer"></div>
+
+          <button type="button" class="fsBtn" id="fsBtn" title="Full screen preview">
+            <svg id="fsIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 3H5a2 2 0 0 0-2 2v4M15 3h4a2 2 0 0 1 2 2v4M9 21H5a2 2 0 0 1-2-2v-4M15 21h4a2 2 0 0 0 2-2v-4"/>
+            </svg>
+          </button>
+
+          <div class="zoomCtl" id="zoomCtl">
+            <button type="button" id="zoomInBtn" title="Zoom in">+</button>
+            <span class="zoomReadout" id="zoomReadout">100%</span>
+            <button type="button" id="zoomOutBtn" title="Zoom out">&minus;</button>
+          </div>
         </div>
       </div>
       <div class="foot" id="statusLine">waiting for a photo</div>
@@ -358,11 +421,12 @@
         </div>
 
         <div class="mode-row">
-          <button type="button" class="mode-btn active" id="modeBoxBtn" data-mode="box">Box</button>
+          <button type="button" class="mode-btn active" id="modePointerBtn" data-mode="pointer" title="Pointer — click and drag boxes without drawing new ones (V)">Pointer <span style="opacity:.6;">V</span></button>
+          <button type="button" class="mode-btn" id="modeBoxBtn" data-mode="box">Box</button>
           <button type="button" class="mode-btn" id="modeFreehandBtn" data-mode="freehand">Freehand</button>
         </div>
 
-        <div id="boxToolPanel">
+        <div id="boxToolPanel" style="display:none;">
           <div class="layer-sub">Drag a box directly on the photo, or drag the icon onto the exact spot you want obscured.</div>
           <div class="tool-row">
             <div class="blur-tool" id="blurToolIcon" title="Drag onto the photo">
@@ -548,6 +612,7 @@ const bgBlurSlider = document.getElementById('bgBlurSlider');
 const bgBlurReadout= document.getElementById('bgBlurReadout');
 const blurSlider   = document.getElementById('blurSlider');
 const blurReadout  = document.getElementById('blurReadout');
+const modePointerBtn = document.getElementById('modePointerBtn');
 const modeBoxBtn   = document.getElementById('modeBoxBtn');
 const modeFreehandBtn = document.getElementById('modeFreehandBtn');
 const boxToolPanel = document.getElementById('boxToolPanel');
@@ -561,6 +626,11 @@ const autoDownloadToggle = document.getElementById('autoDownloadToggle');
 const statusLine   = document.getElementById('statusLine');
 const blades       = document.getElementById('irisBlades');
 const blurToolIcon = document.getElementById('blurToolIcon');
+const fsBtn        = document.getElementById('fsBtn');
+const fsIcon       = document.getElementById('fsIcon');
+const zoomInBtn    = document.getElementById('zoomInBtn');
+const zoomOutBtn   = document.getElementById('zoomOutBtn');
+const zoomReadout  = document.getElementById('zoomReadout');
 
 const OUT_W = 1920, OUT_H = 1080;
 let img = null;
@@ -580,7 +650,10 @@ let regions = [];
 let strokes = [];
 let currentStroke = null;
 let regionSeq = 1;
-let mode = 'box';
+let mode = 'pointer';
+let zoom = 1;
+let panX = 0, panY = 0;
+let isPanning = false;
 
 let irisAngle = 0;
 function idleSpin(){
@@ -592,15 +665,106 @@ requestAnimationFrame(idleSpin);
 
 function setMode(next){
   mode = next;
+  modePointerBtn.classList.toggle('active', mode === 'pointer');
   modeBoxBtn.classList.toggle('active', mode === 'box');
   modeFreehandBtn.classList.toggle('active', mode === 'freehand');
   boxToolPanel.style.display = mode === 'box' ? '' : 'none';
   freehandToolPanel.style.display = mode === 'freehand' ? '' : 'none';
-  regionsLayer.style.cursor = mode === 'freehand' ? 'cell' : 'crosshair';
+  updateCursor();
 }
+function updateCursor(){
+  regionsLayer.style.cursor = zoom > 1 ? 'move' : (mode === 'pointer' ? 'default' : (mode === 'freehand' ? 'cell' : 'crosshair'));
+}
+modePointerBtn.addEventListener('click', () => setMode('pointer'));
 modeBoxBtn.addEventListener('click', () => setMode('box'));
 modeFreehandBtn.addEventListener('click', () => setMode('freehand'));
+setMode('pointer');
+
+// Photoshop-style "V" shortcut — jumps to the pointer tool so you can click
+// around the photo (select/drag existing boxes) without drawing a new one.
+document.addEventListener('keydown', (e) => {
+  if(e.key.toLowerCase() !== 'v') return;
+  const t = e.target;
+  if(t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+  if(document.getElementById('photoWorkspace').style.display === 'none') return;
+  if(!img) return;
+  e.preventDefault();
+  setMode('pointer');
+});
 brushSlider.addEventListener('input', () => { brushReadout.textContent = brushSlider.value + 'px'; });
+
+// ---- full screen preview ----
+function isStageFullscreen(){
+  const fsEl = document.fullscreenElement || document.webkitFullscreenElement;
+  return fsEl === stage;
+}
+function toggleFullscreen(){
+  if(isStageFullscreen()){
+    if(document.exitFullscreen) document.exitFullscreen();
+    else if(document.webkitExitFullscreen) document.webkitExitFullscreen();
+  } else {
+    if(stage.requestFullscreen) stage.requestFullscreen();
+    else if(stage.webkitRequestFullscreen) stage.webkitRequestFullscreen();
+  }
+}
+fsBtn.addEventListener('click', toggleFullscreen);
+const MAXIMIZE_ICON = '<path d="M9 3H5a2 2 0 0 0-2 2v4M15 3h4a2 2 0 0 1 2 2v4M9 21H5a2 2 0 0 1-2-2v-4M15 21h4a2 2 0 0 0 2-2v-4"/>';
+const MINIMIZE_ICON = '<path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/>';
+['fullscreenchange','webkitfullscreenchange'].forEach(evt => document.addEventListener(evt, () => {
+  fsIcon.innerHTML = isStageFullscreen() ? MINIMIZE_ICON : MAXIMIZE_ICON;
+  fsBtn.title = isStageFullscreen() ? 'Exit full screen' : 'Full screen preview';
+  requestAnimationFrame(updateOverlayDOM);
+}));
+
+// ---- zoom + pan preview (magnifier only — never changes the exported photo) ----
+const ZOOM_MIN = 1, ZOOM_MAX = 5, ZOOM_STEP = 0.25;
+function applyZoomTransform(){
+  const t = 'translate(' + panX + 'px, ' + panY + 'px) scale(' + zoom + ')';
+  canvas.style.transform = t;
+  regionsLayer.style.transform = t;
+  zoomReadout.textContent = Math.round(zoom * 100) + '%';
+  updateCursor();
+}
+function clampPan(){
+  const maxPanX = canvas.clientWidth * (zoom - 1) / 2;
+  const maxPanY = canvas.clientHeight * (zoom - 1) / 2;
+  panX = Math.max(-maxPanX, Math.min(maxPanX, panX));
+  panY = Math.max(-maxPanY, Math.min(maxPanY, panY));
+}
+function setZoom(z){
+  zoom = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, z));
+  if(zoom === 1){ panX = 0; panY = 0; }
+  clampPan();
+  applyZoomTransform();
+}
+zoomInBtn.addEventListener('click', () => setZoom(zoom + ZOOM_STEP));
+zoomOutBtn.addEventListener('click', () => setZoom(zoom - ZOOM_STEP));
+canvasWrap.addEventListener('wheel', (e) => {
+  if(!img) return;
+  e.preventDefault();
+  setZoom(zoom + (e.deltaY > 0 ? -ZOOM_STEP : ZOOM_STEP));
+}, { passive: false });
+
+function startPan(e){
+  const startX = e.clientX, startY = e.clientY;
+  const orig = { x: panX, y: panY };
+  function onMove(ev){
+    panX = orig.x + (ev.clientX - startX);
+    panY = orig.y + (ev.clientY - startY);
+    clampPan();
+    applyZoomTransform();
+  }
+  function onUp(){ document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); }
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
+}
+// right-click (or middle-click) drag freely pans the zoomed preview — left click always
+// stays free for placing/dragging blur boxes, so you never have to switch tools to do either.
+canvasWrap.addEventListener('contextmenu', (e) => { if(img) e.preventDefault(); });
+canvasWrap.addEventListener('mousedown', (e) => {
+  if(!img || zoom <= 1) return;
+  if(e.button === 2 || e.button === 1){ e.preventDefault(); startPan(e); }
+});
 
 dropZone.addEventListener('click', () => fileInput.click());
 ['dragenter','dragover'].forEach(evt => stage.addEventListener(evt, e=>{ e.preventDefault(); dropZone.classList.add('dragging'); }));
@@ -661,9 +825,10 @@ function buildRegionDOM(region){
   });
 
   el.addEventListener('mousedown', (e)=>{
+    if(e.button !== 0) return;
     if(e.target.classList.contains('handle') || e.target.classList.contains('del') || e.target.classList.contains('bw')) return;
     e.stopPropagation();
-    const s = getScale();
+    const s = getPointerScale();
     const startX = e.clientX, startY = e.clientY;
     const orig = { x: region.x, y: region.y };
     function onMove(ev){
@@ -678,7 +843,7 @@ function buildRegionDOM(region){
 
   el.querySelector('.handle').addEventListener('mousedown', (e)=>{
     e.stopPropagation();
-    const s = getScale();
+    const s = getPointerScale();
     const startX = e.clientX, startY = e.clientY;
     const orig = { w: region.w, h: region.h };
     function onMove(ev){
@@ -725,6 +890,12 @@ function buildStrokeMarker(stroke){
 }
 
 function getScale(){ return { sx: OUT_W / canvas.clientWidth, sy: OUT_H / canvas.clientHeight }; }
+// like getScale(), but derived from the live on-screen box — accounts for the zoom/pan
+// preview transform, so mouse positions map correctly onto the canvas while zoomed in.
+function getPointerScale(){
+  const rect = canvas.getBoundingClientRect();
+  return { sx: OUT_W / rect.width, sy: OUT_H / rect.height, rect };
+}
 
 function updateOverlayDOM(){
   const s = getScale();
@@ -747,10 +918,12 @@ function updateOverlayDOM(){
 window.addEventListener('resize', updateOverlayDOM);
 
 regionsLayer.addEventListener('mousedown', (e)=>{
+  if(e.button !== 0) return;
   if(e.target !== regionsLayer || !img) return;
+  if(mode === 'pointer'){ if(zoom > 1){ startPan(e); } return; }
   if(mode === 'freehand'){ startFreehand(e); return; }
-  const s = getScale();
-  const rect = canvas.getBoundingClientRect();
+  const s = getPointerScale();
+  const rect = s.rect;
   const startX = (e.clientX - rect.left) * s.sx;
   const startY = (e.clientY - rect.top) * s.sy;
   const creating = { x: startX, y: startY, w: 0, h: 0 };
@@ -776,8 +949,8 @@ regionsLayer.addEventListener('mousedown', (e)=>{
 });
 
 function startFreehand(e){
-  const s = getScale();
-  const rect = canvas.getBoundingClientRect();
+  const s = getPointerScale();
+  const rect = s.rect;
   const size = parseInt(brushSlider.value, 10);
   const stroke = { points: [], size, gray: false };
 
@@ -842,8 +1015,8 @@ function isOverCanvas(clientX, clientY){
 }
 
 function placeRegionAtClient(clientX, clientY){
-  const s = getScale();
-  const rect = canvas.getBoundingClientRect();
+  const s = getPointerScale();
+  const rect = s.rect;
   const cx = (clientX - rect.left) * s.sx;
   const cy = (clientY - rect.top) * s.sy;
   const rw = Math.round(OUT_W * 0.16);
@@ -966,6 +1139,10 @@ clearBtn.addEventListener('click', () => {
 
 resetBtn.addEventListener('click', () => {
   cleanup();
+  if(isStageFullscreen()){
+    if(document.exitFullscreen) document.exitFullscreen();
+    else if(document.webkitExitFullscreen) document.webkitExitFullscreen();
+  }
   dropZone.classList.remove('hidden');
   canvasWrap.style.display = 'none';
   bgLayer.classList.add('disabled');
@@ -980,6 +1157,10 @@ function cleanup(){
   regions = [];
   strokes = [];
   currentStroke = null;
+  zoom = 1; panX = 0; panY = 0;
+  canvas.style.transform = '';
+  regionsLayer.style.transform = '';
+  zoomReadout.textContent = '100%';
   regionsLayer.innerHTML = '';
   ctx.clearRect(0,0,OUT_W,OUT_H);
 }
