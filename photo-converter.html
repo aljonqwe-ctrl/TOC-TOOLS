@@ -283,20 +283,32 @@
     if (!images || !images.length){
       throw new Error('libheif found no image data in this file');
     }
-    const image = images[0];
-    const w = image.get_width(), h = image.get_height();
-    const c = document.createElement('canvas');
-    c.width = w; c.height = h;
-    const ctx = c.getContext('2d');
-    const imgData = ctx.createImageData(w, h);
-    const displayData = await new Promise((resolve, reject) => {
-      image.display(imgData, (result) => {
-        if (!result) return reject(new Error('libheif could not render this image'));
-        resolve(result);
-      });
-    });
-    ctx.putImageData(displayData, 0, 0);
-    return c;
+    // Newer iPhone photos (Apple "Adaptive HDR") embed both an HDR gain-map
+    // item and a plain SDR base image. The gain-map item often fails to
+    // render (a known upstream libheif limitation), so try every top-level
+    // image the decoder found and use the first one that actually renders,
+    // rather than assuming the first entry is usable.
+    let lastErr = null;
+    for (const image of images){
+      try{
+        const w = image.get_width(), h = image.get_height();
+        const c = document.createElement('canvas');
+        c.width = w; c.height = h;
+        const ctx = c.getContext('2d');
+        const imgData = ctx.createImageData(w, h);
+        const displayData = await new Promise((resolve, reject) => {
+          image.display(imgData, (result) => {
+            if (!result) return reject(new Error('libheif could not render this image item'));
+            resolve(result);
+          });
+        });
+        ctx.putImageData(displayData, 0, 0);
+        return c;
+      } catch(e){
+        lastErr = e;
+      }
+    }
+    throw new Error((lastErr && lastErr.message) || 'libheif could not render any image item in this file');
   }
 
   async function decodeToCanvas(file, ext){
