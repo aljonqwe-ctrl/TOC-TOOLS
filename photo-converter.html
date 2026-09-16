@@ -274,13 +274,27 @@
 
   async function decodeToCanvas(file, ext){
     if (ext === 'heic' || ext === 'heif' || ext === 'hif'){
-      const converted = await heic2any({ blob:file, toType:'image/jpeg', quality:0.92 });
+      if (typeof heic2any === 'undefined'){
+        throw new Error('HEIC library failed to load (check your internet connection, ad-blocker, or open this file via a local server instead of double-clicking it)');
+      }
+      let converted;
+      try{
+        converted = await heic2any({ blob:file, toType:'image/jpeg', quality:0.92 });
+      } catch(e){
+        throw new Error('HEIC decode failed: ' + (e && e.message ? e.message : e));
+      }
       const blob = Array.isArray(converted) ? converted[0] : converted;
       return blobToCanvas(blob);
     }
     if (ext === 'tif' || ext === 'tiff'){
+      if (typeof UTIF === 'undefined'){
+        throw new Error('TIFF library failed to load (check your internet connection, ad-blocker, or open this file via a local server instead of double-clicking it)');
+      }
       const buf = await file.arrayBuffer();
       const ifds = UTIF.decode(buf);
+      if (!ifds || !ifds.length){
+        throw new Error('TIFF decode failed: no image data found in file');
+      }
       UTIF.decodeImage(buf, ifds[0]);
       const rgba = UTIF.toRGBA8(ifds[0]);
       const w = ifds[0].width, h = ifds[0].height;
@@ -334,7 +348,7 @@
       if (p.status === 'decoding'){
         body = '<div class="img-wrap"><div class="spinner"></div></div>';
       } else if (p.status === 'error'){
-        body = '<div class="img-wrap"><div class="err-text">Could not read</div></div>';
+        body = `<div class="img-wrap" title="${(p.error||'').replace(/"/g,'&quot;')}"><div class="err-text">${p.error ? p.error.slice(0,60) : 'Could not read'}</div></div>`;
       } else {
         body = `<div class="img-wrap"><img src="${p.thumbUrl}" alt=""></div>`;
       }
