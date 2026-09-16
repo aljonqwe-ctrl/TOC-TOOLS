@@ -174,7 +174,6 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/libheif-js@1.23.2/libheif-wasm/libheif-bundle.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/utif@2.0.1/UTIF.js"></script>
 <script>
@@ -273,67 +272,119 @@
     });
   }
 
-  async function decodeHeicWithLibheif(file){
-    if (typeof libheif === 'undefined'){
-      throw new Error('libheif fallback library failed to load');
+  // The <script> build of libheif-js exposes a global that is an Emscripten
+  // *factory*, not the module itself — `libheif.HeifDecoder` is undefined until
+  // you call it. Calling it also compiles the inlined wasm, so do it once and
+  // cache the result.
+  let libheifModulePromise = null;
+  function getLibheif(){
+    if (libheifModulePromise) return libheifModulePromise;
+    libheifModulePromise = (async () => {
+      if (typeof libheif === 'undefined'){
+        throw new Error('libheif failed to load (check your connection, ad-blocker, or serve this page over http:// rather than opening the file directly)');
+      }
+      const mod = (typeof libheif === 'function') ? await libheif() : libheif;
+      if (!mod || typeof mod.HeifDecoder !== 'function'){
+        throw new Error('libheif loaded but exposed no decoder');
+      }
+      return mod;
+    })();
+    return libheifModulePromise;
+  }
+
+  // Each decode allocates the full image in the wasm heap. Five 12MP photos in
+  // parallel is enough to blow it out, so HEIC decodes take turns.
+  let heicQueue = Promise.resolve();
+  function queueHeic(task){
+    const run = heicQueue.then(task, task);
+    heicQueue = run.then(() => {}, () => {});
+    return run;
+  }
+
+  function brandOf(buf){
+    if (buf.length < 12) return '(file too short)';
+    let s = '';
+    for (let i = 4; i < 12; i++){
+      const c = buf[i];
+      s += (c >= 32 && c < 127) ? String.fromCharCode(c) : '.';
     }
+    return s;
+  }
+
+  async function decodeHeicWithLibheif(file){
+    const mod = await getLibheif();
     const buf = new Uint8Array(await file.arrayBuffer());
-    const decoder = new libheif.HeifDecoder();
+    if (!buf.length){
+      throw new Error('the file read back as 0 bytes');
+    }
+    const brand = brandOf(buf);
+    if (!brand.startsWith('ftyp')){
+      throw new Error('this does not look like a HEIF container (header reads "' + brand + '")');
+    }
+    const decoder = new mod.HeifDecoder();
     const images = decoder.decode(buf);
     if (!images || !images.length){
-      throw new Error('libheif found no image data in this file');
+      throw new Error('libheif could not parse this file (brand ' + brand.slice(4) + ')');
     }
     // Newer iPhone photos (Apple "Adaptive HDR") embed both an HDR gain-map
     // item and a plain SDR base image. The gain-map item often fails to
     // render (a known upstream libheif limitation), so try every top-level
     // image the decoder found and use the first one that actually renders,
     // rather than assuming the first entry is usable.
+    // Put the primary image first — on Apple "Adaptive HDR" captures the gain-map
+    // item can sort ahead of the real picture and fails to render.
+    const ordered = images.slice().sort((a, b) => {
+      const pa = (() => { try { return a.is_primary() ? 0 : 1; } catch { return 1; } })();
+      const pb = (() => { try { return b.is_primary() ? 0 : 1; } catch { return 1; } })();
+      return pa - pb;
+    });
+
     let lastErr = null;
-    for (const image of images){
-      try{
-        const w = image.get_width(), h = image.get_height();
-        const c = document.createElement('canvas');
-        c.width = w; c.height = h;
-        const ctx = c.getContext('2d');
-        const imgData = ctx.createImageData(w, h);
-        const displayData = await new Promise((resolve, reject) => {
-          image.display(imgData, (result) => {
-            if (!result) return reject(new Error('libheif could not render this image item'));
-            resolve(result);
+    let out = null;
+    try{
+      for (const image of ordered){
+        if (out) break;
+        try{
+          const w = image.get_width(), h = image.get_height();
+          if (!w || !h) throw new Error('image item reported a zero size');
+          const c = document.createElement('canvas');
+          c.width = w; c.height = h;
+          const ctx = c.getContext('2d');
+          const imgData = ctx.createImageData(w, h);
+          const displayData = await new Promise((resolve, reject) => {
+            image.display(imgData, (result) => {
+              if (!result) return reject(new Error('libheif could not render this image item'));
+              resolve(result);
+            });
           });
-        });
-        ctx.putImageData(displayData, 0, 0);
-        return c;
-      } catch(e){
-        lastErr = e;
+          ctx.putImageData(displayData, 0, 0);
+          out = c;
+        } catch(e){
+          lastErr = e;
+        }
+      }
+    } finally {
+      for (const image of images){
+        try { image.free(); } catch(e){ /* handle already released */ }
       }
     }
+
+    if (out) return out;
     throw new Error((lastErr && lastErr.message) || 'libheif could not render any image item in this file');
   }
 
   async function decodeToCanvas(file, ext){
     if (ext === 'heic' || ext === 'heif' || ext === 'hif'){
-      // Try heic2any first (handles most files, including HEIC bursts).
-      let heic2anyError = null;
-      if (typeof heic2any !== 'undefined'){
-        try{
-          const converted = await heic2any({ blob:file, toType:'image/jpeg', quality:0.92 });
-          const blob = Array.isArray(converted) ? converted[0] : converted;
-          return await blobToCanvas(blob);
-        } catch(e){
-          heic2anyError = e && e.message ? e.message : String(e);
-        }
-      } else {
-        heic2anyError = 'heic2any library failed to load';
-      }
-      // heic2any's bundled decoder rejects some newer HEIC variants (e.g. certain
-      // iPhone 15/16 photos) with "ERR_LIBHEIF format not supported". Fall back to
-      // a directly-driven, more up-to-date libheif-js decode before giving up.
+      // Safari (and anything else with system HEIC support) decodes these
+      // natively and much faster than wasm — try that first, cheaply.
       try{
-        return await decodeHeicWithLibheif(file);
+        return await blobToCanvas(file);
+      } catch(e){ /* no native HEIC support in this browser */ }
+
+      try{
+        return await queueHeic(() => decodeHeicWithLibheif(file));
       } catch(e2){
-        const fallbackMsg = e2 && e2.message ? e2.message : String(e2);
-        throw new Error('HEIC decode failed: ' + heic2anyError + ' — fallback decoder also failed: ' + fallbackMsg);
+        throw new Error('HEIC decode failed: ' + (e2 && e2.message ? e2.message : String(e2)));
       }
     }
     if (ext === 'tif' || ext === 'tiff'){
