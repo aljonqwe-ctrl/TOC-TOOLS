@@ -341,7 +341,7 @@
 
   <div class="mode-row topTabs">
     <button type="button" class="mode-btn active" id="tabPhotoBtn">Photo</button>
-    <button type="button" class="mode-btn" id="tabVideoBtn">Video</button>
+    <!-- <button type="button" class="mode-btn" id="tabVideoBtn">Video</button> -->
   </div>
 
   <div id="photoWorkspace">
@@ -562,7 +562,7 @@
         <div id="vBoxToolPanel">
           <div class="layer-sub">Drag a box directly on the video, or drag the icon onto the exact spot you want obscured. By default the box stays fixed for the whole clip — click its <b>TRACK</b> button to keyframe its position instead: pause at different points in the clip and drag the box to a new spot each time, and it will move smoothly between those points, like keyframing in Premiere.</div>
           <div class="tool-row">
-            <div class="blur-tool" id="vBlurToolIcon" title="Drag onto the video">
+            <div class="blur-tool" id="vBlurToolIcon" title="Drag onto the video" style="display:none;">
               <svg viewBox="0 0 24 24" fill="none" stroke="#6f7bf7" stroke-width="2" stroke-linecap="round">
                 <circle cx="12" cy="12" r="7"/>
                 <path d="M12 5 L12 3 M12 21 L12 19 M5 12 L3 12 M21 12 L19 12"/>
@@ -2065,7 +2065,7 @@ window.__blurBoothVideoPause = function(){ if(video) video.pause(); };
   function showTab(tab){
     const isPhoto = tab === 'photo';
     tabPhotoBtn.classList.toggle('active', isPhoto);
-    tabVideoBtn.classList.toggle('active', !isPhoto);
+    if(tabVideoBtn) tabVideoBtn.classList.toggle('active', !isPhoto);
     photoWorkspace.style.display = isPhoto ? '' : 'none';
     videoWorkspace.style.display = isPhoto ? 'none' : '';
     if(isPhoto && window.__blurBoothVideoPause) window.__blurBoothVideoPause();
@@ -2073,7 +2073,8 @@ window.__blurBoothVideoPause = function(){ if(video) video.pause(); };
     window.dispatchEvent(new Event('resize'));
   }
   tabPhotoBtn.addEventListener('click', () => showTab('photo'));
-  tabVideoBtn.addEventListener('click', () => showTab('video'));
+  if(tabVideoBtn) tabVideoBtn.addEventListener('click', () => showTab('video'));
+  showTab('photo');
 })();
 
 // ================= DARK MODE =================
