@@ -341,7 +341,7 @@
 
   <div class="mode-row topTabs">
     <button type="button" class="mode-btn active" id="tabPhotoBtn">Photo</button>
-    <!-- <button type="button" class="mode-btn" id="tabVideoBtn">Video</button> -->
+    <button type="button" class="mode-btn" id="tabVideoBtn">Video</button>
   </div>
 
   <div id="photoWorkspace">
@@ -2065,7 +2065,7 @@ window.__blurBoothVideoPause = function(){ if(video) video.pause(); };
   function showTab(tab){
     const isPhoto = tab === 'photo';
     tabPhotoBtn.classList.toggle('active', isPhoto);
-    if(tabVideoBtn) tabVideoBtn.classList.toggle('active', !isPhoto);
+    tabVideoBtn.classList.toggle('active', !isPhoto);
     photoWorkspace.style.display = isPhoto ? '' : 'none';
     videoWorkspace.style.display = isPhoto ? 'none' : '';
     if(isPhoto && window.__blurBoothVideoPause) window.__blurBoothVideoPause();
@@ -2073,8 +2073,7 @@ window.__blurBoothVideoPause = function(){ if(video) video.pause(); };
     window.dispatchEvent(new Event('resize'));
   }
   tabPhotoBtn.addEventListener('click', () => showTab('photo'));
-  if(tabVideoBtn) tabVideoBtn.addEventListener('click', () => showTab('video'));
-  showTab('photo');
+  tabVideoBtn.addEventListener('click', () => showTab('video'));
 })();
 
 // ================= DARK MODE =================
