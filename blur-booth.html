@@ -1871,26 +1871,59 @@ function cleanup(){
 }
 
 let ffmpegInstance = null;
+
+// Two CDNs, tried in order. jsdelivr is listed first: it has historically been
+// more reliable than unpkg for serving the .wasm file with the right
+// Content-Type and CORS headers, which is the single biggest cause of a
+// swallowed "failed to import ffmpeg-core.js" error (the real underlying
+// fetch/parse error gets lost — see the console.error added below to recover
+// it). @ffmpeg/core is pinned to the SAME version as @ffmpeg/ffmpeg (0.12.10);
+// mixing core@0.12.6 with ffmpeg@0.12.10, as this file used to, is a known
+// cause of the same error even when every file loads fine over the network.
+const FFMPEG_CDNS = [
+  {
+    coreBase: 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd',
+    workerBase: 'https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/umd',
+  },
+  {
+    coreBase: 'https://unpkg.com/@ffmpeg/core@0.12.10/dist/umd',
+    workerBase: 'https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/umd',
+  },
+];
+
 async function getFFmpeg(){
   if(ffmpegInstance) return ffmpegInstance;
   const { FFmpeg } = FFmpegWASM;
   const { toBlobURL } = FFmpegUtil;
-  const ffmpeg = new FFmpeg();
-  const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
-  const ffmpegBaseURL = 'https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/umd';
-  await ffmpeg.load({
-    coreURL: await toBlobURL(baseURL + '/ffmpeg-core.js', 'text/javascript'),
-    wasmURL: await toBlobURL(baseURL + '/ffmpeg-core.wasm', 'application/wasm'),
-    // @ffmpeg/ffmpeg spins up its own internal Worker (814.ffmpeg.js) to drive
-    // the core. Browsers refuse `new Worker(url)` when url's origin differs
-    // from the page's — a stricter same-origin rule than plain CORS, and it
-    // applies even though the script itself is fetchable. Pulling it down and
-    // handing it over as a same-origin blob: URL (classWorkerURL) is required
-    // whenever ffmpeg.js is loaded from a CDN like unpkg instead of self-hosted.
-    classWorkerURL: await toBlobURL(ffmpegBaseURL + '/814.ffmpeg.js', 'text/javascript'),
-  });
-  ffmpegInstance = ffmpeg;
-  return ffmpeg;
+
+  let lastErr = null;
+  for(const { coreBase, workerBase } of FFMPEG_CDNS){
+    const ffmpeg = new FFmpeg();
+    // Surface ffmpeg's own log/error events to the console — without this,
+    // ffmpeg.wasm's loader wraps every failure (network, CORS, parse) in the
+    // same generic "failed to import ffmpeg-core.js" message, hiding the
+    // actual cause. Open devtools console to see what's really going wrong.
+    ffmpeg.on('log', ({ message }) => console.log('[ffmpeg]', message));
+    try{
+      await ffmpeg.load({
+        coreURL: await toBlobURL(coreBase + '/ffmpeg-core.js', 'text/javascript'),
+        wasmURL: await toBlobURL(coreBase + '/ffmpeg-core.wasm', 'application/wasm'),
+        // @ffmpeg/ffmpeg spins up its own internal Worker (814.ffmpeg.js) to drive
+        // the core. Browsers refuse `new Worker(url)` when url's origin differs
+        // from the page's — a stricter same-origin rule than plain CORS, and it
+        // applies even though the script itself is fetchable. Pulling it down and
+        // handing it over as a same-origin blob: URL (classWorkerURL) is required
+        // whenever ffmpeg.js is loaded from a CDN instead of self-hosted.
+        classWorkerURL: await toBlobURL(workerBase + '/814.ffmpeg.js', 'text/javascript'),
+      });
+      ffmpegInstance = ffmpeg;
+      return ffmpeg;
+    } catch(err){
+      console.error('ffmpeg failed to load from', coreBase, '—', err);
+      lastErr = err;
+    }
+  }
+  throw lastErr || new Error('ffmpeg failed to load from every CDN');
 }
 
 async function convertToCompatibleMp4(sourceBlob, sourceExt){
@@ -1991,9 +2024,9 @@ function startExport(){
       downloadBlob(mp4Blob, 'blurred-video-1920x1080.mp4');
       statusLine.textContent = 'video exported as MP4 (1920×1080)';
     } catch(err){
-      console.error(err);
+      console.error('MP4 finalizing failed:', err);
       downloadBlob(rawBlob, 'blurred-video-1920x1080.' + sourceExt);
-      statusLine.textContent = 'MP4 finalizing failed in this browser — exported the raw recording instead (' + sourceExt + ')';
+      statusLine.textContent = 'MP4 finalizing failed (see browser console for why) — exported the raw recording instead (' + sourceExt + '), which old software like Movie Maker likely cannot open';
     }
     exportBtn.disabled = false;
     exportBtn.textContent = 'Export Video';
