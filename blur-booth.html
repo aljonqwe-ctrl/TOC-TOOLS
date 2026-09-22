@@ -1877,9 +1877,17 @@ async function getFFmpeg(){
   const { toBlobURL } = FFmpegUtil;
   const ffmpeg = new FFmpeg();
   const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
+  const ffmpegBaseURL = 'https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/umd';
   await ffmpeg.load({
     coreURL: await toBlobURL(baseURL + '/ffmpeg-core.js', 'text/javascript'),
     wasmURL: await toBlobURL(baseURL + '/ffmpeg-core.wasm', 'application/wasm'),
+    // @ffmpeg/ffmpeg spins up its own internal Worker (814.ffmpeg.js) to drive
+    // the core. Browsers refuse `new Worker(url)` when url's origin differs
+    // from the page's — a stricter same-origin rule than plain CORS, and it
+    // applies even though the script itself is fetchable. Pulling it down and
+    // handing it over as a same-origin blob: URL (classWorkerURL) is required
+    // whenever ffmpeg.js is loaded from a CDN like unpkg instead of self-hosted.
+    classWorkerURL: await toBlobURL(ffmpegBaseURL + '/814.ffmpeg.js', 'text/javascript'),
   });
   ffmpegInstance = ffmpeg;
   return ffmpeg;
