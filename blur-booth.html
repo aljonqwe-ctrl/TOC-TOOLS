@@ -1885,13 +1885,37 @@ async function getFFmpeg(){
   return ffmpeg;
 }
 
-async function convertWebmToMp4(webmBlob){
+async function convertToCompatibleMp4(sourceBlob, sourceExt){
   const ffmpeg = await getFFmpeg();
   const { fetchFile } = FFmpegUtil;
-  await ffmpeg.writeFile('input.webm', await fetchFile(webmBlob));
-  await ffmpeg.exec(['-i','input.webm','-c:v','libx264','-preset','veryfast','-crf','20','-pix_fmt','yuv420p','-c:a','aac','-b:a','192k','output.mp4']);
+  const inputName = 'input.' + sourceExt;
+  await ffmpeg.writeFile(inputName, await fetchFile(sourceBlob));
+
+  // Pass 1: re-encode to plain H.264/AAC, and force the frame to an exact
+  // 1920x1080 regardless of whatever pixel size the browser actually captured
+  // (some mobile browsers hand canvas.captureStream() frames scaled by the
+  // device's pixel ratio, e.g. 2016x1170 instead of 1920x1080 — an odd,
+  // non-16:9 size like that is also what pushes the H.264 level up past what
+  // old decoders support). Baseline profile / level 4.0 at a clean 1920x1080
+  // is about as compatible as H.264 gets — Baseline is the original 2003
+  // profile with no B-frames/CABAC, built for the lowest-common-denominator
+  // decoder, so even very old software like Movie Maker should handle it.
+  await ffmpeg.exec(['-i', inputName,
+    '-vf','scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2:color=black,setsar=1',
+    '-c:v','libx264','-profile:v','baseline','-level','4.0','-preset','veryfast','-crf','20','-pix_fmt','yuv420p',
+    '-c:a','aac','-b:a','192k','-ar','48000',
+    'pass1.mp4']);
+
+  // Pass 2: remux only (no re-encode) purely to relocate the moov atom to the
+  // front of the file. The single-pass +faststart flag doesn't reliably take
+  // effect in ffmpeg.wasm's in-memory filesystem, so do it as its own step —
+  // some old importers (including Movie Maker) fail to read metadata at all
+  // when moov sits after mdat at the end of the file.
+  await ffmpeg.exec(['-i','pass1.mp4','-c','copy','-movflags','+faststart','output.mp4']);
+
   const data = await ffmpeg.readFile('output.mp4');
-  await ffmpeg.deleteFile('input.webm');
+  await ffmpeg.deleteFile(inputName);
+  await ffmpeg.deleteFile('pass1.mp4');
   await ffmpeg.deleteFile('output.mp4');
   return new Blob([data.buffer], { type: 'video/mp4' });
 }
@@ -1944,25 +1968,23 @@ function startExport(){
     video.loop = wasLoop;
     if(wasPaused) video.pause();
     const rawBlob = new Blob(chunks, { type: mimeType });
+    const sourceExt = recordedNativeMp4 ? 'mp4' : 'webm';
 
-    if(recordedNativeMp4){
-      downloadBlob(rawBlob, 'blurred-video-1920x1080.mp4');
-      exportBtn.disabled = false;
-      exportBtn.textContent = 'Export Video';
-      statusLine.textContent = 'video exported as MP4 (1920×1080)';
-      return;
-    }
-
-    exportBtn.textContent = 'Converting to MP4…';
-    statusLine.textContent = 'this browser can only record WebM directly, so converting to MP4 now — this can take a while for longer clips, keep this tab open';
+    // Always run the recording through ffmpeg to produce a plain, non-fragmented
+    // MP4. The browser's own MediaRecorder MP4 output is "fragmented" (moof/mdat
+    // streaming chunks) which modern players read fine but old software like
+    // Windows Movie Maker cannot — re-encoding fixes that while staying fully
+    // playable in VLC and current browsers too.
+    exportBtn.textContent = 'Finalizing MP4…';
+    statusLine.textContent = 'preparing a widely-compatible MP4 — this can take a while for longer clips, keep this tab open';
     try{
-      const mp4Blob = await convertWebmToMp4(rawBlob);
+      const mp4Blob = await convertToCompatibleMp4(rawBlob, sourceExt);
       downloadBlob(mp4Blob, 'blurred-video-1920x1080.mp4');
       statusLine.textContent = 'video exported as MP4 (1920×1080)';
     } catch(err){
       console.error(err);
-      downloadBlob(rawBlob, 'blurred-video-1920x1080.webm');
-      statusLine.textContent = 'MP4 conversion failed in this browser — exported as WebM instead';
+      downloadBlob(rawBlob, 'blurred-video-1920x1080.' + sourceExt);
+      statusLine.textContent = 'MP4 finalizing failed in this browser — exported the raw recording instead (' + sourceExt + ')';
     }
     exportBtn.disabled = false;
     exportBtn.textContent = 'Export Video';
