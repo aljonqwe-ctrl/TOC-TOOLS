@@ -326,6 +326,7 @@
   .crop-h.nw { left: 0; top: 0; cursor: nwse-resize; } .crop-h.ne { left: 100%; top: 0; cursor: nesw-resize; }
   .crop-h.sw { left: 0; top: 100%; cursor: nesw-resize; } .crop-h.se { left: 100%; top: 100%; cursor: nwse-resize; }
   .canvas.crop-on .canvas-img, .canvas.crop-on .canvas-text, .canvas.crop-on .redaction { pointer-events: none; }
+  .canvas.clear-bg { background: conic-gradient(#3b3c42 25%, #2c2d32 0 50%, #3b3c42 0 75%, #2c2d32 0) 0 0 / 80px 80px; }
   /* ================= PHOTO RESIZE ================= */
   #lockBtn[aria-pressed="true"] { background: var(--bg); color: var(--accent); box-shadow: inset 6px 6px 12px var(--lo), inset -6px -6px 12px var(--hi); }
   :root[data-theme="light"] #lockBtn[aria-pressed="true"] { background: rgba(63,106,184,.12); box-shadow: inset 0 3px 8px rgba(40,50,90,.2); }
@@ -763,6 +764,19 @@
     return !!t && Array.prototype.indexOf.call(t, 'Files') !== -1;
   }
 
+  /* a PNG/WebP/GIF with real see-through pixels (e.g. a logo) */
+  function hasTransparency(img) {
+    var k = Math.min(1, 512 / Math.max(img.naturalWidth, img.naturalHeight));
+    var w = Math.max(1, Math.round(img.naturalWidth * k)), h = Math.max(1, Math.round(img.naturalHeight * k));
+    var c = document.createElement('canvas'); c.width = w; c.height = h;
+    var x = c.getContext('2d'); x.drawImage(img, 0, 0, w, h);
+    try {
+      var d = x.getImageData(0, 0, w, h).data;
+      for (var i = 3; i < d.length; i += 4) if (d[i] < 250) return true;
+    } catch (e) {}
+    return false;
+  }
+
   function addPhoto(file, x, y) {
     var reader = new FileReader();
     reader.onload = function () {
@@ -780,6 +794,13 @@
         el.style.width = w + 'px';
         el.style.left = Math.max(w / 2, Math.min(W - w / 2, x)) + 'px';
         el.style.top = Math.max(h / 2, Math.min(H - h / 2, y)) + 'px';
+        /* transparent logo as the first photo: show only the logo, no backdrop / default color */
+        var photos = Array.prototype.filter.call(list.children, function (n) { return n._el && n._el.classList.contains('canvas-img'); });
+        if (file.type !== 'image/jpeg' && photos.length === 1 && !bgLayer && hasTransparency(el)) {
+          canvas.classList.add('clear-bg');
+          bdToggle.checked = false;
+          updateBackdrop();
+        }
       };
       el.src = reader.result;
       el.style.left = x + 'px';
@@ -1735,8 +1756,10 @@
   async function exportPhoto() {
     var W = canvas.offsetWidth, H = canvas.offsetHeight;
     var out = exTemp(W, H), ctx = out.x, i;
-    ctx.fillStyle = getComputedStyle(canvas).backgroundColor;
-    ctx.fillRect(0, 0, W, H);
+    if (!(canvas.classList.contains('clear-bg') && !canvas.style.background)) {
+      ctx.fillStyle = getComputedStyle(canvas).backgroundColor;
+      ctx.fillRect(0, 0, W, H);
+    }
 
     /* auto backdrop: enlarged, blurred copy of the source photo */
     if (!bdEl.hidden && bdSource && bdSource.complete && bdSource.naturalWidth) {
