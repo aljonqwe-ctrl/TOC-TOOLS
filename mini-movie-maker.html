@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!-- saved from url=(0043)https://app.mbc.ayaldev.com/toc/moviemaker/ -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -155,7 +154,7 @@ main{max-width:1150px;margin:0 auto;padding:12px 16px calc(112px + env(safe-area
   </div>
 </main>
 <div id="ex" class="p-material-thick"><input type="text" id="fn" class="p-field p-field-touch p-field-touch-filled" value="movie" aria-label="File name" placeholder="File name"><button type="button" id="dir" class="p-button p-button-touch p-button-secondary" title="Choose a save folder"><i class="ph-bold ph-folder-open" aria-hidden="true"></i><span id="dirn">Folder</span></button><button type="button" id="dirx" class="p-button p-button-touch p-button-borderless p-button-icon-only" aria-label="Use browser default download" title="Use browser default download" style="display:none"><i class="ph-bold ph-x" aria-hidden="true"></i></button><div id="pbar"><div id="pfill"></div><div id="pt">Ready</div></div><button class="p-button p-button-touch-large p-button-primary" id="exp" type="button" disabled=""><i class="ph-bold ph-export" aria-hidden="true"></i><span>Export MP4</span></button></div>
-<script src="./Mini Movie Maker_files/mp4-muxer.js" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/mp4-muxer@5.2.1/build/mp4-muxer.js" type="text/javascript"></script>
 <script type="text/javascript">
 const $=id=>document.getElementById(id);
 const ROW=64,W=1280,H=720,FPS=30,SR=48000;
@@ -590,6 +589,4 @@ addEventListener('keydown',e=>{if(e.code==='Space'&&!typing(e.target)){e.prevent
 addEventListener('keyup',e=>{if(e.code==='Space'&&!typing(e.target))e.preventDefault()});
 renderList();buildTrim();
 </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a559c512fecb7d87',t:'MTc5Mzg1OTgwNw=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a559c512fecb7d87',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><iframe height="1" width="1" style="position: absolute; top: 0px; left: 0px; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; visibility: hidden;" src="./Mini Movie Maker_files/saved_resource.html"></iframe><script type="module" src="./Mini Movie Maker_files/vce701823e78c4301a35b7e07294d87301792088814092" integrity="sha512-UKNk8GbxkABxKcXYuLkO16EleLGUkcvJWtpSNmExE0Too3ZaFAxTscNWEc1OdAv5/BikHawapSCaiD2XCmp+Bw==" data-cf-beacon="{&quot;version&quot;:&quot;2024.11.0&quot;,&quot;token&quot;:&quot;aa6f794fb15c45acb5d01028772b78b2&quot;,&quot;r&quot;:1,&quot;spa&quot;:2}" crossorigin="anonymous"></script>
-
 </body></html>
