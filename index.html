@@ -95,42 +95,6 @@
     box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
   }
 
-  #toolSwitcher{
-    display:none;
-    align-items:center; gap:8px;
-    overflow-x:auto;
-    scrollbar-width:none;
-    margin-left:14px;
-    padding-left:14px;
-    border-left:1px solid var(--shadow-dark);
-    flex:1 1 auto;
-    min-width:0;
-  }
-  #toolSwitcher::-webkit-scrollbar{ display:none; }
-  #toolSwitcher.show{ display:flex; }
-  .switch-pill{
-    flex:0 0 auto;
-    display:inline-flex; align-items:center;
-    font-family:inherit; font-size:11.5px; font-weight:700; letter-spacing:.03em;
-    color:var(--muted);
-    background:var(--bg);
-    border:none;
-    padding:9px 16px;
-    border-radius:999px;
-    cursor:pointer;
-    white-space:nowrap;
-    transition:box-shadow .12s ease, transform .12s ease, color .12s ease;
-    box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
-  }
-  .switch-pill:hover{
-    color:var(--accent);
-    transform:translateY(-1px);
-  }
-  .switch-pill:active{
-    transform:translateY(0);
-    box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
-  }
-
   #topbar-right{
     display:flex; align-items:center; gap:12px;
   }
@@ -239,7 +203,6 @@
     .title{ font-size:24px; }
     #topbar{ padding:14px 16px; margin:12px 12px 0; }
     .tool-card{ width:100%; max-width:340px; }
-    #toolSwitcher{ display:none !important; }
   }
 </style>
 </head>
@@ -248,7 +211,6 @@
 <div id="topbar">
   <div id="topbar-left" style="display:flex;align-items:center;min-width:0;flex:1 1 auto;overflow:hidden;">
     <div class="logo" style="flex:0 0 auto;"><span class="dot"></span>TOC TOOLS<span class="sub" id="toolLabel"></span></div>
-    <div id="toolSwitcher"></div>
   </div>
   <div id="topbar-right" style="flex:0 0 auto;">
     <button id="backBtn">
@@ -393,13 +355,6 @@
   const toolFrame = document.getElementById('toolFrame');
   const backBtn = document.getElementById('backBtn');
   const toolLabel = document.getElementById('toolLabel');
-  const toolSwitcher = document.getElementById('toolSwitcher');
-
-  // Build the full tool list once from the home-screen cards
-  const allTools = Array.from(document.querySelectorAll('.tool-card')).map(card => ({
-    src: card.dataset.src,
-    label: card.dataset.label
-  }));
 
   document.querySelectorAll('.tool-card').forEach(card => {
     card.addEventListener('click', () => {
@@ -407,28 +362,12 @@
     });
   });
 
-  function renderSwitcher(currentSrc){
-    toolSwitcher.innerHTML = '';
-    allTools
-      .filter(t => t.src !== currentSrc)
-      .forEach(t => {
-        const btn = document.createElement('button');
-        btn.className = 'switch-pill';
-        btn.type = 'button';
-        btn.textContent = t.label;
-        btn.addEventListener('click', () => openTool(t.src, t.label));
-        toolSwitcher.appendChild(btn);
-      });
-    toolSwitcher.classList.add('show');
-  }
-
   function openTool(src, label){
     toolFrame.src = src;
     homeView.style.display = 'none';
     toolView.style.display = 'flex';
     backBtn.style.display = 'inline-flex';
     toolLabel.textContent = '/ ' + label;
-    renderSwitcher(src);
   }
 
   function goHome(){
@@ -437,8 +376,6 @@
     backBtn.style.display = 'none';
     toolLabel.textContent = '';
     toolFrame.src = ''; // stop/reset the tool so it's fresh next time
-    toolSwitcher.classList.remove('show');
-    toolSwitcher.innerHTML = '';
   }
 
   backBtn.addEventListener('click', goHome);
