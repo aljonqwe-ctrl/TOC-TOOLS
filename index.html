@@ -340,6 +340,21 @@
       </div>
     </div>
 
+    <div class="tool-card" data-href="YTDLP_URL" data-label="yt-dlp">
+      <div class="tool-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 4v11"/>
+          <path d="M7 11l5 5 5-5"/>
+          <path d="M5 20h14"/>
+        </svg>
+      </div>
+      <h2 class="tool-name">yt-dlp</h2>
+      <p class="tool-desc">Paste a video link and download it as MP4 video or MP3 audio.</p>
+      <div class="tool-launch">Open page
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -373,6 +388,7 @@
 
   document.querySelectorAll('.tool-card').forEach(card => {
     card.addEventListener('click', () => {
+      if (card.dataset.href) { window.location.href = card.dataset.href; return; } // redirect cards leave the hub
       openTool(card.dataset.src, card.dataset.label);
     });
   });
