@@ -1,49 +1,21 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
+<html lang="en">
+<head>
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Mini Movie Maker</title>
-
-
-<style type="text/css">@font-face {font-family:'Red Hat Display';font-style:normal;font-weight:700;src:url(/cf-fonts/v/red-hat-display/5.2.8/latin-ext/wght/normal.woff2);unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;font-display:swap;}@font-face {font-family:'Red Hat Display';font-style:normal;font-weight:700;src:url(/cf-fonts/v/red-hat-display/5.2.8/latin/wght/normal.woff2);unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-display:swap;}</style>
-<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/bold/style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/red-hat-display@5/700.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@codedgar/puppertino@2.0.0/dist/css/puppertino.min.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.2/src/bold/style.css">
 <style>
-/* Self-contained dark theme (no external framework needed) */
-body{--page:#000000;--card:#1c1c1e;--ink:#ffffff;--ink2:#8e8e93;--line:rgba(255,255,255,.14);--fill:rgba(255,255,255,.08);--fill2:rgba(255,255,255,.18);--acc:#0a84ff;--ring:rgba(10,132,255,.45);--red:#ff453a}
+/* Tokens come from Puppertino; declared on body so they follow .p-auto-dark-mode */
+body{--page:var(--p-bg-grouped-primary,#f2f2f7);--card:var(--p-bg-grouped-secondary,#fff);--ink:var(--p-text-primary,rgba(0,0,0,.85));--ink2:var(--p-text-secondary,rgba(60,60,67,.6));--line:var(--p-separator,rgba(60,60,67,.29));--fill:var(--p-fill-tertiary,rgba(118,118,128,.12));--fill2:var(--p-ios-fill,rgba(120,120,128,.2));--acc:var(--p-control-accent,#0088ff);--ring:var(--p-focus-ring-color,rgba(0,136,255,.5));--red:var(--p-sys-red,#ff383c)}
 *{box-sizing:border-box}
-html{color-scheme:dark}
-body{margin:0;background:var(--page);color:var(--ink);padding-top:env(safe-area-inset-top,0px);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif}
-
-/* ---- Puppertino-style form controls, rebuilt locally ---- */
-.p-label{color:var(--ink2);font-size:14px;font-weight:400}
-.p-field{appearance:none;-webkit-appearance:none;width:100%;background:var(--fill);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:9px 12px;font:15px inherit;outline:none}
-.p-field::placeholder{color:var(--ink2)}
-.p-field:focus{border-color:var(--acc);box-shadow:0 0 0 3px var(--ring)}
-.p-field:disabled{opacity:.45;cursor:not-allowed}
-.p-button{display:inline-flex;align-items:center;gap:6px;background:var(--fill);border:1px solid var(--line);color:var(--ink);font:600 13px inherit;padding:8px 14px;border-radius:10px;cursor:pointer;white-space:nowrap}
-.p-button:hover:not(:disabled){background:var(--fill2)}
-.p-button:active:not(:disabled){transform:scale(.97)}
-.p-button:disabled{opacity:.4;cursor:not-allowed}
-.p-button-primary{background:var(--acc);border-color:var(--acc);color:#fff}
-.p-button-primary:hover:not(:disabled){filter:brightness(1.1)}
-.p-button-touch-large{padding:11px 20px;font-size:14px;border-radius:12px}
-.p-button-borderless{background:transparent;border-color:transparent}
-.p-button-icon-only{padding:8px;width:34px;height:34px;justify-content:center;border-radius:50%}
-i[class*="ph-"]{font-size:15px;line-height:1}
-input[type=range].p-slider{-webkit-appearance:none;appearance:none;height:4px;border-radius:2px;background:linear-gradient(to right,var(--acc) 0%,var(--acc) var(--p-slider-fill,0%),var(--fill2) var(--p-slider-fill,0%),var(--fill2) 100%);outline:none;cursor:pointer}
-input[type=range].p-slider::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.4);cursor:pointer}
-input[type=range].p-slider::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:#fff;border:0;box-shadow:0 1px 4px rgba(0,0,0,.4);cursor:pointer}
-input[type=range].p-slider::-moz-range-track{height:4px;border-radius:2px;background:var(--fill2)}
-input[type=range].p-slider:disabled{opacity:.4}
-.p-switch{position:relative;display:inline-flex;align-items:center;width:40px;height:24px;cursor:pointer;flex:none}
-.p-switch input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}
-.p-switch span{position:absolute;inset:0;background:var(--fill2);border-radius:999px;transition:background .15s}
-.p-switch span::after{content:'';position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.4);transition:transform .15s}
-.p-switch input:checked+span{background:var(--acc)}
-.p-switch input:checked+span::after{transform:translateX(16px)}
-.p-switch input:disabled+span{opacity:.4}
-.p-material-chrome{background:transparent}
-.p-material-thick{background:rgba(28,28,30,.82);-webkit-backdrop-filter:blur(24px) saturate(160%);backdrop-filter:blur(24px) saturate(160%)}
+html{color-scheme:light dark}
+body{margin:0;background:var(--page);color:var(--ink);padding-top:env(safe-area-inset-top,0px)}
 main{max-width:1150px;margin:0 auto;padding:12px 16px calc(112px + env(safe-area-inset-bottom,0px));display:grid;gap:16px;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);grid-template-areas:"pv sb" "tr sb" "ov sb"}
 @media(max-width:768px){main{grid-template-columns:1fr;grid-template-areas:"pv" "tr" "ov" "sb"}}
 .panel{background:var(--card);border-radius:14px;padding:12px 16px;min-width:0}
@@ -51,9 +23,11 @@ main{max-width:1150px;margin:0 auto;padding:12px 16px calc(112px + env(safe-area
 #pv{grid-area:pv;padding:0;overflow:hidden}
 #stage{position:relative;aspect-ratio:16/9;background:#000;container-type:inline-size;cursor:pointer;overflow:hidden}
 #mh{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#8e8e93;font-size:15px}
-#mh img,#mh video{max-width:100%;max-height:100%;position:relative;z-index:1}
+#mh img,#mh video{width:100%;height:100%;object-fit:contain;position:relative;z-index:1}
 #bgc{position:absolute;inset:0;width:100%;height:100%}
-#ovl{z-index:3;position:absolute;top:2cqw;left:2cqw;max-width:80%;background:rgba(0,0,0,.65);color:#fff;font:700 2.2cqw/1.25 'Red Hat Display',system-ui,sans-serif;padding:.8cqw 1.4cqw;border-left:.5cqw solid #FFD101;display:none}
+#ovl{z-index:10;position:absolute;top:2cqw;left:2cqw;max-width:80%;color:#fff;font:700 2.2cqw/1.25 'Red Hat Display','Segoe UI',Arial,Helvetica,sans-serif;display:none}
+#ovl div{width:fit-content;max-width:100%;box-sizing:border-box;background:#003F88;padding:.4cqw .8cqw;white-space:pre-wrap}
+#ovl div.e{background:none;padding:0;height:3.55cqw}
 #pb{z-index:3;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:64px;height:64px;border-radius:50%;border:0;padding:0;display:grid;place-items:center;color:#fff;font-size:26px;cursor:pointer;background:rgba(40,40,40,.45);-webkit-backdrop-filter:blur(20px) saturate(160%);backdrop-filter:blur(20px) saturate(160%);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.35)}
 #pb i{margin-left:3px}
 #pb.hide{display:none}
@@ -76,12 +50,13 @@ main{max-width:1150px;margin:0 auto;padding:12px 16px calc(112px + env(safe-area
 .orow>label.p-label{flex:0 0 132px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .orow .p-field{flex:1 1 140px;width:auto;min-width:0;max-width:100%;text-transform:uppercase}
 .orow .p-field::placeholder{text-transform:none}
+.orow textarea.p-field{height:auto;min-height:60px;padding-top:8px;padding-bottom:8px;line-height:1.3;resize:vertical;font-family:inherit}
 .orow .hl{flex:none;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink2)}
 @media(max-width:560px){.orow>label.p-label{flex-basis:100%}}
 #sb{grid-area:sb;position:relative;min-height:300px;padding:0;overflow:hidden}
 #sbwrap{position:absolute;inset:0;overflow:auto}
 #sbwrap.over{box-shadow:inset 0 0 0 3px var(--acc)}
-#sbhead{position:sticky;top:0;z-index:3;background:var(--card);display:flex;align-items:center;gap:8px;padding:10px 12px 10px 16px;box-shadow:inset 0 -1px 0 var(--line)}
+#sbhead{position:sticky;top:0;z-index:3;display:flex;align-items:center;gap:8px;padding:10px 12px 10px 16px;box-shadow:inset 0 -.67px 0 var(--p-material-chrome-separator,rgba(0,0,0,.05))}
 #sbhead b{flex:1;font-size:17px;font-weight:600}
 #empty{padding:44px 16px;text-align:center;color:var(--ink2);cursor:pointer;display:grid;gap:10px;justify-items:center;font-size:15px}
 #empty i{font-size:40px;color:var(--fill2)}
@@ -131,31 +106,31 @@ main{max-width:1150px;margin:0 auto;padding:12px 16px calc(112px + env(safe-area
   <div class="panel" id="pv">
     <div id="stage">
       <div id="mh">Add media to begin</div>
-      <div id="ovl" style="display: none;"></div>
+      <div id="ovl"></div>
       <button id="pb" class="hide" aria-label="Play"><i class="ph-bold ph-play" aria-hidden="true"></i></button>
-      <div id="tc">0.0s / 0.0s</div>
+      <div id="tc"></div>
       <div id="rg"></div>
-      <div id="sk"><div id="sl"><div id="sc"></div><div id="sf" style="width: 0%;"></div></div></div>
+      <div id="sk"><div id="sl"><div id="sc"></div><div id="sf"></div></div></div>
     </div>
   </div>
-  <div class="panel" id="tr"><span class="mut">Select a clip to trim</span></div>
+  <div class="panel" id="tr"></div>
   <div class="panel" id="ov">
-    <div class="orow"><label class="p-label" for="otext">Overlay text</label><input class="p-field p-field-touch p-field-touch-filled" type="text" id="otext" placeholder="Courtesy of …"></div>
-    <div class="orow"><label class="p-label" for="bs">Blur</label><button id="bad" class="p-button p-button-touch p-button-secondary" type="button" disabled="" title="Add a blur box to the clip at the playhead"><i class="ph-bold ph-selection-plus" aria-hidden="true"></i><span>Add box</span></button><input class="p-slider p-slider-touch" type="range" id="bs" min="2" max="40" step="1" value="14" style="flex:1 1 120px;--p-slider-fill:36%" aria-label="Blur strength"><span class="hl" id="bv">14px</span></div>
-    <div class="orow"><label class="p-label" id="ocl" for="oc">Selected clip</label><input class="p-field p-field-touch p-field-touch-filled" type="text" id="oc" placeholder="Override for this clip" disabled=""><span class="hl"><label class="p-switch p-switch-touch" aria-label="Hide overlay on this clip"><input type="checkbox" id="och" disabled=""><span></span></label>Hide</span></div>
+    <div class="orow"><label class="p-label" for="otext">Overlay text</label><textarea class="p-field p-field-touch p-field-touch-filled" id="otext" rows="2" placeholder="Courtesy of …"></textarea></div>
+    <div class="orow"><label class="p-label" for="bs">Blur</label><button id="bad" class="p-button p-button-touch p-button-secondary" type="button" disabled title="Add a blur box to the clip at the playhead"><i class="ph-bold ph-selection-plus" aria-hidden="true"></i><span>Add box</span></button><input class="p-slider p-slider-touch" type="range" id="bs" min="2" max="40" step="1" value="14" style="flex:1 1 120px;--p-slider-fill:36%" aria-label="Blur strength"><span class="hl" id="bv">14px</span></div>
+    <div class="orow"><label class="p-label" id="ocl" for="oc">Selected clip</label><textarea class="p-field p-field-touch p-field-touch-filled" id="oc" rows="2" placeholder="Override for this clip"></textarea><span class="hl"><label class="p-switch p-switch-touch" aria-label="Hide overlay on this clip"><input type="checkbox" id="och"><span></span></label>Hide</span></div>
   </div>
   <div class="panel" id="sb">
     <div id="sbwrap">
       <div id="sbhead" class="p-material-chrome"><b>Storyboard</b><button id="add" class="p-button p-button-touch p-button-secondary" type="button"><i class="ph-bold ph-plus" aria-hidden="true"></i><span>Add media</span></button><button id="rst" class="p-button p-button-touch p-button-default" type="button" title="Reload the page and start over (save folder is kept)"><i class="ph-bold ph-arrow-counter-clockwise" aria-hidden="true"></i><span>Reset all</span></button></div>
       <div id="empty"><i class="ph-bold ph-images" aria-hidden="true"></i><p>Drag &amp; drop images and videos here, or click to browse</p></div>
-      <div id="list"><div id="ph" style="display: none;"></div></div>
-      <input id="file" type="file" accept="image/*,video/*" multiple="" hidden="">
+      <div id="list"></div>
+      <input id="file" type="file" accept="image/*,video/*" multiple hidden>
     </div>
   </div>
 </main>
-<div id="ex" class="p-material-thick"><input type="text" id="fn" class="p-field p-field-touch p-field-touch-filled" value="movie" aria-label="File name" placeholder="File name"><button type="button" id="dir" class="p-button p-button-touch p-button-secondary" title="Choose a save folder"><i class="ph-bold ph-folder-open" aria-hidden="true"></i><span id="dirn">Folder</span></button><button type="button" id="dirx" class="p-button p-button-touch p-button-borderless p-button-icon-only" aria-label="Use browser default download" title="Use browser default download" style="display:none"><i class="ph-bold ph-x" aria-hidden="true"></i></button><div id="pbar"><div id="pfill"></div><div id="pt">Ready</div></div><button class="p-button p-button-touch-large p-button-primary" id="exp" type="button" disabled=""><i class="ph-bold ph-export" aria-hidden="true"></i><span>Export MP4</span></button></div>
-<script src="https://cdn.jsdelivr.net/npm/mp4-muxer@5.2.1/build/mp4-muxer.js" type="text/javascript"></script>
-<script type="text/javascript">
+<div id="ex" class="p-material-thick"><input type="text" id="fn" class="p-field p-field-touch p-field-touch-filled" value="" aria-label="File name" placeholder="File name"><button type="button" id="dir" class="p-button p-button-touch p-button-secondary" title="Choose a save folder"><i class="ph-bold ph-folder-open" aria-hidden="true"></i><span id="dirn">Folder</span></button><button type="button" id="dirx" class="p-button p-button-touch p-button-borderless p-button-icon-only" aria-label="Use browser default download" title="Use browser default download" style="display:none"><i class="ph-bold ph-x" aria-hidden="true"></i></button><div id="pbar"><div id="pfill"></div><div id="pt">Ready</div></div><button class="p-button p-button-touch-large p-button-primary" id="exp" type="button" disabled><i class="ph-bold ph-export" aria-hidden="true"></i><span>Export MP4</span></button></div>
+<script src="https://cdn.jsdelivr.net/npm/mp4-muxer@5.1.3/build/mp4-muxer.js"></script>
+<script>
 const $=id=>document.getElementById(id);
 const ROW=64,W=1280,H=720,FPS=30,SR=48000;
 const clips=[],media={};
@@ -309,7 +284,7 @@ function updatePlayhead(){
   const T=total(),loc=locate(gt),ph=$('ph');
   $('tc').textContent=fmt(gt)+' / '+fmt(T);$('sf').style.width=(T?gt/T*100:0)+'%';
   const o=$('ovl'),tx=clips.length?ovFor(gt):'';
-  o.style.display=tx?'block':'none';o.textContent=tx;
+  o.style.display=tx?'block':'none';if(o._t!==tx){o._t=tx;o.textContent='';tx.split('\n').forEach(l=>{const d=document.createElement('div');if(l.trim())d.textContent=l;else d.className='e';o.appendChild(d)})}
   const rc=loc&&clips[loc.i];if(rc){if(rgFor!==rc.id)buildRg(rc);posRg(rc,srcT(rc,loc))}else{$('rg').innerHTML='';rgFor=0}
   if(!ph)return;
   const card=loc&&$('list').children[loc.i];
@@ -449,17 +424,34 @@ function applyBlur(ctx,c,t){
   }
 }
 
+
+/* ---------- file name: clipboard preview, used on export when the box is blank ---------- */
+let clipTxt='';
+async function readClip(){
+  try{const t=(await navigator.clipboard.readText()||'').replace(/\s+/g,' ').trim();
+    clipTxt=t;$('fn').placeholder=t?t.slice(0,120):'File name'}catch(e){}
+}
+['focus','visibilitychange'].forEach(ev=>(ev==='focus'?window:document).addEventListener(ev,readClip));
+$('fn').addEventListener('focus',readClip);
+setInterval(()=>{if(document.hasFocus())readClip()},2000);
+readClip();
+
 /* ---------- overlay ---------- */
 $('otext').oninput=e=>{ov.text=e.target.value.trim();updatePlayhead()};
 $('oc').oninput=e=>{const c=clips[sel];if(c){c.ovText=e.target.value.trim();updatePlayhead()}};
 $('och').onchange=e=>{const c=clips[sel];if(c){c.ovHide=e.target.checked;updatePlayhead()}};
 function syncOvSel(){const c=clips[sel];$('oc').disabled=$('och').disabled=!c;$('oc').value=c?c.ovText||'':'';$('och').checked=!!(c&&c.ovHide);$('ocl').textContent=c?'Clip '+(sel+1)+' override':'Selected clip'}
 function drawOv(ctx,text){
-  ctx.font='700 28px "Red Hat Display",system-ui,-apple-system,"Segoe UI",sans-serif';
-  const tw=Math.min(ctx.measureText(text).width,W*.8),px=18,py=10,bw=tw+px*2+8,bh=28+py*2,x=26,y=26;
-  ctx.fillStyle='rgba(0,0,0,.65)';ctx.fillRect(x,y,bw,bh);
-  ctx.fillStyle='#FFD101';ctx.fillRect(x,y,6,bh);
-  ctx.fillStyle='#fff';ctx.textBaseline='middle';ctx.fillText(text,x+px+8,y+bh/2+1,W*.8);
+  ctx.font='700 28px "Red Hat Display","Segoe UI",Arial,Helvetica,sans-serif';
+  const L=text.split('\n'),lh=35,px=10,py=5,mw=W*.8,x=26;let y=26;
+  ctx.textBaseline='middle';
+  L.forEach(l=>{
+    if(!l.trim()){y+=lh+py*2;return}
+    const w=Math.min(ctx.measureText(l).width,mw),h=lh+py*2;
+    ctx.fillStyle='#003F88';ctx.fillRect(x,y,w+px*2,h);
+    ctx.fillStyle='#fff';ctx.fillText(l,x+px,y+py+lh/2+1,mw);
+    y+=h;
+  });
 }
 
 /* ---------- save folder (File System Access API, handle kept in IndexedDB) ---------- */
@@ -481,7 +473,7 @@ $('exp').onclick=async()=>{
   let dirOK=false;
   if(dirH){try{const o={mode:'readwrite'};dirOK=(await dirH.queryPermission(o))==='granted'||(await dirH.requestPermission(o))==='granted'}catch(e){}}
   if(!window.VideoEncoder||!window.Mp4Muxer){alert('This browser lacks WebCodecs. Please use a recent Chrome, Edge or Safari.');return}
-  exporting=true;stop();try{await document.fonts.load('700 28px "Red Hat Display"')}catch(e){}$('exp').disabled=true;$('ex').classList.add('busy');setP('Preparing…',0);
+  exporting=true;stop();await readClip();const fnTxt=($('fn').value.trim()||clipTxt).slice(0,100);try{await document.fonts.load('700 28px "Red Hat Display"')}catch(e){}$('exp').disabled=true;$('ex').classList.add('busy');setP('Preparing…',0);
   try{
     const T=total(),hasAudio=!!window.AudioEncoder;
     const muxer=new Mp4Muxer.Muxer({target:new Mp4Muxer.ArrayBufferTarget(),fastStart:'in-memory',
@@ -568,7 +560,7 @@ $('exp').onclick=async()=>{
     }
     muxer.finalize();
     const blob=new Blob([muxer.target.buffer],{type:'video/mp4'});
-    const name=($('fn').value.trim().replace(/\.mp4$/i,'').replace(/[^\w\-. ]+/g,'_')||'movie')+'.mp4';
+    const name=(fnTxt.replace(/\.mp4$/i,'').replace(/[^\w\-. ]+/g,'_')||'movie')+'.mp4';
     setP('Saving '+name+' ('+(blob.size/1048576).toFixed(1)+' MB)…',98);
     let saved=false,where='';
     if(dirOK){try{const fn2=await uniqueName(dirH,name),fh=await dirH.getFileHandle(fn2,{create:true}),w=await fh.createWritable();await w.write(blob);await w.close();saved=true;where=' → '+dirH.name+'/'+fn2}catch(e){console.warn('Folder save failed, using normal download',e)}}
@@ -589,4 +581,5 @@ addEventListener('keydown',e=>{if(e.code==='Space'&&!typing(e.target)){e.prevent
 addEventListener('keyup',e=>{if(e.code==='Space'&&!typing(e.target))e.preventDefault()});
 renderList();buildTrim();
 </script>
-</body></html>
+</body>
+</html>
