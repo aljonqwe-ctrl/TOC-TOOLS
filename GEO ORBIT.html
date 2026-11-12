@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<!-- saved from url=(0187)https://app.mbc.ayaldev.com/toc/map/?fbclid=IwY2xjawViWYRleHRuA2FlbQIxMQBwZG9mA3NydGMGYXBwX2lkATAAAR_h-y33hfhaumcF8NqkSldGrnTOWktX6D-XaRTOhWH4QNr4ZIqSwLw118SjsA_aem_uiGSSaxfRmuR3j-brr568Q -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Geo Orbit</title>
+
+
+<style type="text/css">@font-face {font-family:'Red Hat Display';font-style:normal;font-weight:700;src:url(/cf-fonts/v/red-hat-display/5.2.8/latin/wght/normal.woff2);unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-display:swap;}@font-face {font-family:'Red Hat Display';font-style:normal;font-weight:700;src:url(/cf-fonts/v/red-hat-display/5.2.8/latin-ext/wght/normal.woff2);unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;font-display:swap;}@font-face {font-family:'Red Hat Display';font-style:normal;font-weight:800;src:url(/cf-fonts/v/red-hat-display/5.2.8/latin-ext/wght/normal.woff2);unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;font-display:swap;}@font-face {font-family:'Red Hat Display';font-style:normal;font-weight:800;src:url(/cf-fonts/v/red-hat-display/5.2.8/latin/wght/normal.woff2);unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-display:swap;}@font-face {font-family:'Red Hat Display';font-style:italic;font-weight:700;src:url(/cf-fonts/v/red-hat-display/5.2.8/latin-ext/wght/italic.woff2);unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;font-display:swap;}@font-face {font-family:'Red Hat Display';font-style:italic;font-weight:700;src:url(/cf-fonts/v/red-hat-display/5.2.8/latin/wght/italic.woff2);unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;font-display:swap;}</style>
+<link rel="stylesheet" href="./GEO ORBIT_files/700.css">
+<link rel="stylesheet" href="./GEO ORBIT_files/700-italic.css">
+<link rel="stylesheet" href="./GEO ORBIT_files/800.css">
+<link rel="stylesheet" href="./GEO ORBIT_files/puppertino.min.css">
+<link rel="stylesheet" href="./GEO ORBIT_files/style.css">
+<link rel="stylesheet" href="./GEO ORBIT_files/maplibre-gl.css">
+<style>
+body{--page:var(--p-bg-grouped-primary,#f2f2f7);--card:var(--p-bg-grouped-secondary,#fff);--ink:var(--p-text-primary,rgba(0,0,0,.85));--ink2:var(--p-text-secondary,rgba(60,60,67,.6));--line:var(--p-separator,rgba(60,60,67,.29));--fill:var(--p-fill-tertiary,rgba(118,118,128,.12));--fill2:var(--p-ios-fill,rgba(120,120,128,.2));--acc:var(--p-control-accent,#0088ff);--ring:var(--p-focus-ring-color,rgba(0,136,255,.5))}
+*{box-sizing:border-box}
+html{color-scheme:light dark}
+body{margin:0;background:var(--page);color:var(--ink);padding-top:env(safe-area-inset-top,0px)}
+main{max-width:1150px;margin:0 auto;padding:12px 16px calc(112px + env(safe-area-inset-bottom,0px));display:grid;gap:16px;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);grid-template-areas:"pv sb" "tr sb";align-items:start}
+@media(max-width:768px){main{grid-template-columns:1fr;grid-template-areas:"pv" "tr" "sb"}}
+.panel{background:var(--card);border-radius:14px;padding:12px 16px;min-width:0}
+.mut{color:var(--ink2)}
+#pv{grid-area:pv;padding:0;overflow:hidden}
+#stage{position:relative;aspect-ratio:16/9;background:#000;overflow:hidden;cursor:pointer}
+#map{position:absolute;inset:0;filter:saturate(.8) contrast(1.12) brightness(.95)}
+#ovc{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#mh{position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;background:#000;color:#8e8e93;font-size:15px;text-align:center;padding:0 20px}
+#mh.hide{display:none}
+#pb{z-index:3;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:64px;height:64px;border-radius:50%;border:0;padding:0;display:grid;place-items:center;color:#fff;font-size:26px;cursor:pointer;background:rgba(40,40,40,.45);-webkit-backdrop-filter:blur(20px) saturate(160%);backdrop-filter:blur(20px) saturate(160%);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.35)}
+#pb i{margin-left:3px}
+#pb.hide{display:none}
+#tr{grid-area:tr;display:flex;align-items:center;gap:12px;min-height:56px}
+#tr input[type=range]{flex:1}
+#tr output{white-space:nowrap;min-width:92px;text-align:right;font-size:15px;font-variant-numeric:tabular-nums}
+#sb{grid-area:sb;display:grid;gap:14px}
+#sb h2{margin:0;font-size:17px;font-weight:600}
+.orow{display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap;min-width:0}
+.orow>label.p-label{flex:0 0 104px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.orow .p-field{flex:1 1 140px;width:auto;min-width:0;max-width:100%}
+.orow .hl{flex:none;font-size:13px;color:var(--ink2);min-width:34px}
+@media(max-width:560px){.orow>label.p-label{flex-basis:100%}}
+#lbl{text-transform:uppercase}
+#found{font-size:13px;line-height:1.35;min-height:18px}
+.seg{display:flex;gap:2px;padding:2px;border-radius:9px;background:var(--fill)}
+.seg button{border:0;background:none;color:var(--ink);padding:6px 14px;border-radius:7px;font:inherit;font-size:14px;cursor:pointer}
+.seg button.on{background:var(--card);box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.note{margin:0;font-size:12.5px;line-height:1.4}
+#ex{position:fixed;left:50%;bottom:calc(12px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:min(1122px,calc(100% - 24px));display:flex;align-items:center;gap:12px;z-index:20;padding:10px 12px;border-radius:26px;box-shadow:var(--p-glass-edge,0 0 0 .5px rgba(0,0,0,.12)),var(--p-shadow-alert,0 18px 48px rgba(0,0,0,.25))}
+#pbar{display:none;position:relative;flex:1;min-width:0;height:44px;border-radius:10px;overflow:hidden;background:var(--fill)}
+#ex #exp{flex:1}
+#ex.busy #exp{flex:none}
+#ex.busy #pbar{display:block}
+#pfill{position:absolute;inset:0 auto 0 0;width:0;background:var(--acc);opacity:.35}
+#pt{position:absolute;inset:0;display:flex;align-items:center;padding:0 14px;font-size:15px;white-space:nowrap;overflow:hidden}
+</style>
+</head>
+<body class="p-type p-auto-dark-mode">
+<main>
+  <div class="panel" id="pv">
+    <div id="stage">
+      <div id="map" class="maplibregl-map"><div class="maplibregl-canvas-container"><canvas class="maplibregl-canvas" tabindex="-1" aria-label="Map" role="region" width="514" height="289" style="width: 643px; height: 362px;"></canvas></div><div class="maplibregl-control-container"><div class="maplibregl-ctrl-top-left "></div><div class="maplibregl-ctrl-top-right "></div><div class="maplibregl-ctrl-bottom-left "></div><div class="maplibregl-ctrl-bottom-right "></div></div></div>
+      <canvas id="ovc"></canvas>
+      <div id="mh">Search a place to begin</div>
+      <button id="pb" class="hide" aria-label="Play"><i class="ph-bold ph-play" aria-hidden="true"></i></button>
+    </div>
+  </div>
+  <div class="panel" id="tr">
+    <button id="tp" class="p-button p-button-touch p-button-secondary p-button-icon-only" type="button" aria-label="Play / pause" disabled=""><i class="ph-bold ph-play" aria-hidden="true"></i></button>
+    <input class="p-slider p-slider-touch" type="range" id="seek" min="0" max="1000" value="0" style="--p-slider-fill:0%" aria-label="Seek" disabled="">
+    <output id="tm">0:00 / 0:30</output>
+  </div>
+  <div class="panel" id="sb">
+    <h2>Location</h2>
+    <div class="orow"><label class="p-label" for="q">Place</label><input class="p-field p-field-touch p-field-touch-filled" id="q" type="text" placeholder="Taal Volcano, Manila Bay, Mount Fuji…" autocomplete="off" autofocus=""><button id="go" class="p-button p-button-touch p-button-primary" type="button"><i class="ph-bold ph-magnifying-glass" aria-hidden="true"></i><span>Show</span></button></div>
+    <div id="found" class="mut">Type a place and press Enter.</div>
+    <div class="orow"><label class="p-label" for="lbl">Label text</label><input class="p-field p-field-touch p-field-touch-filled" id="lbl" type="text" placeholder="Defaults to the place name"></div>
+    <div class="orow"><label class="p-label">Duration</label><div class="seg" id="durs"><button type="button" data-v="20">20s</button><button type="button" data-v="30" class="on">30s</button><button type="button" data-v="45">45s</button><button type="button" data-v="60">60s</button></div></div>
+    <div class="orow"><label class="p-label">Quality</label><div class="seg" id="quals"><button type="button" data-v="720" class="on">720p</button><button type="button" data-v="1080">1080p</button></div></div>
+    <div class="orow"><label class="p-label" for="tilt">Tilt</label><input class="p-slider p-slider-touch" type="range" id="tilt" min="30" max="70" step="1" value="58" style="flex:1 1 120px;--p-slider-fill:70%" aria-label="Camera tilt"><span class="hl" id="tv">58°</span></div>
+    <div class="orow"><label class="p-label" for="names">Place names</label><label class="p-switch p-switch-touch" aria-label="Show surrounding place names"><input type="checkbox" id="names" checked=""><span></span></label></div>
+    <div class="orow"><label class="p-label" for="loc">Locator map</label><label class="p-switch p-switch-touch" aria-label="Show small locator map in the bottom right"><input type="checkbox" id="loc" checked=""><span></span></label></div>
+    <p class="note mut">One full 360° turn per clip, so the video loops seamlessly. Rendering happens in this tab, so keep it visible while exporting.</p>
+  </div>
+</main>
+<div id="ex" class="p-material-thick"><div id="pbar"><div id="pfill"></div><div id="pt">Ready</div></div><button class="p-button p-button-touch-large p-button-primary" id="exp" type="button" disabled=""><i class="ph-bold ph-export" aria-hidden="true"></i><span>Export MP4</span></button></div>
+
+<script type="text/javascript">
+/* virtual clock: lets the export advance MapLibre's fades (labels, tile dissolves) exactly one video frame at a time.
+   null = real time (preview). Must run before MapLibre loads. */
+window.__vt=null;
+(()=>{const real=performance.now.bind(performance);window.__real=real;performance.now=()=>window.__vt===null?real():window.__vt})();
+</script>
+<script src="./GEO ORBIT_files/maplibre-gl.js.download" type="text/javascript"></script>
+<script src="./GEO ORBIT_files/mp4-muxer.js.download" type="text/javascript"></script>
+<script type="text/javascript">
+const $=id=>document.getElementById(id);
+const FADE=1500,REAL=window.__real;   /* ms: slow dissolve for place names and satellite tiles */
+const FPS=30,MAPFILTER='saturate(.8) contrast(1.12) brightness(.95)';
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const NAME=['coalesce',['get','name_en'],['get','name:latin'],['get','name']];
+const SYM_IDS=['lbl-water','lbl-peak','lbl-place'];
+
+/* ---------- map ---------- */
+function sym(id,layer,font,color){
+  return{id,type:'symbol',source:'omt','source-layer':layer,
+    layout:{'text-field':NAME,'text-font':[font],'text-size':12,'text-max-width':8,'text-padding':6,
+      'text-pitch-alignment':'map',          /* lies flat on the ground plane */
+      'text-rotation-alignment':'viewport',  /* always upright, readable at any bearing */
+      'symbol-sort-key':['coalesce',['get','rank'],99]},
+    /* map text is invisible: it only drives placement/collision. The visible text is drawn on the overlay canvas in Red Hat Display. */
+    paint:{'text-color':color,'text-opacity':0,'text-halo-color':'rgba(0,0,0,0)','text-halo-width':0}};
+}
+function buildStyle(){
+  const empty={type:'FeatureCollection',features:[]};
+  return{version:8,
+    glyphs:'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',
+    sources:{
+      sat:{type:'raster',tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],tileSize:256,maxzoom:19},
+      dem:{type:'raster-dem',tiles:['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],encoding:'terrarium',tileSize:256,maxzoom:15},
+      omt:{type:'vector',url:'https://tiles.openfreemap.org/planet'},
+      mask:{type:'geojson',data:empty},bnd:{type:'geojson',data:empty}},
+    layers:[
+      {id:'bg',type:'background',paint:{'background-color':'#000'}},
+      {id:'sat',type:'raster',source:'sat',paint:{'raster-fade-duration':FADE}},
+      {id:'mask',type:'fill',source:'mask',paint:{'fill-color':'#020610','fill-opacity':.6}},
+      {id:'glow',type:'line',source:'bnd',paint:{'line-color':'#D62829','line-width':12,'line-blur':8,'line-opacity':.75}},
+      {id:'line',type:'line',source:'bnd',paint:{'line-color':'#ffffff','line-width':2.5,'line-opacity':1}},
+      sym('lbl-water','water_name','Noto Sans Italic','#bfe6ff'),
+      sym('lbl-peak','mountain_peak','Noto Sans Bold','#ffffff'),
+      sym('lbl-place','place','Noto Sans Bold','#ffffff')],
+    terrain:{source:'dem',exaggeration:1.3}};
+}
+function makeMap(container,pixelRatio){
+  const map=new maplibregl.Map({container,style:buildStyle(),center:[0,20],zoom:12,interactive:false,attributionControl:false,
+    fadeDuration:FADE,pixelRatio,maxPitch:75,maxTileCacheSize:600,canvasContextAttributes:{preserveDrawingBuffer:true}});
+  map._ready=new Promise(r=>map.once('load',r));
+  return map;
+}
+const outerRings=g=>!g?[]:g.type==='Polygon'?[g.coordinates[0]]:g.type==='MultiPolygon'?g.coordinates.map(p=>p[0]):[];
+function ellipse(lon,lat,rx,ry){const a=[];for(let i=0;i<=64;i++){const k=i/64*Math.PI*2;a.push([lon+Math.cos(k)*rx,lat+Math.sin(k)*ry])}return a}
+function applyScale(map,s,names){
+  const sz=(a,b)=>['interpolate',['linear'],['zoom'],8,a*s,16,b*s];
+  map.setLayoutProperty('lbl-place','text-size',sz(11,17));
+  map.setLayoutProperty('lbl-peak','text-size',sz(10,14));
+  map.setLayoutProperty('lbl-water','text-size',sz(10,14));
+  const local=!place||(place.level||'local')==='local';
+  SYM_IDS.forEach(id=>{
+    const only=id==='lbl-place'||local;   /* water / peak names only for local places */
+    map.setLayoutProperty(id,'visibility',only?'visible':'none')});
+  map._showNames=names;
+}
+/* ---------- satellite mosaic: stitched once at a single zoom, so imagery never loads in or changes sharpness ---------- */
+const MERC=(lon,lat,z)=>{const n=2**z,r=lat*Math.PI/180;return[(lon+180)/360*n,(1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2*n]};
+const UNMERC=(x,y,z)=>{const n=2**z;return[x/n*360-180,Math.atan(Math.sinh(Math.PI*(1-2*y/n)))*180/Math.PI]};
+const loadImg=url=>new Promise(res=>{const im=new Image();im.crossOrigin='anonymous';im.onload=()=>res(im);im.onerror=()=>res(null);im.src=url});
+async function buildMosaic(p,onProg){
+  const [w,so,e,n]=p.bbox,cl=Math.cos(p.lat*Math.PI/180);
+  const span=Math.max((e-w)*111320*cl,(n-so)*110574,500);
+  const L=span*7,circ=40075016*cl;              /* ground side covered: enough for the whole orbit view */
+  const zt=Math.min(17,Math.floor(Math.log2(15*circ/L)));
+  if(zt<8)return null;                          /* very large areas fall back to normal tiles */
+  const [cx,cy]=MERC(p.lon,p.lat,zt),half=L*2**zt/(2*circ),max=2**zt-1;
+  const x0=clamp(Math.floor(cx-half),0,max),x1=clamp(Math.floor(cx+half),0,max),y0=clamp(Math.floor(cy-half),0,max),y1=clamp(Math.floor(cy+half),0,max);
+  const nx=x1-x0+1,ny=y1-y0+1,cv=document.createElement('canvas');cv.width=nx*256;cv.height=ny*256;
+  const ctx=cv.getContext('2d');ctx.fillStyle='#000';ctx.fillRect(0,0,cv.width,cv.height);
+  const jobs=[];for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)jobs.push([x,y]);
+  let done=0,idx=0;
+  await Promise.all(Array.from({length:8},async()=>{
+    while(idx<jobs.length){
+      const [x,y]=jobs[idx++];
+      const im=await loadImg('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/'+zt+'/'+y+'/'+x);
+      if(im)ctx.drawImage(im,(x-x0)*256,(y-y0)*256,256,256);
+      if(onProg)onProg(++done,jobs.length);
+    }}));
+  const blob=await new Promise(r=>cv.toBlob(r,'image/jpeg',.92));
+  return{url:URL.createObjectURL(blob),zt,coords:[UNMERC(x0,y0,zt),UNMERC(x1+1,y0,zt),UNMERC(x1+1,y1+1,zt),UNMERC(x0,y1+1,zt)]};
+}
+/* loads the boundary + mask, hides the duplicate of the tagged place, returns the framing zoom */
+async function preparePlace(map,p,s,names,mos){
+  await map._ready;
+  if(map.getLayer('mosaic'))map.removeLayer('mosaic');
+  if(map.getSource('mosaic'))map.removeSource('mosaic');
+  if(mos){
+    map.addSource('mosaic',{type:'image',url:mos.url,coordinates:mos.coords});
+    map.addLayer({id:'mosaic',type:'raster',source:'mosaic',paint:{'raster-fade-duration':0,'raster-resampling':'linear'}},'mask');
+  }
+  map.setLayoutProperty('sat','visibility',mos?'none':'visible');
+  const [w,so,e,n]=p.bbox;
+  let rings=outerRings(p.geo);
+  if(!rings.length){const rx=Math.max((e-w)/2,.003),ry=Math.max((n-so)/2,.003);rings=[ellipse(p.lon,p.lat,rx*.9,ry*.9)]}
+  const world=[[-180,-85],[180,-85],[180,85],[-180,85],[-180,-85]];
+  map.getSource('mask').setData({type:'Feature',geometry:{type:'Polygon',coordinates:[world,...rings]}});
+  map.getSource('bnd').setData({type:'Feature',geometry:{type:'MultiLineString',coordinates:rings}});
+  let bw=w,be=e,bs=so,bn=n;
+  if(be-bw<.004){bw-=.003;be+=.003}if(bn-bs<.004){bs-=.003;bn+=.003}
+  let Z=12;
+  try{
+    map.jumpTo({center:[p.lon,p.lat],zoom:4,pitch:0,bearing:0});
+    const cam=map.cameraForBounds([[bw,bs],[be,bn]],{padding:{top:90*s,bottom:90*s,left:140*s,right:140*s}});
+    Z=clamp(cam.zoom-.5,3,16.5);
+  }catch(err){}
+  const nm=p.name.toLowerCase();
+  const notSelf=['!=',['downcase',NAME],nm];
+  const lvl=p.level||'local';
+  const cls=['get','class'];
+  map.setFilter('lbl-water',notSelf);
+  map.setFilter('lbl-peak',notSelf);
+  /* same admin level as the searched place: province → provinces/states, city → cities/towns, country → countries */
+  map.setFilter('lbl-place',lvl==='country'?['all',notSelf,['==',cls,'country']]
+    :lvl==='province'?['all',notSelf,['in',cls,['literal',['state','province']]]]
+    :lvl==='city'?['all',notSelf,['in',cls,['literal',['city','town']]]]
+    :notSelf);
+  map._cands=new Map();map._labels=null;
+  applyScale(map,s,names);
+  return Z;
+}
+const setCam=(map,p,Z,t,dur,tilt)=>map.jumpTo({center:[p.lon,p.lat],zoom:Z,pitch:tilt,bearing:-25+360*(t/dur)});
+function waitIdle(map){
+  return new Promise(res=>{let done=false;const f=()=>{if(!done){done=true;res()}};map.once('idle',f);setTimeout(f,10000);map.triggerRepaint()});
+}
+
+/* export: render at the current virtual time and wait until every tile is in and placement has caught up */
+async function settle(map,need=3){
+  let ok=0;const t0=REAL();
+  while(ok<need&&REAL()-t0<20000){
+    await new Promise(r=>{map.once('render',r);map.triggerRepaint()});
+    ok=map.areTilesLoaded()?ok+1:0;
+  }
+}
+
+/* ---------- overlay (same code draws the preview and the export frames) ---------- */
+/* Labels are frozen: every name seen during a preload pass around the orbit is collected once, thinned so none can collide
+   at any bearing, and then just re-projected each frame. Nothing appears, disappears or swaps while the camera turns. */
+function collectLabels(map){
+  let fs;
+  try{fs=map.queryRenderedFeatures({layers:SYM_IDS.filter(id=>map.getLayoutProperty(id,'visibility')!=='none')})}catch(e){return}
+  for(const f of fs){
+    const pr=f.properties||{},nm=pr.name_en||pr['name:latin']||pr.name,g=f.geometry;
+    if(!nm||!g||g.type!=='Point')continue;
+    const key=f.layer.id+'|'+nm.toLowerCase();
+    if(!map._cands.has(key))map._cands.set(key,{id:f.layer.id,nm:nm.toUpperCase(),ll:g.coordinates.slice(),rank:+pr.rank||99});
+  }
+}
+const nextFrames=(map,n)=>new Promise(res=>{let i=0;const f=()=>{if(++i>=n)res();else{map.once('render',f);map.triggerRepaint()}};map.once('render',f);map.triggerRepaint()});
+/* walks the whole orbit (24 stops, repeated until a full pass finds nothing new) so every name is placed before anything is shown */
+async function gatherLabels(map,p,Z,D,T,onProg){
+  const A=24;
+  for(let pass=0;pass<3;pass++){
+    const before=map._cands.size;
+    for(let k=0;k<A;k++){
+      setCam(map,p,Z,k/A*D,D,T);
+      await settle(map,3);
+      await nextFrames(map,3);
+      collectLabels(map);
+      if(onProg)onProg(pass,k,A);
+    }
+    if(pass>=1&&map._cands.size===before)break;
+  }
+  setCam(map,p,Z,0,D,T);
+  await settle(map,3);
+}
+const LSZ={'lbl-place':[11,17],'lbl-peak':[10,14],'lbl-water':[10,14]};
+function labelPx(map,s,id){const [a,b]=LSZ[id],k=clamp((map.getZoom()-8)/8,0,1);return(a+(b-a)*k)*s}
+function finalizeLabels(map,s){
+  const cx=document.createElement('canvas').getContext('2d');
+  const deg=360/(512*2**map.getZoom());                 /* longitude degrees per CSS pixel at this zoom */
+  const cands=[...map._cands.values()].sort((p,q)=>p.rank-q.rank||p.nm.localeCompare(q.nm));
+  const kept=[];
+  for(const c of cands){
+    const px=labelPx(map,1,c.id);
+    cx.font='700 '+px+'px "Red Hat Display",Arial,sans-serif';
+    c.w=cx.measureText(c.nm).width+14;                  /* label width + margin, at scale 1 */
+    c.cl=Math.cos(c.ll[1]*Math.PI/180);
+    const ok=kept.every(k=>{
+      const d=Math.hypot((c.ll[0]-k.ll[0])*c.cl,c.ll[1]-k.ll[1]),need=Math.max(c.w,k.w)*deg*s*1.15;
+      return d>need});
+    if(ok&&kept.length<80)kept.push(c);
+  }
+  map._labels=kept;
+}
+function drawLabels(ctx,map,W,H,s){
+  const L=map._labels;
+  if(!L||!map._showNames)return;
+  ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineJoin='round';
+  for(const c of L){
+    const p=map.project(c.ll);
+    if(!(p.x>-80&&p.x<W+80&&p.y>-40&&p.y<H+40))continue;
+    ctx.font=(c.id==='lbl-water'?'italic ':'')+'700 '+labelPx(map,s,c.id)+'px "Red Hat Display",Arial,sans-serif';
+    ctx.lineWidth=3.2*s;ctx.strokeStyle='rgba(0,20,45,.85)';ctx.strokeText(c.nm,p.x,p.y);
+    ctx.fillStyle=c.id==='lbl-water'?'#bfe6ff':'#fff';ctx.fillText(c.nm,p.x,p.y);
+  }
+  ctx.restore();
+}
+/* ---------- locator inset: flat, label-free, zoomed-out map built once per place ---------- */
+const INSET_PX=440;
+async function buildInset(p){
+  const [w,so,e,n]=p.bbox,span=Math.max(e-w,n-so,.0005),lv=p.level||'local';
+  const mult={country:2.6,province:6,city:20,local:40}[lv],min={country:0,province:2,city:5,local:6}[lv];
+  const vis=clamp(Math.max(span*mult,min),.5,340);               /* longitude degrees the inset covers */
+  const z=clamp(Math.ceil(Math.log2(INSET_PX*360/(vis*256))),0,12);
+  const side=vis/360*2**z,[cx,cy]=MERC(p.lon,p.lat,z),left=cx-side/2,top=cy-side/2,N=2**z;
+  const x0=Math.floor(left),x1=Math.floor(left+side),y0=Math.max(0,Math.floor(top)),y1=Math.min(N-1,Math.floor(top+side));
+  const st=document.createElement('canvas');st.width=(x1-x0+1)*256;st.height=(y1-y0+1)*256;
+  const sx=st.getContext('2d');sx.fillStyle='#aad3df';sx.fillRect(0,0,st.width,st.height);
+  const jobs=[];for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)jobs.push([x,y]);
+  let ok=0;
+  await Promise.all(jobs.map(async([x,y])=>{
+    const xx=((x%N)+N)%N;
+    const im=await loadImg('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/'+z+'/'+y+'/'+xx);
+    if(im){sx.drawImage(im,(x-x0)*256,(y-y0)*256,256,256);ok++}
+  }));
+  if(!ok)return null;
+  const cv=document.createElement('canvas');cv.width=cv.height=INSET_PX;
+  cv.getContext('2d').drawImage(st,(left-x0)*256,(top-y0)*256,side*256,side*256,0,0,INSET_PX,INSET_PX);
+  let rings=outerRings(p.geo);
+  if(!rings.length)rings=[ellipse(p.lon,p.lat,Math.max((e-w)/2,.001),Math.max((n-so)/2,.001))];
+  const pts=rings.map(r=>r.map(([lo,la])=>{const [mx,my]=MERC(lo,la,z);return[(mx-left)/side*INSET_PX,(my-top)/side*INSET_PX]}));
+  let ext=0;pts.forEach(r=>{const xs=r.map(q=>q[0]),ys=r.map(q=>q[1]);ext=Math.max(ext,Math.max(...xs)-Math.min(...xs),Math.max(...ys)-Math.min(...ys))});
+  return{cv,pts,ext};
+}
+function insetRect(W,H,s){const S=220*s,m=24*s;return{x:W-m-S,y:(H-S)/2,S}}
+function rrect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
+function drawInset(ctx,W,H,s,ins){
+  const {x,y,S}=insetRect(W,H,s),k=S/INSET_PX,r=0;
+  ctx.save();
+  ctx.shadowColor='rgba(0,0,0,.5)';ctx.shadowBlur=14*s;ctx.shadowOffsetY=3*s;
+  rrect(ctx,x,y,S,S,r);ctx.fillStyle='#fff';ctx.fill();
+  ctx.shadowColor='transparent';
+  rrect(ctx,x,y,S,S,r);ctx.clip();
+  ctx.drawImage(ins.cv,x,y,S,S);
+  ctx.translate(x,y);ctx.scale(k,k);
+  ctx.beginPath();ins.pts.forEach(rg=>{rg.forEach(([a,b],i)=>i?ctx.lineTo(a,b):ctx.moveTo(a,b));ctx.closePath()});
+  ctx.fillStyle='rgba(214,40,41,.28)';ctx.fill();
+  ctx.lineWidth=2.2*s/k;ctx.strokeStyle='#D62829';ctx.lineJoin='round';ctx.stroke();
+  if(ins.ext*k<16*s){                                    /* tiny area: add a dot so it can still be found */
+    ctx.beginPath();ctx.arc(INSET_PX/2,INSET_PX/2,5*s/k,0,Math.PI*2);
+    ctx.fillStyle='#D62829';ctx.fill();ctx.lineWidth=2*s/k;ctx.strokeStyle='#fff';ctx.stroke();
+  }
+  ctx.restore();
+  ctx.save();rrect(ctx,x,y,S,S,r);ctx.lineWidth=2.5*s;ctx.strokeStyle='#fff';ctx.stroke();ctx.restore();
+}
+function drawOverlay(ctx,W,H,map,place,label,t,dur,showInset){
+  const s=H/720;
+  drawLabels(ctx,map,W,H,s);
+  /* vignette */
+  ctx.save();
+  const r=H*Math.SQRT2/2,g=ctx.createRadialGradient(0,0,r*.52,0,0,r);
+  g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(0,0,0,.7)');
+  ctx.translate(W/2,H/2);ctx.scale(W/H,1);ctx.fillStyle=g;ctx.fillRect(-r*4,-r*4,r*8,r*8);
+  ctx.restore();
+  const ins=showInset&&place.inset?place.inset:null;
+  if(ins)drawInset(ctx,W,H,s,ins);
+  const pt=map.project([place.lon,place.lat]);
+  /* pulse period divides the duration exactly, so the loop is seamless */
+  const P=dur/Math.max(1,Math.round(dur/1.6));
+  ctx.lineWidth=2.5*s;
+  [0,.5].forEach(off=>{
+    const ph=(((t/P)+off)%1+1)%1;
+    ctx.beginPath();ctx.arc(pt.x,pt.y,(8+ph*46)*s,0,Math.PI*2);
+    ctx.strokeStyle='rgba(214,40,41,'+(1-ph)+')';ctx.stroke();
+  });
+  const em=46*s,txt=(label||place.name).toUpperCase();
+  ctx.font='800 '+em+'px "Red Hat Display",Arial,sans-serif';
+  ctx.textBaseline='middle';
+  const lw=ctx.measureText(txt).width+.9*em,lh=1.26*em;
+  let ax=clamp(pt.x+90*s,20,Math.max(20,W-lw-20));let ay=clamp(pt.y-100*s,lh+20,H-30);
+  if(ins){const b=insetRect(W,H,s),g=12*s;if(ax+lw>b.x-g&&ay>b.y-g&&ay-lh<b.y+b.S+g)ax=Math.max(20,b.x-g-lw)}   /* keep the tag clear of the inset */
+  ctx.strokeStyle='#fff';ctx.lineWidth=2.5*s;ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(pt.x,pt.y);ctx.lineTo(ax,ay);ctx.stroke();
+  ctx.beginPath();ctx.arc(pt.x,pt.y,6*s,0,Math.PI*2);
+  ctx.fillStyle='#D62829';ctx.fill();ctx.lineWidth=2*s;ctx.stroke();
+  ctx.fillStyle='#004183';ctx.fillRect(ax,ay-lh,lw,lh);
+  ctx.fillStyle='#fff';ctx.textAlign='left';ctx.fillText(txt,ax+.45*em,ay-lh/2+.02*em);
+}
+
+/* ---------- state + preview ---------- */
+let place=null,mosaic=null,Zp=12,playing=false,exporting=false,t0=0,tcur=0,raf=0;
+const pm=makeMap($('map'),window.devicePixelRatio||1);
+const dur=()=>+document.querySelector('#durs .on').dataset.v;
+const qual=()=>+document.querySelector('#quals .on').dataset.v;
+const tilt=()=>+$('tilt').value;
+const label=()=>$('lbl').value.trim();
+const mmss=s=>Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');
+const stageS=()=>$('stage').clientHeight/720;
+
+function drawPrev(){
+  if(!place||exporting)return;
+  const c=$('ovc'),W=c.clientWidth,H=c.clientHeight,dpr=window.devicePixelRatio||1;
+  if(c.width!==Math.round(W*dpr)||c.height!==Math.round(H*dpr)){c.width=Math.round(W*dpr);c.height=Math.round(H*dpr)}
+  const x=c.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);x.clearRect(0,0,W,H);
+  drawOverlay(x,W,H,pm,place,label(),tcur,dur(),$('loc').checked);
+}
+pm.on('render',drawPrev);   /* redraw after every map frame so the tag never lags the camera */
+new ResizeObserver(()=>{pm.resize();if(place){applyScale(pm,stageS(),$('names').checked);drawPrev()}}).observe($('stage'));
+
+function show(t){
+  tcur=t;setCam(pm,place,Zp,t,dur(),tilt());
+  $('seek').value=t/dur()*1000;$('seek').style.setProperty('--p-slider-fill',(t/dur()*100)+'%');
+  $('tm').textContent=mmss(t)+' / '+mmss(dur());
+}
+function tick(now){if(!playing)return;show(((now-t0)/1000)%dur());raf=requestAnimationFrame(tick)}
+function play(){if(!place||exporting)return;playing=true;t0=performance.now()-tcur*1000;setIcons();raf=requestAnimationFrame(tick)}
+function stop(){playing=false;cancelAnimationFrame(raf);setIcons()}
+function setIcons(){
+  $('tp').firstElementChild.className='ph-bold '+(playing?'ph-pause':'ph-play');
+  $('pb').firstElementChild.className='ph-bold ph-play';
+  $('pb').classList.toggle('hide',playing||!place||exporting);
+}
+$('tp').onclick=()=>playing?stop():play();
+$('pb').onclick=e=>{e.stopPropagation();play()};
+$('stage').onclick=()=>{if(place&&!exporting)playing?stop():play()};
+$('seek').oninput=e=>{if(!place||exporting)return;stop();show(e.target.value/1000*dur())};
+addEventListener('keydown',e=>{if(e.code==='Space'&&e.target.tagName!=='INPUT'&&e.target.tagName!=='TEXTAREA'){e.preventDefault();playing?stop():play()}});
+
+document.querySelectorAll('.seg').forEach(seg=>seg.addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  seg.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));
+  if(seg.id==='durs'&&place){tcur=tcur%dur();show(tcur)}
+}));
+$('tilt').oninput=()=>{$('tv').textContent=tilt()+'°';$('tilt').style.setProperty('--p-slider-fill',((tilt()-30)/40*100)+'%');if(place&&!playing)show(tcur)};
+$('names').onchange=()=>{if(place)applyScale(pm,stageS(),$('names').checked)};
+$('loc').onchange=()=>{if(place&&!playing)drawPrev()};
+$('lbl').oninput=()=>{if(place&&!playing)drawPrev()};
+
+/* ---------- search ---------- */
+const setLoad=t=>{$('found').textContent=t;$('mh').textContent=t};
+async function search(){
+  const q=$('q').value.trim();if(!q)return;
+  stop();$('mh').classList.remove('hide');$('pb').classList.add('hide');setLoad('Searching…');
+  try{
+    const r=await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&polygon_geojson=1&polygon_threshold=0.0005&accept-language=en&q='+encodeURIComponent(q));
+    if(!r.ok)throw new Error('Geocoder returned '+r.status);
+    const [hit]=await r.json();
+    if(!hit){setLoad('No match for "'+q+'".');return}
+    const [so,n,w,e]=hit.boundingbox.map(Number);
+    const at=hit.addresstype||hit.type||'',rk=+hit.place_rank||30;
+    const level=(at==='country'||rk<=4)?'country':(['state','province','region'].includes(at)||(rk>=5&&rk<=10))?'province':['city','municipality','town'].includes(at)?'city':'local';
+    place={lat:+hit.lat,lon:+hit.lon,name:hit.name||hit.display_name.split(',')[0],full:hit.display_name,bbox:[w,so,e,n],geo:hit.geojson||null,level};
+    $('lbl').value=place.name;$('found').textContent=place.full;
+    try{await Promise.all([document.fonts.load('800 46px "Red Hat Display"'),document.fonts.load('700 14px "Red Hat Display"'),document.fonts.load('italic 700 14px "Red Hat Display"')])}catch(err){}
+    if(mosaic){URL.revokeObjectURL(mosaic.url);mosaic=null}
+    setLoad('Loading imagery…');
+    mosaic=await buildMosaic(place,(d,n)=>{setLoad('Loading imagery '+d+' / '+n+'…')});
+    setLoad('Loading locator map…');
+    try{place.inset=await buildInset(place)}catch(err){place.inset=null}
+    Zp=await preparePlace(pm,place,stageS(),$('names').checked,mosaic);
+    /* preload terrain + labels all the way round so nothing streams in during playback */
+    await gatherLabels(pm,place,Zp,dur(),tilt(),(ps,k,A)=>{setLoad('Preloading terrain and names · pass '+(ps+1)+' · '+(k+1)+' / '+A)});
+    finalizeLabels(pm,stageS());pm._labelsFor=place;
+    $('found').textContent=place.full;
+    tcur=0;show(0);await waitIdle(pm);drawPrev();
+    $('mh').classList.add('hide');$('tp').disabled=false;$('seek').disabled=false;$('exp').disabled=false;
+    play();
+  }catch(err){setLoad('Error: '+(err.message||err))}
+}
+$('go').onclick=search;
+$('q').addEventListener('keydown',e=>{if(e.key==='Enter')search()});
+
+/* ---------- export (WebCodecs + mp4-muxer, rendered frame by frame) ---------- */
+const setP=(t,pct)=>{$('pt').textContent=t;if(pct!=null)$('pfill').style.width=pct+'%'};
+$('exp').onclick=async()=>{
+  if(!place)return;
+  if(!window.VideoEncoder||!window.Mp4Muxer){alert('This browser lacks WebCodecs. Please use a recent Chrome, Edge or Safari.');return}
+  exporting=true;stop();$('exp').disabled=true;$('ex').classList.add('busy');setP('Preparing…',0);
+  const [W,H]=qual()===1080?[1920,1080]:[1280,720],D=dur(),T=tilt(),loc=$('loc').checked,lab=label()||place.name;
+  const cw=$('stage').clientWidth,ch=$('stage').clientHeight,dpr0=window.devicePixelRatio||1;
+  try{
+    try{await Promise.all([document.fonts.load('800 46px "Red Hat Display"'),document.fonts.load('700 14px "Red Hat Display"'),document.fonts.load('italic 700 14px "Red Hat Display"')])}catch(e){}
+    /* render straight from the preview map: same camera, tiles, terrain and names, just at a higher pixel ratio */
+    pm.setPixelRatio(W/cw);
+    await settle(pm,3);
+    const muxer=new Mp4Muxer.Muxer({target:new Mp4Muxer.ArrayBufferTarget(),fastStart:'in-memory',video:{codec:'avc',width:W,height:H}});
+    let encErr=null;
+    const venc=new VideoEncoder({output:(c,m)=>muxer.addVideoChunk(c,m),error:e=>{encErr=e}});
+    const cfg={codec:H>720?'avc1.640028':'avc1.64001f',width:W,height:H,bitrate:H>720?12e6:6e6,framerate:FPS};
+    let hw='prefer-hardware',sup=await VideoEncoder.isConfigSupported({...cfg,hardwareAcceleration:hw}).catch(()=>({supported:false}));
+    if(!sup.supported){hw='no-preference';sup=await VideoEncoder.isConfigSupported({...cfg,hardwareAcceleration:hw}).catch(()=>({supported:false}))}
+    if(!sup.supported)throw new Error('This browser cannot encode H.264 at '+W+'×'+H);
+    venc.configure({...cfg,hardwareAcceleration:hw});
+    const cv=document.createElement('canvas');cv.width=W;cv.height=H;const ctx=cv.getContext('2d');
+    const N=Math.round(D*FPS),PRE=mosaic?4:Math.ceil(FADE/1000*FPS)+6;   /* names are drawn on the overlay, so only the plain-tile fallback needs a long fade warm-up */
+    let vt=REAL();
+    const step=async t=>{
+      vt+=1000/FPS;window.__vt=vt;setCam(pm,place,Zp,t,D,T);
+      await nextFrames(pm,1);
+      if(!pm.areTilesLoaded())await settle(pm,2);   /* tiles are normally already cached from the preview, so one frame is enough */
+    };
+    for(let k=PRE;k>=1;k--){if(encErr)throw encErr;setP('Warming up… '+(PRE-k+1)+' / '+PRE,2);await step((N-k)/FPS)}
+    for(let i=0;i<N;i++){
+      if(encErr)throw encErr;
+      const t=i/FPS;
+      await step(t);
+      ctx.save();if('filter' in ctx)ctx.filter=MAPFILTER;
+      ctx.drawImage(pm.getCanvas(),0,0,W,H);ctx.restore();
+      ctx.save();ctx.scale(W/cw,H/ch);drawOverlay(ctx,cw,ch,pm,place,lab,t,D,loc);ctx.restore();   /* overlay is laid out in preview pixels, scaled up */
+      const vf=new VideoFrame(cv,{timestamp:Math.round(i*1e6/FPS),duration:Math.round(1e6/FPS)});
+      venc.encode(vf,{keyFrame:i%60===0});vf.close();
+      if(i%5===0)setP('Rendering '+(i+1)+' / '+N+' · '+Math.round((i+1)/N*100)+'%',(i+1)/N*95);
+      if(venc.encodeQueueSize>8)await new Promise(r=>venc.addEventListener('dequeue',r,{once:true}));
+    }
+    await venc.flush();venc.close();
+    if(encErr)throw encErr;
+    muxer.finalize();
+    const blob=new Blob([muxer.target.buffer],{type:'video/mp4'});
+    const base=place.name.replace(/[\\/:*?"<>|\x00-\x1f]+/g,'_').trim()||'orbit';
+    const name=base+'.mp4';
+    setP('Saving '+name+' ('+(blob.size/1048576).toFixed(1)+' MB)…',98);
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href),60000);
+    setP('Downloaded · '+name+' · '+(blob.size/1048576).toFixed(1)+' MB',100);
+  }catch(e){
+    console.error(e);setP('Export failed: '+(e&&e.message||e),0);
+  }
+  window.__vt=null;
+  try{pm.setPixelRatio(dpr0)}catch(e){}
+  exporting=false;$('exp').disabled=false;setIcons();
+  try{show(tcur);drawPrev()}catch(e){}
+  setTimeout(()=>{if(!exporting)$('ex').classList.remove('busy')},4000);
+};
+</script>
+<script type="module" src="./GEO ORBIT_files/vce701823e78c4301a35b7e07294d87301792088814092" integrity="sha512-UKNk8GbxkABxKcXYuLkO16EleLGUkcvJWtpSNmExE0Too3ZaFAxTscNWEc1OdAv5/BikHawapSCaiD2XCmp+Bw==" data-cf-beacon="{&quot;version&quot;:&quot;2024.11.0&quot;,&quot;token&quot;:&quot;aa6f794fb15c45acb5d01028772b78b2&quot;,&quot;r&quot;:1,&quot;spa&quot;:2}" crossorigin="anonymous"></script>
+
+</body></html>
