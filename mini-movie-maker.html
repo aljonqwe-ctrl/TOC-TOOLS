@@ -25,9 +25,9 @@ main{max-width:1150px;margin:0 auto;padding:12px 16px calc(112px + env(safe-area
 #mh{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#8e8e93;font-size:15px}
 #mh img,#mh video{width:100%;height:100%;object-fit:contain;position:relative;z-index:1}
 #bgc{position:absolute;inset:0;width:100%;height:100%}
-#ovl{z-index:10;position:absolute;top:2cqw;left:2cqw;max-width:80%;color:#fff;font:700 2.2cqw/1.25 'Red Hat Display','Segoe UI',Arial,Helvetica,sans-serif;display:none}
-#ovl div{width:fit-content;max-width:100%;box-sizing:border-box;background:#003F88;padding:.4cqw .8cqw;white-space:pre-wrap}
-#ovl div.e{background:none;padding:0;height:3.55cqw}
+#ovl{z-index:10;position:absolute;top:2cqw;left:2cqw;max-width:80%;color:#fff;font:700 2.2cqw/.9 'Red Hat Display','Segoe UI',Arial,Helvetica,sans-serif;display:none}
+#ovl div{width:fit-content;max-width:100%;box-sizing:border-box;background:#003F88;padding:.25cqw .5cqw;white-space:pre-wrap}
+#ovl div.e{background:none;padding:0;height:2.48cqw}
 #pb{z-index:3;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:64px;height:64px;border-radius:50%;border:0;padding:0;display:grid;place-items:center;color:#fff;font-size:26px;cursor:pointer;background:rgba(40,40,40,.45);-webkit-backdrop-filter:blur(20px) saturate(160%);backdrop-filter:blur(20px) saturate(160%);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.35)}
 #pb i{margin-left:3px}
 #pb.hide{display:none}
@@ -35,6 +35,9 @@ main{max-width:1150px;margin:0 auto;padding:12px 16px calc(112px + env(safe-area
 #tr{grid-area:tr;display:flex;align-items:center;gap:12px;min-height:56px}
 #tr label{color:var(--ink2);white-space:nowrap;font-size:15px}
 #tr input[type=range]{flex:1}
+#tr .tin{flex:none;width:64px;min-width:0;text-align:center;font-variant-numeric:tabular-nums}
+#tr .u{color:var(--ink2);font-size:15px;margin-left:-6px}
+#tr .tg{display:flex;align-items:center;gap:6px;flex:none}
 #tr output{white-space:nowrap;min-width:110px;text-align:right;font-size:15px;font-variant-numeric:tabular-nums}
 .dual{position:relative;height:28px;flex:1}
 .dual .tr{position:absolute;top:11px;left:0;right:0;height:6px;background:var(--fill2);border-radius:3px}
@@ -61,8 +64,13 @@ main{max-width:1150px;margin:0 auto;padding:12px 16px calc(112px + env(safe-area
 #empty{padding:44px 16px;text-align:center;color:var(--ink2);cursor:pointer;display:grid;gap:10px;justify-items:center;font-size:15px}
 #empty i{font-size:40px;color:var(--fill2)}
 #empty p{margin:0}
+.card .ob{display:none;position:absolute;right:6px;bottom:6px;align-items:center;justify-content:center;padding:1px 6px;border-radius:999px;background:#003F88;color:#fff;font-size:11px;font-weight:700}
+.card .ob.o{background:#FFD101;color:#000}
+.card .ob.h{background:rgba(40,40,40,.7);color:#fff;overflow:hidden}
+.card .ob.h::after{content:"";position:absolute;left:-2px;right:-2px;top:50%;height:2px;background:#fff;transform:rotate(-35deg)}
+.card.hasov .ob{display:inline-flex}
 #list{position:relative;display:flex;flex-wrap:wrap;align-content:flex-start;gap:12px;padding:16px}
-.card{width:136px;border-radius:12px;background:var(--fill);cursor:grab;position:relative;overflow:hidden;transition:box-shadow .15s}
+.card{-webkit-user-select:none;user-select:none;width:136px;border-radius:12px;background:var(--fill);cursor:grab;position:relative;overflow:hidden;transition:box-shadow .15s}
 .card.sel{box-shadow:0 0 0 3px var(--acc)}
 .card.dragging{opacity:.4}
 .card .t{position:relative;aspect-ratio:16/9;background:#000 center/contain no-repeat}
@@ -75,11 +83,12 @@ main{max-width:1150px;margin:0 auto;padding:12px 16px calc(112px + env(safe-area
 #ph::after{content:"";position:absolute;left:6px;top:0;bottom:0;width:2px;background:var(--red)}
 #ph::before{content:"";position:absolute;left:0;top:-4px;border:7px solid transparent;border-top-color:var(--red);border-bottom:0}
 #ex{position:fixed;left:50%;bottom:calc(12px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:min(1122px,calc(100% - 24px));display:flex;align-items:center;gap:12px;z-index:20;padding:10px 12px;border-radius:26px;box-shadow:var(--p-glass-edge,0 0 0 .5px rgba(0,0,0,.12)),var(--p-shadow-alert,0 18px 48px rgba(0,0,0,.25))}
-#fn{flex:1;min-width:0}
+#fp{flex:0 1 140px;width:140px;min-width:0;text-transform:uppercase}
+#fn{flex:1;min-width:0;text-transform:uppercase}
 #pbar{display:none;position:relative;flex:1;min-width:0;height:44px;border-radius:10px;overflow:hidden;background:var(--fill)}
 #dir{max-width:200px}
 #dir span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#ex.busy #fn,#ex.busy #dir,#ex.busy #dirx{display:none!important}
+#ex.busy #fp,#ex.busy #fn,#ex.busy #dir,#ex.busy #dirx{display:none!important}
 #ex.busy #pbar{display:block}
 #pfill{position:absolute;inset:0 auto 0 0;width:0;background:var(--acc);opacity:.35}
 #pt{position:absolute;inset:0;display:flex;align-items:center;padding:0 14px;font-size:15px;white-space:nowrap;overflow:hidden}
@@ -128,14 +137,25 @@ main{max-width:1150px;margin:0 auto;padding:12px 16px calc(112px + env(safe-area
     </div>
   </div>
 </main>
-<div id="ex" class="p-material-thick"><input type="text" id="fn" class="p-field p-field-touch p-field-touch-filled" value="" aria-label="File name" placeholder="File name"><button type="button" id="dir" class="p-button p-button-touch p-button-secondary" title="Choose a save folder"><i class="ph-bold ph-folder-open" aria-hidden="true"></i><span id="dirn">Folder</span></button><button type="button" id="dirx" class="p-button p-button-touch p-button-borderless p-button-icon-only" aria-label="Use browser default download" title="Use browser default download" style="display:none"><i class="ph-bold ph-x" aria-hidden="true"></i></button><div id="pbar"><div id="pfill"></div><div id="pt">Ready</div></div><button class="p-button p-button-touch-large p-button-primary" id="exp" type="button" disabled><i class="ph-bold ph-export" aria-hidden="true"></i><span>Export MP4</span></button></div>
+<div id="ex" class="p-material-thick"><input type="text" id="fp" class="p-field p-field-touch p-field-touch-filled" value="" aria-label="Reporter" placeholder="Reporter"><input type="text" id="fn" class="p-field p-field-touch p-field-touch-filled" value="" aria-label="File name" placeholder="File name"><button type="button" id="dir" class="p-button p-button-touch p-button-secondary" title="Choose a save folder"><i class="ph-bold ph-folder-open" aria-hidden="true"></i><span id="dirn">Folder</span></button><button type="button" id="dirx" class="p-button p-button-touch p-button-borderless p-button-icon-only" aria-label="Use browser default download" title="Use browser default download" style="display:none"><i class="ph-bold ph-x" aria-hidden="true"></i></button><div id="pbar"><div id="pfill"></div><div id="pt">Ready</div></div><button class="p-button p-button-touch-large p-button-primary" id="exp" type="button" disabled><i class="ph-bold ph-export" aria-hidden="true"></i><span>Export MP4</span></button></div>
 <script src="https://cdn.jsdelivr.net/npm/mp4-muxer@5.1.3/build/mp4-muxer.js"></script>
 <script>
 const $=id=>document.getElementById(id);
 const ROW=64,W=1280,H=720,FPS=30,SR=48000;
 const clips=[],media={};
-let sel=-1,uid=0,dragIdx=-1,exporting=false,playing=false,gt=0,last=0,raf=0,curId=0,curIdx=-1;
+let sel=-1,uid=0,dragIdx=-1,dragIds=[],exporting=false,playing=false,gt=0,last=0,raf=0,curId=0,curIdx=-1;
 const ov={text:'',dur:0};
+let ms=new Set(),ancId=0;
+const selClips=()=>clips.filter(x=>ms.has(x.id));
+function fixMs(){
+  const ids=new Set(clips.map(x=>x.id));ms=new Set([...ms].filter(id=>ids.has(id)));
+  if(!clips.length){ms=new Set();return}
+  if(!ms.size||!clips[sel]||!ms.has(clips[sel].id)){
+    if(ms.size)sel=clips.findIndex(x=>ms.has(x.id));
+    else{sel=Math.min(Math.max(sel,0),clips.length-1);ms.add(clips[sel].id)}
+  }
+}
+function setSel(i){const c=clips[i];if(!c||(i===sel&&ms.has(c.id)))return;sel=i;ms=new Set([c.id]);ancId=c.id;markSel();buildTrim()}
 const len=c=>c.kind==='image'?c.dur:c.end-c.start;
 const fmt=s=>s.toFixed(1)+'s';
 const total=()=>clips.reduce((a,c)=>a+len(c),0);
@@ -184,7 +204,7 @@ async function addFiles(list){
       }catch(e){alert('Could not read '+f.name)}
     }
   }
-  if(sel<0&&clips.length){sel=0;gt=0}
+  if(sel<0&&clips.length){sel=0;gt=0}fixMs();
   renderList();buildTrim();if(clips.length)seek(gt);
 }
 
@@ -197,22 +217,31 @@ function dragSeek(e){
     const dx=e.clientX<r.left?r.left-e.clientX:e.clientX>r.right?e.clientX-r.right:0;
     const dy=e.clientY<r.top?r.top-e.clientY:e.clientY>r.bottom?e.clientY-r.bottom:0;
     const d=dx+dy*4;if(d<bd){bd=d;best=i;fr=Math.min(.999,Math.max(0,(e.clientX-r.left)/r.width))}});
-  if(sel!==best){sel=best;markSel();buildTrim()}
+  setSel(best);
   seek(startOf(best)+fr*len(clips[best]));
 }
 function renderList(){
   const L=$('list');L.innerHTML='';
   clips.forEach((c,i)=>{
     const d=document.createElement('div');
-    d.className='card'+(i===sel?' sel':'');d.draggable=true;d.title=c.file.name;
-    d.innerHTML='<div class="t"><b class="bl" title="This clip has blur"><i class="ph-bold ph-eye-slash"></i><span></span></b></div><span class="n">'+(i+1)+'</span><button class="x" title="Remove" aria-label="Remove clip"><i class="ph-bold ph-x"></i></button><div class="m"><span><i class="ph-bold '+(c.kind==='image'?'ph-image':'ph-film-strip')+'"></i></span><span></span></div>';
+    d.className='card'+(ms.has(c.id)?' sel':'');d.draggable=true;d.title=c.file.name;
+    d.innerHTML='<div class="t"><b class="bl" title="This clip has blur"><i class="ph-bold ph-eye-slash"></i><span></span></b><b class="ob"></b></div><span class="n">'+(i+1)+'</span><button class="x" title="Remove" aria-label="Remove clip"><i class="ph-bold ph-x"></i></button><div class="m"><span><i class="ph-bold '+(c.kind==='image'?'ph-image':'ph-film-strip')+'"></i></span><span></span></div>';
     d.querySelector('.t').style.backgroundImage='url("'+c.thumb+'")';
-    d.onclick=e=>{const r=d.getBoundingClientRect();const fr=Math.min(.999,Math.max(0,(e.clientX-r.left)/r.width));sel=i;markSel();buildTrim();seek(startOf(i)+fr*len(c))};
+    d.onclick=e=>{const r=d.getBoundingClientRect();const fr=Math.min(.999,Math.max(0,(e.clientX-r.left)/r.width));
+      if(e.shiftKey){const a=Math.max(0,clips.findIndex(x=>x.id===ancId)),lo=Math.min(a,i),hi=Math.max(a,i);ms=new Set(clips.slice(lo,hi+1).map(x=>x.id));sel=i;markSel();buildTrim();seek(startOf(i)+fr*len(c));return}
+      if(e.ctrlKey||e.metaKey){
+        if(ms.has(c.id)&&ms.size>1){ms.delete(c.id);if(sel!==i){markSel();buildTrim();return}sel=clips.findIndex(x=>ms.has(x.id));ancId=clips[sel].id;markSel();buildTrim();seek(startOf(sel));return}
+        ms.add(c.id);sel=i;ancId=c.id;markSel();buildTrim();seek(startOf(i)+fr*len(c));return}
+      ms=new Set([c.id]);ancId=c.id;sel=i;markSel();buildTrim();seek(startOf(i)+fr*len(c))};
     d.querySelector('.x').onclick=e=>{e.stopPropagation();removeClip(i)};
-    d.ondragstart=e=>{dragIdx=i;d.classList.add('dragging');e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain','x')};
-    d.ondragend=()=>{d.classList.remove('dragging');dragIdx=-1};
+    d.ondragstart=e=>{dragIdx=i;dragIds=ms.has(c.id)&&ms.size>1?[...ms]:[c.id];[...$('list').children].forEach((el,k)=>{if(k<clips.length&&dragIds.includes(clips[k].id))el.classList.add('dragging')});e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain','x')};
+    d.ondragend=()=>{[...$('list').children].forEach(el=>el.classList.remove('dragging'));dragIdx=-1};
     d.ondragover=e=>{if(dragIdx>=0)e.preventDefault()};
-    d.ondrop=e=>{if(dragIdx<0)return;e.preventDefault();e.stopPropagation();const cur=clips[sel];const [m]=clips.splice(dragIdx,1);clips.splice(i,0,m);sel=clips.indexOf(cur);dragIdx=-1;renderList();seek(gt)};
+    d.ondrop=e=>{if(dragIdx<0)return;e.preventDefault();e.stopPropagation();
+      const ids=new Set(dragIds);if(ids.has(c.id)){dragIdx=-1;return}
+      const cur=clips[sel],moving=clips.filter(x=>ids.has(x.id)),rest=clips.filter(x=>!ids.has(x.id));
+      let at=rest.indexOf(c);if(dragIdx<i)at++;rest.splice(at,0,...moving);clips.splice(0,clips.length,...rest);
+      sel=clips.indexOf(cur);dragIdx=-1;renderList();seek(gt)};
     L.appendChild(d);
   });
   const ph=document.createElement('div');ph.id='ph';
@@ -236,16 +265,28 @@ function markBl(){
   });
   $('sc').innerHTML=h;
 }
-function markSel(){[...$('list').children].forEach((r,i)=>{if(i<clips.length)r.classList.toggle('sel',i===sel)})}
+function markOv(){
+  let a=0;
+  clips.forEach((c,i)=>{
+    const d=$('list').children[i];const st=a;a+=len(c);if(!d)return;
+    let k='',lab='';
+    if(c.ovHide){k='h';lab='<i class="ph-bold ph-text-aa"></i>'}
+    else if(c.ovText){k='o';lab='<i class="ph-bold ph-text-aa"></i>'}
+    else if(ov.text&&(!(ov.dur>0)||st<ov.dur)){k='';lab='<i class="ph-bold ph-text-aa"></i>'}
+    const b=d.querySelector('.ob');d.classList.toggle('hasov',!!lab);
+    if(b){b.className='ob'+(k?' '+k:'');b.innerHTML=lab;b.title=k==='h'?'Overlay hidden on this clip':k==='o'?'This clip uses its own overlay text':'Overlay text applies to this clip'}
+  });
+}
+function markSel(){[...$('list').children].forEach((r,i)=>{if(i<clips.length)r.classList.toggle('sel',ms.has(clips[i].id))})}
 function refreshMeta(){
-  markBl();
+  markBl();markOv();
   [...$('list').children].forEach((r,i)=>{if(i<clips.length)r.querySelector('.m span:last-child').textContent=fmt(len(clips[i]))});
   updatePlayhead();
 }
 function removeClip(i){
   const c=clips[i];stop();delete media[c.id];
   if(curId===c.id){$('mh').textContent='Add media to begin';curId=0;curIdx=-1}
-  clips.splice(i,1);if(sel>=clips.length)sel=clips.length-1;
+  clips.splice(i,1);ms.delete(c.id);if(sel>=clips.length)sel=clips.length-1;fixMs();
   gt=Math.min(gt,total());renderList();buildTrim();if(clips.length)seek(gt);else updatePlayhead();
 }
 
@@ -300,14 +341,14 @@ function tick(ts){
   const T=total();
   if(gt>=T){gt=T;stop();updatePlayhead();return}
   const loc=locate(gt);
-  if(loc.i!==curIdx){sel=loc.i;markSel();buildTrim();enterClip(loc)}
+  if(loc.i!==curIdx){setSel(loc.i);enterClip(loc)}
   updatePlayhead();raf=requestAnimationFrame(tick);
 }
 function play(){
   if(!clips.length||exporting)return;
   if(gt>=total()-.05)gt=0;
   playing=true;last=performance.now();$('pb').classList.add('hide');
-  const loc=locate(gt);sel=loc.i;markSel();buildTrim();enterClip(loc);
+  const loc=locate(gt);setSel(loc.i);enterClip(loc);
   raf=requestAnimationFrame(tick);
 }
 function stop(){
@@ -316,7 +357,7 @@ function stop(){
   $('pb').classList.toggle('hide',!clips.length);
 }
 (()=>{const sk=$('sk');let on=0,was=0;
-  const at=e=>{const T=total();if(!T)return;const r=$('sl').getBoundingClientRect(),t=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width))*T,l=locate(t);if(sel!==l.i){sel=l.i;markSel();buildTrim()}seek(t)};
+  const at=e=>{const T=total();if(!T)return;const r=$('sl').getBoundingClientRect(),t=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width))*T,l=locate(t);setSel(l.i);seek(t)};
   sk.onpointerdown=e=>{if(!clips.length)return;e.preventDefault();e.stopPropagation();was=playing;stop();$('pb').classList.add('hide');on=1;sk.setPointerCapture(e.pointerId);at(e)};
   sk.onpointermove=e=>{if(on)at(e)};
   sk.onpointerup=sk.onpointercancel=()=>{if(!on)return;on=0;noClick=performance.now();if(was)play();else $('pb').classList.toggle('hide',!clips.length)};
@@ -330,21 +371,41 @@ function scrub(i,srcTime){
 }
 
 /* ---------- trim (single line) ---------- */
+const numIn=v=>{const n=parseFloat(String(v).replace(',','.'));return isFinite(n)?n:NaN};
 function buildTrim(){
   const b=$('tr'),c=clips[sel];syncOvSel();
   if(!c){b.innerHTML='<span class="mut">Select a clip to trim</span>';return}
+  const S=selClips();
+  if(S.length>1&&!S.every(x=>x.kind==='image')){b.innerHTML='<span class="mut">'+S.length+' clips selected – trim / duration disabled</span>';return}
   if(c.kind==='image'){
-    b.innerHTML='<label>Duration</label><input class="p-slider p-slider-touch" type="range" id="r1" min="1" max="20" step="0.5" value="'+c.dur+'" style="--p-slider-fill:'+((c.dur-1)/19*100)+'%"><output id="tv">'+fmt(c.dur)+'</output>';
-    $('r1').oninput=e=>{c.dur=+e.target.value;e.target.style.setProperty('--p-slider-fill',((c.dur-1)/19*100)+'%');$('tv').textContent=fmt(c.dur);refreshMeta()};
+    const G=S.length>1?S:[c];
+    const fill=d=>Math.max(0,Math.min(100,(d-1)/19*100));
+    b.innerHTML='<label>Duration'+(G.length>1?' ('+G.length+' clips)':'')+'</label><input class="p-slider p-slider-touch" type="range" id="r1" min="1" max="20" step="0.5" value="'+c.dur+'" style="--p-slider-fill:'+fill(c.dur)+'%"><span class="tg"><input class="p-field tin" type="text" inputmode="decimal" id="tv" value="'+c.dur.toFixed(1)+'" aria-label="Duration in seconds"><span class="u">s</span></span>';
+    $('r1').oninput=e=>{const d=+e.target.value;G.forEach(x=>x.dur=d);e.target.style.setProperty('--p-slider-fill',fill(d)+'%');$('tv').value=d.toFixed(1);refreshMeta()};
+    $('tv').onfocus=e=>e.target.select();
+    $('tv').onchange=e=>{const v=numIn(e.target.value);if(v!==v){e.target.value=c.dur.toFixed(1);return}
+      const d=Math.max(.5,Math.min(120,Math.round(v*10)/10));G.forEach(x=>x.dur=d);e.target.value=d.toFixed(1);
+      $('r1').value=d;$('r1').style.setProperty('--p-slider-fill',fill(d)+'%');refreshMeta()};
+    $('tv').onkeydown=e=>{if(e.key==='Enter')e.target.blur()};
     return;
   }
-  b.innerHTML='<label>Trim</label><div class="dual"><div class="tr"></div><div class="fill" id="fl"></div><input type="range" id="r1" min="0" max="'+c.total+'" step="0.1" value="'+c.start+'"><input type="range" id="r2" min="0" max="'+c.total+'" step="0.1" value="'+c.end+'"><div id="kfs"></div></div><output id="tv"></output>';
+  b.innerHTML='<label>Trim</label><div class="dual"><div class="tr"></div><div class="fill" id="fl"></div><input type="range" id="r1" min="0" max="'+c.total+'" step="0.1" value="'+c.start+'"><input type="range" id="r2" min="0" max="'+c.total+'" step="0.1" value="'+c.end+'"><div id="kfs"></div></div><span class="tg"><input class="p-field tin" type="text" inputmode="decimal" id="ts" aria-label="Trim start (seconds)"><span class="u">–</span><input class="p-field tin" type="text" inputmode="decimal" id="te" aria-label="Trim end (seconds)"><output id="tv" style="min-width:0"></output></span>';
   const upd=()=>{
     $('fl').style.left=(c.start/c.total*100)+'%';$('fl').style.width=((c.end-c.start)/c.total*100)+'%';
-    $('tv').textContent=fmt(c.start)+' – '+fmt(c.end)+' ('+fmt(len(c))+')';
+    $('tv').textContent='('+fmt(len(c))+')';
+    if(document.activeElement!==$('ts'))$('ts').value=c.start.toFixed(1);
+    if(document.activeElement!==$('te'))$('te').value=c.end.toFixed(1);
   };
   $('r1').oninput=e=>{c.start=Math.min(+e.target.value,c.end-.2);e.target.value=c.start;upd();refreshMeta();scrub(sel,c.start)};
   $('r2').oninput=e=>{c.end=Math.max(+e.target.value,c.start+.2);e.target.value=c.end;upd();refreshMeta();scrub(sel,Math.max(c.start,c.end-.05))};
+  $('ts').onfocus=$('te').onfocus=e=>e.target.select();
+  $('ts').onkeydown=$('te').onkeydown=e=>{if(e.key==='Enter')e.target.blur()};
+  $('ts').onchange=e=>{const v=numIn(e.target.value);
+    if(v===v){c.start=Math.max(0,Math.min(Math.round(v*10)/10,c.end-.2));$('r1').value=c.start;refreshMeta();scrub(sel,c.start)}
+    e.target.value=c.start.toFixed(1);upd()};
+  $('te').onchange=e=>{const v=numIn(e.target.value);
+    if(v===v){let n=Math.round(v*10)/10;if(n>=c.total-.05)n=c.total;c.end=Math.min(c.total,Math.max(n,c.start+.2));$('r2').value=c.end;refreshMeta();scrub(sel,Math.max(c.start,c.end-.05))}
+    e.target.value=c.end.toFixed(1);upd()};
   upd();markKf();
 }
 
@@ -426,24 +487,38 @@ function applyBlur(ctx,c,t){
 
 
 /* ---------- file name: clipboard preview, used on export when the box is blank ---------- */
-let clipTxt='';
-async function readClip(){
-  try{const t=(await navigator.clipboard.readText()||'').replace(/\s+/g,' ').trim();
-    clipTxt=t;$('fn').placeholder=t?t.slice(0,120):'File name'}catch(e){}
+let clipTxt='',fnAuto=true;
+async function readClip(force){
+  try{const t=(await navigator.clipboard.readText()||'').replace(/\s+/g,' ').trim().toUpperCase();
+    clipTxt=t;const f=$('fn');
+    if(t&&(fnAuto||!f.value)&&(force===true||document.activeElement!==f)){f.value=t.slice(0,120);fnAuto=true}}catch(e){}
 }
+const upIn=e=>{const el=e.target,a=el.selectionStart,b=el.selectionEnd;el.value=el.value.toUpperCase();try{el.setSelectionRange(a,b)}catch(_){}};
+$('fp').addEventListener('input',upIn);
+$('fn').addEventListener('input',e=>{fnAuto=false;upIn(e)});
+$('fn').addEventListener('click',()=>{if(fnAuto)$('fn').select()});
 ['focus','visibilitychange'].forEach(ev=>(ev==='focus'?window:document).addEventListener(ev,readClip));
-$('fn').addEventListener('focus',readClip);
+$('fn').addEventListener('focus',async()=>{await readClip(true);if(fnAuto)$('fn').select()});
 setInterval(()=>{if(document.hasFocus())readClip()},2000);
 readClip();
 
 /* ---------- overlay ---------- */
-$('otext').oninput=e=>{ov.text=e.target.value.trim();updatePlayhead()};
-$('oc').oninput=e=>{const c=clips[sel];if(c){c.ovText=e.target.value.trim();updatePlayhead()}};
-$('och').onchange=e=>{const c=clips[sel];if(c){c.ovHide=e.target.checked;updatePlayhead()}};
-function syncOvSel(){const c=clips[sel];$('oc').disabled=$('och').disabled=!c;$('oc').value=c?c.ovText||'':'';$('och').checked=!!(c&&c.ovHide);$('ocl').textContent=c?'Clip '+(sel+1)+' override':'Selected clip'}
+$('otext').oninput=e=>{ov.text=e.target.value.trim();markOv();updatePlayhead()};
+$('oc').oninput=e=>{const v=e.target.value.trim();selClips().forEach(x=>x.ovText=v);markOv();updatePlayhead()};
+$('och').onchange=e=>{const v=e.target.checked;selClips().forEach(x=>x.ovHide=v);markOv();updatePlayhead()};
+function syncOvSel(){
+  const S=selClips(),c=clips[sel],n=S.length;
+  $('oc').disabled=$('och').disabled=!c;
+  const t=S.map(x=>x.ovText||''),same=t.every(v=>v===t[0]);
+  $('oc').value=c&&same?t[0]:'';
+  $('oc').placeholder=n>1?(same?'Override for selected clips':'Mixed – type to set all selected'):'Override for this clip';
+  const h=S.filter(x=>x.ovHide).length;
+  $('och').checked=n>0&&h===n;$('och').indeterminate=h>0&&h<n;
+  $('ocl').textContent=!c?'Selected clip':n>1?n+' clips override':'Clip '+(sel+1)+' override';
+}
 function drawOv(ctx,text){
   ctx.font='700 28px "Red Hat Display","Segoe UI",Arial,Helvetica,sans-serif';
-  const L=text.split('\n'),lh=35,px=10,py=5,mw=W*.8,x=26;let y=26;
+  const L=text.split('\n'),lh=25.3,px=6,py=3.2,mw=W*.8,x=26;let y=26;
   ctx.textBaseline='middle';
   L.forEach(l=>{
     if(!l.trim()){y+=lh+py*2;return}
@@ -473,7 +548,7 @@ $('exp').onclick=async()=>{
   let dirOK=false;
   if(dirH){try{const o={mode:'readwrite'};dirOK=(await dirH.queryPermission(o))==='granted'||(await dirH.requestPermission(o))==='granted'}catch(e){}}
   if(!window.VideoEncoder||!window.Mp4Muxer){alert('This browser lacks WebCodecs. Please use a recent Chrome, Edge or Safari.');return}
-  exporting=true;stop();await readClip();const fnTxt=($('fn').value.trim()||clipTxt).slice(0,100);try{await document.fonts.load('700 28px "Red Hat Display"')}catch(e){}$('exp').disabled=true;$('ex').classList.add('busy');setP('Preparing…',0);
+  exporting=true;stop();await readClip();const fnPf=$('fp').value.trim().toUpperCase(),fnTxt=((fnPf?fnPf+' - ':'')+($('fn').value.trim().toUpperCase()||clipTxt).slice(0,100));try{await document.fonts.load('700 28px "Red Hat Display"')}catch(e){}$('exp').disabled=true;$('ex').classList.add('busy');setP('Preparing…',0);
   try{
     const T=total(),hasAudio=!!window.AudioEncoder;
     const muxer=new Mp4Muxer.Muxer({target:new Mp4Muxer.ArrayBufferTarget(),fastStart:'in-memory',
@@ -577,6 +652,11 @@ $('exp').onclick=async()=>{
   setTimeout(()=>{if(!exporting)$('ex').classList.remove('busy')},4000);
 };
 const typing=t=>t.tagName==='TEXTAREA'||(t.tagName==='INPUT'&&['text','number'].includes(t.type));
+addEventListener('keydown',e=>{
+  if(typing(e.target)||!clips.length)return;
+  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='a'){e.preventDefault();ms=new Set(clips.map(x=>x.id));markSel();buildTrim()}
+  else if(e.key==='Escape'&&ms.size>1){ms=new Set([clips[sel].id]);markSel();buildTrim()}
+});
 addEventListener('keydown',e=>{if(e.code==='Space'&&!typing(e.target)){e.preventDefault();playing?stop():play()}});
 addEventListener('keyup',e=>{if(e.code==='Space'&&!typing(e.target))e.preventDefault()});
 renderList();buildTrim();
