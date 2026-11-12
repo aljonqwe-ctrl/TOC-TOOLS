@@ -183,14 +183,11 @@
   .tool-launch svg{ width:14px; height:14px; transition:transform .15s ease; }
   .tool-card:hover .tool-launch svg{ transform:translateX(3px); }
 
-  /* Wide screens: Mini Movie Maker sits in its own 4th column, centered beside the first two rows */
+  /* Wide screens: 4-column grid, cards flow in normal order */
   @media (min-width:1060px){
     .grid{
       display:grid; grid-template-columns:repeat(4, 236px);
       justify-content:center; max-width:1040px;
-    }
-    .tool-card[data-src="mini-movie-maker.html"]{
-      grid-column:4; grid-row:1 / span 2; align-self:center;
     }
   }
 
